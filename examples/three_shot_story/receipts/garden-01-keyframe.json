@@ -1,0 +1,49 @@
+{
+  "artifact": {
+    "artifact_id": "garden-01-keyframe",
+    "attempts": [
+      {
+        "attempt": 1,
+        "finished_at": "2026-01-01T00:00:00Z",
+        "started_at": "2026-01-01T00:00:00Z",
+        "status": "success"
+      }
+    ],
+    "input_mode": "text+image",
+    "kind": "image",
+    "metadata": {
+      "asset_kind": "shot_keyframe",
+      "cache": "miss",
+      "height": 768,
+      "mock": true,
+      "shot_id": "garden-01",
+      "width": 1344
+    },
+    "ordered_references": [
+      {
+        "description": "Generated reusable style anchor",
+        "order": 1,
+        "path": "assets/style-bible.png",
+        "provenance": "image_generation",
+        "reference_id": "asset-style-bible",
+        "role": "style_bible",
+        "sha256": "01975d2e63cc5963087d230bb01a5f5371396518448713b938eaec0892c33c36",
+        "source_asset_id": "style-bible"
+      }
+    ],
+    "path": "assets/garden-01-keyframe.png",
+    "prompt": "Create a cinematic 16:9 keyframe for: A fictional young botanist in a moss-green coat plants a silver seed in a moonlit glasshouse; a red field notebook rests by her left hand.. Preserve the supplied identity, wardrobe, location, prop state, and visual style. Clear subject staging, readable action, natural light, no text, no watermark.",
+    "prompt_sha256": "f8f3f1f0f2193f04453fc59aeb72d5e64e537f9013e7c357d6bfd20826e4de3f",
+    "provenance": "image_generation",
+    "receipt": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "metadata": {},
+      "model": "mock-image-v1",
+      "operation": "image_generation",
+      "provider": "mock",
+      "request_sha256": "c4033a0a1fbf542846fcee045422ed48a5a68b06d9df36dbefec41f33d554300"
+    },
+    "sha256": "34f131f5409b598393e57a624d2d56ee01359e7786aa5a96b9eac3504df2daa9"
+  },
+  "cache_request_sha256": "f2a293a1302d7546a81b54f80e6f7da8175a4800b3dcc2383076240ed3ecbdc8"
+}

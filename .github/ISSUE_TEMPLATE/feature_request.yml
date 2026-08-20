@@ -1,0 +1,28 @@
+name: Feature request
+description: Propose a typed workflow, provider, or UI improvement.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What workflow is currently difficult or impossible?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed typed behavior
+      description: Include schema, cost gate, provenance, and recovery implications.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety boundaries
+      options:
+        - label: This does not require an LLM to emit arbitrary ComfyUI nodes or code.
+          required: true
+        - label: Any paid provider call remains explicitly gated.
+          required: true

@@ -1,0 +1,9 @@
+.git/
+.github/
+.venv/
+tests/
+docs/
+runs/
+output/
+*.mp4
+*.zip

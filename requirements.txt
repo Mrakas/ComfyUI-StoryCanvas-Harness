@@ -1,0 +1,8 @@
+pydantic>=2.8,<3
+httpx>=0.27,<1
+openai>=1.68,<3
+Pillow>=10.4,<13
+jinja2>=3.1,<4
+fastapi>=0.115,<1
+uvicorn>=0.30,<1
+typer>=0.12,<1

@@ -1,0 +1,114 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "style-bible",
+      "attempts": [
+        {
+          "attempt": 1,
+          "finished_at": "2026-01-01T00:00:00Z",
+          "started_at": "2026-01-01T00:00:00Z",
+          "status": "success"
+        }
+      ],
+      "input_mode": "text",
+      "kind": "image",
+      "metadata": {
+        "asset_kind": "style",
+        "cache": "miss",
+        "height": 768,
+        "mock": true,
+        "role": "style_bible",
+        "width": 1344
+      },
+      "ordered_references": [],
+      "path": "assets/style-bible.png",
+      "prompt": "A clean cinematic visual style anchor with coherent palette, natural volumetric lighting, production design, and no people, characters, logos, captions, or watermarks.",
+      "prompt_sha256": "5f251bab38834b1c1612ff521d25626380e5b1346fd8f538263fc54e7ad96c02",
+      "provenance": "image_generation",
+      "receipt": {
+        "created_at": "2026-01-01T00:00:00Z",
+        "metadata": {},
+        "model": "mock-image-v1",
+        "operation": "image_generation",
+        "provider": "mock",
+        "request_sha256": "eae4aab5b17105d3240811cfaf2b53fc162e234b8ffe8707e7ee9597b52750d3"
+      },
+      "sha256": "01975d2e63cc5963087d230bb01a5f5371396518448713b938eaec0892c33c36"
+    },
+    {
+      "artifact_id": "clockmaker-shot-keyframe",
+      "attempts": [
+        {
+          "attempt": 1,
+          "finished_at": "2026-01-01T00:00:00Z",
+          "started_at": "2026-01-01T00:00:00Z",
+          "status": "success"
+        }
+      ],
+      "input_mode": "text+image",
+      "kind": "image",
+      "metadata": {
+        "asset_kind": "shot_keyframe",
+        "cache": "miss",
+        "height": 768,
+        "mock": true,
+        "shot_id": "clockmaker-shot",
+        "width": 1344
+      },
+      "ordered_references": [
+        {
+          "description": "Generated reusable style anchor",
+          "order": 1,
+          "path": "assets/style-bible.png",
+          "provenance": "image_generation",
+          "reference_id": "asset-style-bible",
+          "role": "style_bible",
+          "sha256": "01975d2e63cc5963087d230bb01a5f5371396518448713b938eaec0892c33c36",
+          "source_asset_id": "style-bible"
+        }
+      ],
+      "path": "assets/clockmaker-shot-keyframe.png",
+      "prompt": "Create a cinematic 16:9 keyframe for: In a fictional amber-lit workshop, an elderly clockmaker tightens one brass screw on a palm-sized mechanical bird. The bird wakes, tests both wings, and lands beside a blue enamel teacup.. Preserve the supplied identity, wardrobe, location, prop state, and visual style. Clear subject staging, readable action, natural light, no text, no watermark.",
+      "prompt_sha256": "0dececbed15e4fca2a84bd07b42c0502ecbaa3121dcae5bfa33ee1d9418e7233",
+      "provenance": "image_generation",
+      "receipt": {
+        "created_at": "2026-01-01T00:00:00Z",
+        "metadata": {},
+        "model": "mock-image-v1",
+        "operation": "image_generation",
+        "provider": "mock",
+        "request_sha256": "6e915d64402432751521d7317fc86bf5a437452be1e78f4fae840b18f6b21b0b"
+      },
+      "sha256": "77c5ce41cd41fd47d1f6b085fec79c21f4d5883448bae0d88700c35c5e98947b"
+    }
+  ],
+  "call_counts": {
+    "fact_search": 0,
+    "fact_search_cache_hits": 0,
+    "image_cache_hits": 0,
+    "image_generation": 2,
+    "planning": 1,
+    "visual_search": 0,
+    "visual_search_cache_hits": 0
+  },
+  "errors": [],
+  "estimated_cost": {},
+  "finished_at": "2026-01-01T00:00:00Z",
+  "input_sha256": "34bfb1c6b8d7b6b22ab413b20b4f4717632110997cf8c152de804dbef332ed90",
+  "plan_id": "plan-34bfb1c6b8d7b6b2",
+  "policy": {
+    "allow_paid_video": false,
+    "max_concurrency": 2,
+    "max_image_calls": 2,
+    "max_search_calls": 8,
+    "max_shots": 1,
+    "max_video_calls": 0,
+    "mode": "assets",
+    "require_preview": true
+  },
+  "run_id": "run-f5aab9f821fcf08c",
+  "run_root": ".",
+  "schema_version": "storycanvas/v1",
+  "started_at": "2026-01-01T00:00:00Z",
+  "status": "complete"
+}

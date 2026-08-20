@@ -1,0 +1,2317 @@
+{
+  "config": {},
+  "definitions": {
+    "subgraphs": [
+      {
+        "category": "StoryCanvas/Shots",
+        "config": {},
+        "description": "Generated auditable Canvas-to-H3 workflow for garden-01.",
+        "extra": {
+          "storycanvas_shot_id": "garden-01",
+          "workflowRendererVersion": "LG"
+        },
+        "groups": [],
+        "id": "273e062c-9e4a-5899-8261-700adaf81bbd",
+        "inputNode": {
+          "bounding": [
+            0,
+            80,
+            140,
+            160
+          ],
+          "id": -1
+        },
+        "inputs": [
+          {
+            "id": "b918cdc2-998a-54ee-b4b9-c55e94ba99a2",
+            "linkIds": [
+              1002,
+              1007,
+              1009
+            ],
+            "name": "plan",
+            "pos": [
+              0,
+              120
+            ],
+            "type": "SC_PLAN"
+          },
+          {
+            "id": "a681871d-1da9-5185-96a2-4f8219e480c2",
+            "linkIds": [
+              1003,
+              1012
+            ],
+            "name": "policy",
+            "pos": [
+              0,
+              190
+            ],
+            "type": "SC_POLICY"
+          },
+          {
+            "id": "47cefc24-6d3d-5250-89b1-fae585c2f063",
+            "linkIds": [
+              1001,
+              1006
+            ],
+            "name": "ref_1_style_bible",
+            "pos": [
+              0,
+              260
+            ],
+            "type": "SC_ASSET"
+          }
+        ],
+        "links": [
+          {
+            "id": 1001,
+            "origin_id": -1,
+            "origin_slot": 2,
+            "target_id": 1001,
+            "target_slot": 1,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 1002,
+            "origin_id": -1,
+            "origin_slot": 0,
+            "target_id": 1002,
+            "target_slot": 0,
+            "type": "SC_PLAN"
+          },
+          {
+            "id": 1003,
+            "origin_id": -1,
+            "origin_slot": 1,
+            "target_id": 1002,
+            "target_slot": 1,
+            "type": "SC_POLICY"
+          },
+          {
+            "id": 1004,
+            "origin_id": 1001,
+            "origin_slot": 0,
+            "target_id": 1002,
+            "target_slot": 5,
+            "type": "SC_REF_PACK"
+          },
+          {
+            "id": 1005,
+            "origin_id": 1002,
+            "origin_slot": 0,
+            "target_id": 1003,
+            "target_slot": 1,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 1006,
+            "origin_id": -1,
+            "origin_slot": 2,
+            "target_id": 1003,
+            "target_slot": 2,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 1007,
+            "origin_id": -1,
+            "origin_slot": 0,
+            "target_id": 1004,
+            "target_slot": 0,
+            "type": "SC_PLAN"
+          },
+          {
+            "id": 1008,
+            "origin_id": 1003,
+            "origin_slot": 0,
+            "target_id": 1004,
+            "target_slot": 1,
+            "type": "SC_REF_PACK"
+          },
+          {
+            "id": 1009,
+            "origin_id": -1,
+            "origin_slot": 0,
+            "target_id": 1005,
+            "target_slot": 0,
+            "type": "SC_PLAN"
+          },
+          {
+            "id": 1010,
+            "origin_id": 1004,
+            "origin_slot": 0,
+            "target_id": 1005,
+            "target_slot": 1,
+            "type": "SC_H3_PROMPT"
+          },
+          {
+            "id": 1011,
+            "origin_id": 1003,
+            "origin_slot": 0,
+            "target_id": 1005,
+            "target_slot": 2,
+            "type": "SC_REF_PACK"
+          },
+          {
+            "id": 1012,
+            "origin_id": -1,
+            "origin_slot": 1,
+            "target_id": 1005,
+            "target_slot": 3,
+            "type": "SC_POLICY"
+          },
+          {
+            "id": 1013,
+            "origin_id": 1002,
+            "origin_slot": 0,
+            "target_id": -2,
+            "target_slot": 0,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 1014,
+            "origin_id": 1005,
+            "origin_slot": 0,
+            "target_id": -2,
+            "target_slot": 1,
+            "type": "SC_VIDEO"
+          }
+        ],
+        "name": "Shot 01 · Seed",
+        "nodes": [
+          {
+            "flags": {},
+            "id": 1001,
+            "inputs": [
+              {
+                "link": null,
+                "name": "reference_count",
+                "type": "INT",
+                "widget": {
+                  "name": "reference_count"
+                }
+              },
+              {
+                "link": 1001,
+                "name": "reference_1",
+                "type": "SC_ASSET"
+              }
+            ],
+            "mode": 0,
+            "order": 1000,
+            "outputs": [
+              {
+                "links": [
+                  1004
+                ],
+                "name": "reference_pack",
+                "type": "SC_REF_PACK"
+              }
+            ],
+            "pos": [
+              610,
+              180
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasReferencePack"
+            },
+            "size": [
+              300,
+              134
+            ],
+            "title": "Ordered Canvas References",
+            "type": "StoryCanvasReferencePack",
+            "widgets_values": [
+              1
+            ]
+          },
+          {
+            "flags": {},
+            "id": 1002,
+            "inputs": [
+              {
+                "link": 1002,
+                "name": "plan",
+                "type": "SC_PLAN"
+              },
+              {
+                "link": 1003,
+                "name": "policy",
+                "type": "SC_POLICY"
+              },
+              {
+                "link": null,
+                "name": "asset_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "asset_id"
+                }
+              },
+              {
+                "link": null,
+                "name": "shot_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "shot_id"
+                }
+              },
+              {
+                "link": null,
+                "name": "reference_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "reference_id"
+                }
+              },
+              {
+                "link": 1004,
+                "name": "reference_pack",
+                "shape": 7,
+                "type": "SC_REF_PACK"
+              }
+            ],
+            "mode": 0,
+            "order": 1001,
+            "outputs": [
+              {
+                "links": [
+                  1005,
+                  1013
+                ],
+                "name": "asset",
+                "type": "SC_ASSET"
+              }
+            ],
+            "pos": [
+              960,
+              150
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasReferenceAsset"
+            },
+            "size": [
+              300,
+              230
+            ],
+            "title": "Generate Final Canvas Keyframe",
+            "type": "StoryCanvasReferenceAsset",
+            "widgets_values": [
+              "garden-01-keyframe",
+              "garden-01",
+              ""
+            ]
+          },
+          {
+            "flags": {},
+            "id": 1003,
+            "inputs": [
+              {
+                "link": null,
+                "name": "reference_count",
+                "type": "INT",
+                "widget": {
+                  "name": "reference_count"
+                }
+              },
+              {
+                "link": 1005,
+                "name": "reference_1",
+                "type": "SC_ASSET"
+              },
+              {
+                "link": 1006,
+                "name": "reference_2",
+                "type": "SC_ASSET"
+              }
+            ],
+            "mode": 0,
+            "order": 1002,
+            "outputs": [
+              {
+                "links": [
+                  1008,
+                  1011
+                ],
+                "name": "reference_pack",
+                "type": "SC_REF_PACK"
+              }
+            ],
+            "pos": [
+              1260,
+              80
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasReferencePack"
+            },
+            "size": [
+              300,
+              158
+            ],
+            "title": "H3 Ordered References (Canvas First)",
+            "type": "StoryCanvasReferencePack",
+            "widgets_values": [
+              2
+            ]
+          },
+          {
+            "flags": {},
+            "id": 1004,
+            "inputs": [
+              {
+                "link": 1007,
+                "name": "plan",
+                "type": "SC_PLAN"
+              },
+              {
+                "link": 1008,
+                "name": "reference_pack",
+                "type": "SC_REF_PACK"
+              },
+              {
+                "link": null,
+                "name": "shot_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "shot_id"
+                }
+              }
+            ],
+            "mode": 0,
+            "order": 1003,
+            "outputs": [
+              {
+                "links": [
+                  1010
+                ],
+                "name": "h3_prompt",
+                "type": "SC_H3_PROMPT"
+              }
+            ],
+            "pos": [
+              1580,
+              80
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasH3PromptCompiler"
+            },
+            "size": [
+              300,
+              158
+            ],
+            "title": "Compile Six-Part H3 Prompt",
+            "type": "StoryCanvasH3PromptCompiler",
+            "widgets_values": [
+              "garden-01"
+            ]
+          },
+          {
+            "flags": {},
+            "id": 1005,
+            "inputs": [
+              {
+                "link": 1009,
+                "name": "plan",
+                "type": "SC_PLAN"
+              },
+              {
+                "link": 1010,
+                "name": "h3_prompt",
+                "type": "SC_H3_PROMPT"
+              },
+              {
+                "link": 1011,
+                "name": "reference_pack",
+                "type": "SC_REF_PACK"
+              },
+              {
+                "link": 1012,
+                "name": "policy",
+                "type": "SC_POLICY"
+              },
+              {
+                "link": null,
+                "name": "shot_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "shot_id"
+                }
+              }
+            ],
+            "mode": 0,
+            "order": 1004,
+            "outputs": [
+              {
+                "links": [
+                  1014
+                ],
+                "name": "video",
+                "type": "SC_VIDEO"
+              }
+            ],
+            "pos": [
+              1900,
+              130
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasMiniMaxH3API"
+            },
+            "size": [
+              300,
+              206
+            ],
+            "title": "MiniMax-H3 Video (Paid Gate)",
+            "type": "StoryCanvasMiniMaxH3API",
+            "widgets_values": [
+              "garden-01"
+            ]
+          }
+        ],
+        "outputNode": {
+          "bounding": [
+            2250,
+            160,
+            140,
+            120
+          ],
+          "id": -2
+        },
+        "outputs": [
+          {
+            "id": "4a52844c-a83e-570b-b90d-1147af22f94d",
+            "linkIds": [
+              1013
+            ],
+            "name": "keyframe",
+            "pos": [
+              1650,
+              200
+            ],
+            "type": "SC_ASSET"
+          },
+          {
+            "id": "3e86e898-b2d4-519d-ad39-e3e65ba19db2",
+            "linkIds": [
+              1014
+            ],
+            "name": "video",
+            "pos": [
+              1650,
+              300
+            ],
+            "type": "SC_VIDEO"
+          }
+        ],
+        "revision": 0,
+        "state": {
+          "lastGroupId": 0,
+          "lastLinkId": 1014,
+          "lastNodeId": 1005,
+          "lastRerouteId": 0
+        },
+        "version": 1,
+        "widgets": []
+      },
+      {
+        "category": "StoryCanvas/Shots",
+        "config": {},
+        "description": "Generated auditable Canvas-to-H3 workflow for garden-02.",
+        "extra": {
+          "storycanvas_shot_id": "garden-02",
+          "workflowRendererVersion": "LG"
+        },
+        "groups": [],
+        "id": "1b0fc49e-55bb-58dc-b24e-62eacd7f2604",
+        "inputNode": {
+          "bounding": [
+            0,
+            80,
+            140,
+            160
+          ],
+          "id": -3
+        },
+        "inputs": [
+          {
+            "id": "e5d9dcf4-ace4-5143-9d3f-8a1d97fd4128",
+            "linkIds": [
+              2003,
+              2009,
+              2011
+            ],
+            "name": "plan",
+            "pos": [
+              0,
+              120
+            ],
+            "type": "SC_PLAN"
+          },
+          {
+            "id": "06207877-6396-5424-911b-19e11c61e33f",
+            "linkIds": [
+              2004,
+              2014
+            ],
+            "name": "policy",
+            "pos": [
+              0,
+              190
+            ],
+            "type": "SC_POLICY"
+          },
+          {
+            "id": "76e54b39-fe95-5adf-b142-329898d6914f",
+            "linkIds": [
+              2001,
+              2007
+            ],
+            "name": "ref_1_previous_shot",
+            "pos": [
+              0,
+              260
+            ],
+            "type": "SC_ASSET"
+          },
+          {
+            "id": "c67b3610-9a04-5215-b711-bfea071529d4",
+            "linkIds": [
+              2002,
+              2008
+            ],
+            "name": "ref_2_style_bible",
+            "pos": [
+              0,
+              330
+            ],
+            "type": "SC_ASSET"
+          }
+        ],
+        "links": [
+          {
+            "id": 2001,
+            "origin_id": -3,
+            "origin_slot": 2,
+            "target_id": 2001,
+            "target_slot": 1,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 2002,
+            "origin_id": -3,
+            "origin_slot": 3,
+            "target_id": 2001,
+            "target_slot": 2,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 2003,
+            "origin_id": -3,
+            "origin_slot": 0,
+            "target_id": 2002,
+            "target_slot": 0,
+            "type": "SC_PLAN"
+          },
+          {
+            "id": 2004,
+            "origin_id": -3,
+            "origin_slot": 1,
+            "target_id": 2002,
+            "target_slot": 1,
+            "type": "SC_POLICY"
+          },
+          {
+            "id": 2005,
+            "origin_id": 2001,
+            "origin_slot": 0,
+            "target_id": 2002,
+            "target_slot": 5,
+            "type": "SC_REF_PACK"
+          },
+          {
+            "id": 2006,
+            "origin_id": 2002,
+            "origin_slot": 0,
+            "target_id": 2003,
+            "target_slot": 1,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 2007,
+            "origin_id": -3,
+            "origin_slot": 2,
+            "target_id": 2003,
+            "target_slot": 2,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 2008,
+            "origin_id": -3,
+            "origin_slot": 3,
+            "target_id": 2003,
+            "target_slot": 3,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 2009,
+            "origin_id": -3,
+            "origin_slot": 0,
+            "target_id": 2004,
+            "target_slot": 0,
+            "type": "SC_PLAN"
+          },
+          {
+            "id": 2010,
+            "origin_id": 2003,
+            "origin_slot": 0,
+            "target_id": 2004,
+            "target_slot": 1,
+            "type": "SC_REF_PACK"
+          },
+          {
+            "id": 2011,
+            "origin_id": -3,
+            "origin_slot": 0,
+            "target_id": 2005,
+            "target_slot": 0,
+            "type": "SC_PLAN"
+          },
+          {
+            "id": 2012,
+            "origin_id": 2004,
+            "origin_slot": 0,
+            "target_id": 2005,
+            "target_slot": 1,
+            "type": "SC_H3_PROMPT"
+          },
+          {
+            "id": 2013,
+            "origin_id": 2003,
+            "origin_slot": 0,
+            "target_id": 2005,
+            "target_slot": 2,
+            "type": "SC_REF_PACK"
+          },
+          {
+            "id": 2014,
+            "origin_id": -3,
+            "origin_slot": 1,
+            "target_id": 2005,
+            "target_slot": 3,
+            "type": "SC_POLICY"
+          },
+          {
+            "id": 2015,
+            "origin_id": 2002,
+            "origin_slot": 0,
+            "target_id": -4,
+            "target_slot": 0,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 2016,
+            "origin_id": 2005,
+            "origin_slot": 0,
+            "target_id": -4,
+            "target_slot": 1,
+            "type": "SC_VIDEO"
+          }
+        ],
+        "name": "Shot 02 · Bloom",
+        "nodes": [
+          {
+            "flags": {},
+            "id": 2001,
+            "inputs": [
+              {
+                "link": null,
+                "name": "reference_count",
+                "type": "INT",
+                "widget": {
+                  "name": "reference_count"
+                }
+              },
+              {
+                "link": 2001,
+                "name": "reference_1",
+                "type": "SC_ASSET"
+              },
+              {
+                "link": 2002,
+                "name": "reference_2",
+                "type": "SC_ASSET"
+              }
+            ],
+            "mode": 0,
+            "order": 2000,
+            "outputs": [
+              {
+                "links": [
+                  2005
+                ],
+                "name": "reference_pack",
+                "type": "SC_REF_PACK"
+              }
+            ],
+            "pos": [
+              610,
+              180
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasReferencePack"
+            },
+            "size": [
+              300,
+              158
+            ],
+            "title": "Ordered Canvas References",
+            "type": "StoryCanvasReferencePack",
+            "widgets_values": [
+              2
+            ]
+          },
+          {
+            "flags": {},
+            "id": 2002,
+            "inputs": [
+              {
+                "link": 2003,
+                "name": "plan",
+                "type": "SC_PLAN"
+              },
+              {
+                "link": 2004,
+                "name": "policy",
+                "type": "SC_POLICY"
+              },
+              {
+                "link": null,
+                "name": "asset_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "asset_id"
+                }
+              },
+              {
+                "link": null,
+                "name": "shot_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "shot_id"
+                }
+              },
+              {
+                "link": null,
+                "name": "reference_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "reference_id"
+                }
+              },
+              {
+                "link": 2005,
+                "name": "reference_pack",
+                "shape": 7,
+                "type": "SC_REF_PACK"
+              }
+            ],
+            "mode": 0,
+            "order": 2001,
+            "outputs": [
+              {
+                "links": [
+                  2006,
+                  2015
+                ],
+                "name": "asset",
+                "type": "SC_ASSET"
+              }
+            ],
+            "pos": [
+              960,
+              150
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasReferenceAsset"
+            },
+            "size": [
+              300,
+              230
+            ],
+            "title": "Generate Final Canvas Keyframe",
+            "type": "StoryCanvasReferenceAsset",
+            "widgets_values": [
+              "garden-02-keyframe",
+              "garden-02",
+              ""
+            ]
+          },
+          {
+            "flags": {},
+            "id": 2003,
+            "inputs": [
+              {
+                "link": null,
+                "name": "reference_count",
+                "type": "INT",
+                "widget": {
+                  "name": "reference_count"
+                }
+              },
+              {
+                "link": 2006,
+                "name": "reference_1",
+                "type": "SC_ASSET"
+              },
+              {
+                "link": 2007,
+                "name": "reference_2",
+                "type": "SC_ASSET"
+              },
+              {
+                "link": 2008,
+                "name": "reference_3",
+                "type": "SC_ASSET"
+              }
+            ],
+            "mode": 0,
+            "order": 2002,
+            "outputs": [
+              {
+                "links": [
+                  2010,
+                  2013
+                ],
+                "name": "reference_pack",
+                "type": "SC_REF_PACK"
+              }
+            ],
+            "pos": [
+              1260,
+              80
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasReferencePack"
+            },
+            "size": [
+              300,
+              182
+            ],
+            "title": "H3 Ordered References (Canvas First)",
+            "type": "StoryCanvasReferencePack",
+            "widgets_values": [
+              3
+            ]
+          },
+          {
+            "flags": {},
+            "id": 2004,
+            "inputs": [
+              {
+                "link": 2009,
+                "name": "plan",
+                "type": "SC_PLAN"
+              },
+              {
+                "link": 2010,
+                "name": "reference_pack",
+                "type": "SC_REF_PACK"
+              },
+              {
+                "link": null,
+                "name": "shot_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "shot_id"
+                }
+              }
+            ],
+            "mode": 0,
+            "order": 2003,
+            "outputs": [
+              {
+                "links": [
+                  2012
+                ],
+                "name": "h3_prompt",
+                "type": "SC_H3_PROMPT"
+              }
+            ],
+            "pos": [
+              1580,
+              80
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasH3PromptCompiler"
+            },
+            "size": [
+              300,
+              158
+            ],
+            "title": "Compile Six-Part H3 Prompt",
+            "type": "StoryCanvasH3PromptCompiler",
+            "widgets_values": [
+              "garden-02"
+            ]
+          },
+          {
+            "flags": {},
+            "id": 2005,
+            "inputs": [
+              {
+                "link": 2011,
+                "name": "plan",
+                "type": "SC_PLAN"
+              },
+              {
+                "link": 2012,
+                "name": "h3_prompt",
+                "type": "SC_H3_PROMPT"
+              },
+              {
+                "link": 2013,
+                "name": "reference_pack",
+                "type": "SC_REF_PACK"
+              },
+              {
+                "link": 2014,
+                "name": "policy",
+                "type": "SC_POLICY"
+              },
+              {
+                "link": null,
+                "name": "shot_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "shot_id"
+                }
+              }
+            ],
+            "mode": 0,
+            "order": 2004,
+            "outputs": [
+              {
+                "links": [
+                  2016
+                ],
+                "name": "video",
+                "type": "SC_VIDEO"
+              }
+            ],
+            "pos": [
+              1900,
+              130
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasMiniMaxH3API"
+            },
+            "size": [
+              300,
+              206
+            ],
+            "title": "MiniMax-H3 Video (Paid Gate)",
+            "type": "StoryCanvasMiniMaxH3API",
+            "widgets_values": [
+              "garden-02"
+            ]
+          }
+        ],
+        "outputNode": {
+          "bounding": [
+            2250,
+            160,
+            140,
+            120
+          ],
+          "id": -4
+        },
+        "outputs": [
+          {
+            "id": "a2388359-76f0-522e-947b-d785c3b869bf",
+            "linkIds": [
+              2015
+            ],
+            "name": "keyframe",
+            "pos": [
+              1650,
+              200
+            ],
+            "type": "SC_ASSET"
+          },
+          {
+            "id": "a16e2d3a-239c-58b4-9f36-954c03acb94e",
+            "linkIds": [
+              2016
+            ],
+            "name": "video",
+            "pos": [
+              1650,
+              300
+            ],
+            "type": "SC_VIDEO"
+          }
+        ],
+        "revision": 0,
+        "state": {
+          "lastGroupId": 0,
+          "lastLinkId": 2016,
+          "lastNodeId": 2005,
+          "lastRerouteId": 0
+        },
+        "version": 1,
+        "widgets": []
+      },
+      {
+        "category": "StoryCanvas/Shots",
+        "config": {},
+        "description": "Generated auditable Canvas-to-H3 workflow for garden-03.",
+        "extra": {
+          "storycanvas_shot_id": "garden-03",
+          "workflowRendererVersion": "LG"
+        },
+        "groups": [],
+        "id": "a648d613-e321-55d3-997c-08d4062b1702",
+        "inputNode": {
+          "bounding": [
+            0,
+            80,
+            140,
+            160
+          ],
+          "id": -5
+        },
+        "inputs": [
+          {
+            "id": "53a5cf15-75aa-51e5-a3f1-8e6d9a1f4947",
+            "linkIds": [
+              3003,
+              3009,
+              3011
+            ],
+            "name": "plan",
+            "pos": [
+              0,
+              120
+            ],
+            "type": "SC_PLAN"
+          },
+          {
+            "id": "c079a9bc-c9c1-55f6-8bd4-b4baf3fce6a0",
+            "linkIds": [
+              3004,
+              3014
+            ],
+            "name": "policy",
+            "pos": [
+              0,
+              190
+            ],
+            "type": "SC_POLICY"
+          },
+          {
+            "id": "cffbb867-68a1-52a3-af99-bc0eb60f584a",
+            "linkIds": [
+              3001,
+              3007
+            ],
+            "name": "ref_1_previous_shot",
+            "pos": [
+              0,
+              260
+            ],
+            "type": "SC_ASSET"
+          },
+          {
+            "id": "f0727ebd-6758-58cf-a982-42ed45c2050e",
+            "linkIds": [
+              3002,
+              3008
+            ],
+            "name": "ref_2_style_bible",
+            "pos": [
+              0,
+              330
+            ],
+            "type": "SC_ASSET"
+          }
+        ],
+        "links": [
+          {
+            "id": 3001,
+            "origin_id": -5,
+            "origin_slot": 2,
+            "target_id": 3001,
+            "target_slot": 1,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 3002,
+            "origin_id": -5,
+            "origin_slot": 3,
+            "target_id": 3001,
+            "target_slot": 2,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 3003,
+            "origin_id": -5,
+            "origin_slot": 0,
+            "target_id": 3002,
+            "target_slot": 0,
+            "type": "SC_PLAN"
+          },
+          {
+            "id": 3004,
+            "origin_id": -5,
+            "origin_slot": 1,
+            "target_id": 3002,
+            "target_slot": 1,
+            "type": "SC_POLICY"
+          },
+          {
+            "id": 3005,
+            "origin_id": 3001,
+            "origin_slot": 0,
+            "target_id": 3002,
+            "target_slot": 5,
+            "type": "SC_REF_PACK"
+          },
+          {
+            "id": 3006,
+            "origin_id": 3002,
+            "origin_slot": 0,
+            "target_id": 3003,
+            "target_slot": 1,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 3007,
+            "origin_id": -5,
+            "origin_slot": 2,
+            "target_id": 3003,
+            "target_slot": 2,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 3008,
+            "origin_id": -5,
+            "origin_slot": 3,
+            "target_id": 3003,
+            "target_slot": 3,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 3009,
+            "origin_id": -5,
+            "origin_slot": 0,
+            "target_id": 3004,
+            "target_slot": 0,
+            "type": "SC_PLAN"
+          },
+          {
+            "id": 3010,
+            "origin_id": 3003,
+            "origin_slot": 0,
+            "target_id": 3004,
+            "target_slot": 1,
+            "type": "SC_REF_PACK"
+          },
+          {
+            "id": 3011,
+            "origin_id": -5,
+            "origin_slot": 0,
+            "target_id": 3005,
+            "target_slot": 0,
+            "type": "SC_PLAN"
+          },
+          {
+            "id": 3012,
+            "origin_id": 3004,
+            "origin_slot": 0,
+            "target_id": 3005,
+            "target_slot": 1,
+            "type": "SC_H3_PROMPT"
+          },
+          {
+            "id": 3013,
+            "origin_id": 3003,
+            "origin_slot": 0,
+            "target_id": 3005,
+            "target_slot": 2,
+            "type": "SC_REF_PACK"
+          },
+          {
+            "id": 3014,
+            "origin_id": -5,
+            "origin_slot": 1,
+            "target_id": 3005,
+            "target_slot": 3,
+            "type": "SC_POLICY"
+          },
+          {
+            "id": 3015,
+            "origin_id": 3002,
+            "origin_slot": 0,
+            "target_id": -6,
+            "target_slot": 0,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 3016,
+            "origin_id": 3005,
+            "origin_slot": 0,
+            "target_id": -6,
+            "target_slot": 1,
+            "type": "SC_VIDEO"
+          }
+        ],
+        "name": "Shot 03 · Release",
+        "nodes": [
+          {
+            "flags": {},
+            "id": 3001,
+            "inputs": [
+              {
+                "link": null,
+                "name": "reference_count",
+                "type": "INT",
+                "widget": {
+                  "name": "reference_count"
+                }
+              },
+              {
+                "link": 3001,
+                "name": "reference_1",
+                "type": "SC_ASSET"
+              },
+              {
+                "link": 3002,
+                "name": "reference_2",
+                "type": "SC_ASSET"
+              }
+            ],
+            "mode": 0,
+            "order": 3000,
+            "outputs": [
+              {
+                "links": [
+                  3005
+                ],
+                "name": "reference_pack",
+                "type": "SC_REF_PACK"
+              }
+            ],
+            "pos": [
+              610,
+              180
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasReferencePack"
+            },
+            "size": [
+              300,
+              158
+            ],
+            "title": "Ordered Canvas References",
+            "type": "StoryCanvasReferencePack",
+            "widgets_values": [
+              2
+            ]
+          },
+          {
+            "flags": {},
+            "id": 3002,
+            "inputs": [
+              {
+                "link": 3003,
+                "name": "plan",
+                "type": "SC_PLAN"
+              },
+              {
+                "link": 3004,
+                "name": "policy",
+                "type": "SC_POLICY"
+              },
+              {
+                "link": null,
+                "name": "asset_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "asset_id"
+                }
+              },
+              {
+                "link": null,
+                "name": "shot_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "shot_id"
+                }
+              },
+              {
+                "link": null,
+                "name": "reference_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "reference_id"
+                }
+              },
+              {
+                "link": 3005,
+                "name": "reference_pack",
+                "shape": 7,
+                "type": "SC_REF_PACK"
+              }
+            ],
+            "mode": 0,
+            "order": 3001,
+            "outputs": [
+              {
+                "links": [
+                  3006,
+                  3015
+                ],
+                "name": "asset",
+                "type": "SC_ASSET"
+              }
+            ],
+            "pos": [
+              960,
+              150
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasReferenceAsset"
+            },
+            "size": [
+              300,
+              230
+            ],
+            "title": "Generate Final Canvas Keyframe",
+            "type": "StoryCanvasReferenceAsset",
+            "widgets_values": [
+              "garden-03-keyframe",
+              "garden-03",
+              ""
+            ]
+          },
+          {
+            "flags": {},
+            "id": 3003,
+            "inputs": [
+              {
+                "link": null,
+                "name": "reference_count",
+                "type": "INT",
+                "widget": {
+                  "name": "reference_count"
+                }
+              },
+              {
+                "link": 3006,
+                "name": "reference_1",
+                "type": "SC_ASSET"
+              },
+              {
+                "link": 3007,
+                "name": "reference_2",
+                "type": "SC_ASSET"
+              },
+              {
+                "link": 3008,
+                "name": "reference_3",
+                "type": "SC_ASSET"
+              }
+            ],
+            "mode": 0,
+            "order": 3002,
+            "outputs": [
+              {
+                "links": [
+                  3010,
+                  3013
+                ],
+                "name": "reference_pack",
+                "type": "SC_REF_PACK"
+              }
+            ],
+            "pos": [
+              1260,
+              80
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasReferencePack"
+            },
+            "size": [
+              300,
+              182
+            ],
+            "title": "H3 Ordered References (Canvas First)",
+            "type": "StoryCanvasReferencePack",
+            "widgets_values": [
+              3
+            ]
+          },
+          {
+            "flags": {},
+            "id": 3004,
+            "inputs": [
+              {
+                "link": 3009,
+                "name": "plan",
+                "type": "SC_PLAN"
+              },
+              {
+                "link": 3010,
+                "name": "reference_pack",
+                "type": "SC_REF_PACK"
+              },
+              {
+                "link": null,
+                "name": "shot_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "shot_id"
+                }
+              }
+            ],
+            "mode": 0,
+            "order": 3003,
+            "outputs": [
+              {
+                "links": [
+                  3012
+                ],
+                "name": "h3_prompt",
+                "type": "SC_H3_PROMPT"
+              }
+            ],
+            "pos": [
+              1580,
+              80
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasH3PromptCompiler"
+            },
+            "size": [
+              300,
+              158
+            ],
+            "title": "Compile Six-Part H3 Prompt",
+            "type": "StoryCanvasH3PromptCompiler",
+            "widgets_values": [
+              "garden-03"
+            ]
+          },
+          {
+            "flags": {},
+            "id": 3005,
+            "inputs": [
+              {
+                "link": 3011,
+                "name": "plan",
+                "type": "SC_PLAN"
+              },
+              {
+                "link": 3012,
+                "name": "h3_prompt",
+                "type": "SC_H3_PROMPT"
+              },
+              {
+                "link": 3013,
+                "name": "reference_pack",
+                "type": "SC_REF_PACK"
+              },
+              {
+                "link": 3014,
+                "name": "policy",
+                "type": "SC_POLICY"
+              },
+              {
+                "link": null,
+                "name": "shot_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "shot_id"
+                }
+              }
+            ],
+            "mode": 0,
+            "order": 3004,
+            "outputs": [
+              {
+                "links": [
+                  3016
+                ],
+                "name": "video",
+                "type": "SC_VIDEO"
+              }
+            ],
+            "pos": [
+              1900,
+              130
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasMiniMaxH3API"
+            },
+            "size": [
+              300,
+              206
+            ],
+            "title": "MiniMax-H3 Video (Paid Gate)",
+            "type": "StoryCanvasMiniMaxH3API",
+            "widgets_values": [
+              "garden-03"
+            ]
+          }
+        ],
+        "outputNode": {
+          "bounding": [
+            2250,
+            160,
+            140,
+            120
+          ],
+          "id": -6
+        },
+        "outputs": [
+          {
+            "id": "01ae9423-9acf-5eb4-9d06-c8f161b556d3",
+            "linkIds": [
+              3015
+            ],
+            "name": "keyframe",
+            "pos": [
+              1650,
+              200
+            ],
+            "type": "SC_ASSET"
+          },
+          {
+            "id": "6374549b-3ecb-5087-901c-754597b27f96",
+            "linkIds": [
+              3016
+            ],
+            "name": "video",
+            "pos": [
+              1650,
+              300
+            ],
+            "type": "SC_VIDEO"
+          }
+        ],
+        "revision": 0,
+        "state": {
+          "lastGroupId": 0,
+          "lastLinkId": 3016,
+          "lastNodeId": 3005,
+          "lastRerouteId": 0
+        },
+        "version": 1,
+        "widgets": []
+      }
+    ]
+  },
+  "extra": {
+    "storycanvas": {
+      "plan_id": "plan-458bc8343e597638",
+      "schema_version": "storycanvas/v1",
+      "shot_count": 3,
+      "story_id": "moon-garden"
+    },
+    "workflowRendererVersion": "LG"
+  },
+  "groups": [
+    {
+      "bounding": [
+        900,
+        0,
+        430,
+        360
+      ],
+      "color": "#275D6B",
+      "flags": {},
+      "font_size": 22,
+      "title": "Shared Visual Bible & Reusable Assets"
+    },
+    {
+      "bounding": [
+        1360,
+        100,
+        1200,
+        620
+      ],
+      "color": "#6A4C93",
+      "flags": {},
+      "font_size": 22,
+      "title": "Expandable Shot Subgraphs"
+    }
+  ],
+  "last_link_id": 23,
+  "last_node_id": 9,
+  "links": [
+    [
+      1,
+      1,
+      0,
+      3,
+      0,
+      "SC_INPUT"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      1,
+      "SC_POLICY"
+    ],
+    [
+      3,
+      3,
+      0,
+      4,
+      0,
+      "SC_PLAN"
+    ],
+    [
+      4,
+      2,
+      0,
+      4,
+      1,
+      "SC_POLICY"
+    ],
+    [
+      5,
+      3,
+      0,
+      5,
+      0,
+      "SC_PLAN"
+    ],
+    [
+      6,
+      2,
+      0,
+      5,
+      1,
+      "SC_POLICY"
+    ],
+    [
+      7,
+      4,
+      0,
+      5,
+      2,
+      "SC_ASSET"
+    ],
+    [
+      8,
+      3,
+      0,
+      6,
+      0,
+      "SC_PLAN"
+    ],
+    [
+      9,
+      2,
+      0,
+      6,
+      1,
+      "SC_POLICY"
+    ],
+    [
+      10,
+      5,
+      0,
+      6,
+      2,
+      "SC_ASSET"
+    ],
+    [
+      11,
+      4,
+      0,
+      6,
+      3,
+      "SC_ASSET"
+    ],
+    [
+      12,
+      3,
+      0,
+      7,
+      0,
+      "SC_PLAN"
+    ],
+    [
+      13,
+      2,
+      0,
+      7,
+      1,
+      "SC_POLICY"
+    ],
+    [
+      14,
+      6,
+      0,
+      7,
+      2,
+      "SC_ASSET"
+    ],
+    [
+      15,
+      4,
+      0,
+      7,
+      3,
+      "SC_ASSET"
+    ],
+    [
+      16,
+      3,
+      0,
+      8,
+      0,
+      "SC_PLAN"
+    ],
+    [
+      17,
+      2,
+      0,
+      8,
+      1,
+      "SC_POLICY"
+    ],
+    [
+      18,
+      5,
+      1,
+      8,
+      3,
+      "SC_VIDEO"
+    ],
+    [
+      19,
+      6,
+      1,
+      8,
+      4,
+      "SC_VIDEO"
+    ],
+    [
+      20,
+      7,
+      1,
+      8,
+      5,
+      "SC_VIDEO"
+    ],
+    [
+      21,
+      3,
+      0,
+      9,
+      0,
+      "SC_PLAN"
+    ],
+    [
+      22,
+      2,
+      0,
+      9,
+      1,
+      "SC_POLICY"
+    ],
+    [
+      23,
+      8,
+      0,
+      9,
+      2,
+      "SC_VIDEO"
+    ]
+  ],
+  "nodes": [
+    {
+      "flags": {},
+      "id": 1,
+      "inputs": [
+        {
+          "link": null,
+          "name": "input_kind",
+          "type": "STRING"
+        },
+        {
+          "link": null,
+          "name": "payload_json",
+          "type": "STRING"
+        }
+      ],
+      "mode": 0,
+      "order": 0,
+      "outputs": [
+        {
+          "links": [
+            1
+          ],
+          "name": "story_input",
+          "type": "SC_INPUT"
+        }
+      ],
+      "pos": [
+        80,
+        120
+      ],
+      "properties": {
+        "Node name for S&R": "StoryCanvasInput"
+      },
+      "size": [
+        300,
+        180
+      ],
+      "title": "StoryCanvas Input",
+      "type": "StoryCanvasInput",
+      "widgets_values": [
+        "story",
+        "{\"metadata\":{},\"references\":[],\"shots\":[{\"metadata\":{},\"prompt\":\"A fictional young botanist in a moss-green coat plants a silver seed in a moonlit glasshouse; a red field notebook rests by her left hand.\",\"references\":[],\"shot_id\":\"garden-01\",\"title\":\"Seed\"},{\"metadata\":{},\"prompt\":\"In the same glasshouse, the same botanist opens the red notebook as the silver seed grows into a luminous blue vine around the same clay pot.\",\"references\":[],\"shot_id\":\"garden-02\",\"title\":\"Bloom\"},{\"metadata\":{},\"prompt\":\"The same botanist raises the same clay pot; the blue vine releases three glowing moths that circle her while the open red notebook remains on the bench.\",\"references\":[],\"shot_id\":\"garden-03\",\"title\":\"Release\"}],\"story_id\":\"moon-garden\",\"title\":\"The Moon Garden\"}"
+      ]
+    },
+    {
+      "flags": {},
+      "id": 2,
+      "inputs": [
+        {
+          "link": null,
+          "name": "policy_json",
+          "type": "STRING"
+        }
+      ],
+      "mode": 0,
+      "order": 1,
+      "outputs": [
+        {
+          "links": [
+            2,
+            4,
+            6,
+            9,
+            13,
+            17,
+            22
+          ],
+          "name": "policy",
+          "type": "SC_POLICY"
+        }
+      ],
+      "pos": [
+        80,
+        420
+      ],
+      "properties": {
+        "Node name for S&R": "StoryCanvasExecutionPolicy"
+      },
+      "size": [
+        300,
+        180
+      ],
+      "title": "Execution Policy · Preview Before Spend",
+      "type": "StoryCanvasExecutionPolicy",
+      "widgets_values": [
+        "{\"allow_paid_video\":false,\"max_concurrency\":4,\"max_image_calls\":4,\"max_search_calls\":8,\"max_shots\":3,\"max_video_calls\":0,\"mode\":\"assets\",\"require_preview\":true}"
+      ]
+    },
+    {
+      "flags": {},
+      "id": 3,
+      "inputs": [
+        {
+          "link": 1,
+          "name": "story_input",
+          "type": "SC_INPUT"
+        },
+        {
+          "link": 2,
+          "name": "policy",
+          "type": "SC_POLICY"
+        },
+        {
+          "link": null,
+          "name": "provider",
+          "type": "STRING"
+        },
+        {
+          "link": null,
+          "name": "precomputed_plan_json",
+          "type": "STRING"
+        }
+      ],
+      "mode": 0,
+      "order": 2,
+      "outputs": [
+        {
+          "links": [
+            3,
+            5,
+            8,
+            12,
+            16,
+            21
+          ],
+          "name": "plan",
+          "type": "SC_PLAN"
+        }
+      ],
+      "pos": [
+        470,
+        180
+      ],
+      "properties": {
+        "Node name for S&R": "StoryCanvasDirector"
+      },
+      "size": [
+        380,
+        300
+      ],
+      "title": "Typed StoryCanvas Director",
+      "type": "StoryCanvasDirector",
+      "widgets_values": [
+        "precomputed",
+        "{\"call_estimate\":{\"fact_search_calls\":0,\"image_generation_calls\":4,\"paid_video_locked\":true,\"planning_calls\":1,\"video_generation_calls\":3,\"visual_search_calls\":0},\"created_at\":\"2026-01-01T00:00:00Z\",\"fact_search_provider\":{\"endpoint_kind\":\"responses\",\"model\":\"web_search\",\"name\":\"openai\"},\"image_provider\":{\"endpoint_kind\":\"images\",\"model\":\"gpt-image-1\",\"name\":\"openai\"},\"input_kind\":\"story\",\"input_sha256\":\"458bc8343e59763897d5dcb3be45fb9e759c1e2f315d047a8fab259333193496\",\"plan_id\":\"plan-458bc8343e597638\",\"planning_provider\":{\"endpoint_kind\":\"offline\",\"model\":\"storycanvas-rule-director-v1\",\"name\":\"deterministic\"},\"schema_version\":\"storycanvas/v1\",\"shared_assets\":[{\"actual_prompt\":\"A clean cinematic visual style anchor with coherent palette, natural volumetric lighting, production design, and no people, characters, logos, captions, or watermarks.\",\"asset_id\":\"style-bible\",\"dependencies\":[],\"generation_provider\":\"openai\",\"input_mode\":\"text\",\"kind\":\"style\",\"planned_prompt\":\"A clean cinematic visual style anchor with coherent palette, natural volumetric lighting, production design, and no people, characters, logos, captions, or watermarks.\",\"references\":[],\"role\":\"style_bible\"}],\"shots\":[{\"dependencies\":[\"style-bible\"],\"duration_seconds\":10.0,\"h3_prompt\":\"Subject and scene: A fictional young botanist in a moss-green coat plants a silver seed in a moonlit glasshouse; a red field notebook rests by her left hand.\\nCamera: stable cinematic composition with one motivated movement.\\n0-3s: establish the subject, location, and current prop state.\\n3-7s: perform the central action with physically coherent motion.\\n7-10s: resolve the action while preserving identity and scene continuity.\\nSound: natural synchronized ambience and action sounds; no narration unless requested.\",\"image_prompt\":\"Create a cinematic 16:9 keyframe for: A fictional young botanist in a moss-green coat plants a silver seed in a moonlit glasshouse; a red field notebook rests by her left hand.. Preserve the supplied identity, wardrobe, location, prop state, and visual style. Clear subject staging, readable action, natural light, no text, no watermark.\",\"keyframe_asset_id\":\"garden-01-keyframe\",\"metadata\":{},\"order\":1,\"original_prompt\":\"A fictional young botanist in a moss-green coat plants a silver seed in a moonlit glasshouse; a red field notebook rests by her left hand.\",\"references\":[{\"description\":\"Generated reusable style anchor\",\"order\":1,\"provenance\":\"image_generation\",\"reference_id\":\"asset-style-bible\",\"role\":\"style_bible\",\"source_asset_id\":\"style-bible\"}],\"shot_id\":\"garden-01\",\"title\":\"Seed\"},{\"dependencies\":[\"garden-01-keyframe\",\"style-bible\"],\"duration_seconds\":10.0,\"h3_prompt\":\"Subject and scene: In the same glasshouse, the same botanist opens the red notebook as the silver seed grows into a luminous blue vine around the same clay pot.\\nCamera: stable cinematic composition with one motivated movement.\\n0-3s: establish the subject, location, and current prop state.\\n3-7s: perform the central action with physically coherent motion.\\n7-10s: resolve the action while preserving identity and scene continuity.\\nSound: natural synchronized ambience and action sounds; no narration unless requested.\",\"image_prompt\":\"Create a cinematic 16:9 keyframe for: In the same glasshouse, the same botanist opens the red notebook as the silver seed grows into a luminous blue vine around the same clay pot.. Preserve the supplied identity, wardrobe, location, prop state, and visual style. Clear subject staging, readable action, natural light, no text, no watermark.\",\"keyframe_asset_id\":\"garden-02-keyframe\",\"metadata\":{},\"order\":2,\"original_prompt\":\"In the same glasshouse, the same botanist opens the red notebook as the silver seed grows into a luminous blue vine around the same clay pot.\",\"previous_shot_id\":\"garden-01\",\"references\":[{\"description\":\"Previous keyframe for explicit same-scene continuity\",\"order\":1,\"provenance\":\"previous_shot\",\"reference_id\":\"previous-garden-01\",\"role\":\"previous_shot\",\"source_asset_id\":\"garden-01-keyframe\"},{\"description\":\"Generated reusable style anchor\",\"order\":2,\"provenance\":\"image_generation\",\"reference_id\":\"asset-style-bible\",\"role\":\"style_bible\",\"source_asset_id\":\"style-bible\"}],\"shot_id\":\"garden-02\",\"title\":\"Bloom\"},{\"dependencies\":[\"garden-02-keyframe\",\"style-bible\"],\"duration_seconds\":10.0,\"h3_prompt\":\"Subject and scene: The same botanist raises the same clay pot; the blue vine releases three glowing moths that circle her while the open red notebook remains on the bench.\\nCamera: stable cinematic composition with one motivated movement.\\n0-3s: establish the subject, location, and current prop state.\\n3-7s: perform the central action with physically coherent motion.\\n7-10s: resolve the action while preserving identity and scene continuity.\\nSound: natural synchronized ambience and action sounds; no narration unless requested.\",\"image_prompt\":\"Create a cinematic 16:9 keyframe for: The same botanist raises the same clay pot; the blue vine releases three glowing moths that circle her while the open red notebook remains on the bench.. Preserve the supplied identity, wardrobe, location, prop state, and visual style. Clear subject staging, readable action, natural light, no text, no watermark.\",\"keyframe_asset_id\":\"garden-03-keyframe\",\"metadata\":{},\"order\":3,\"original_prompt\":\"The same botanist raises the same clay pot; the blue vine releases three glowing moths that circle her while the open red notebook remains on the bench.\",\"previous_shot_id\":\"garden-02\",\"references\":[{\"description\":\"Previous keyframe for explicit same-scene continuity\",\"order\":1,\"provenance\":\"previous_shot\",\"reference_id\":\"previous-garden-02\",\"role\":\"previous_shot\",\"source_asset_id\":\"garden-02-keyframe\"},{\"description\":\"Generated reusable style anchor\",\"order\":2,\"provenance\":\"image_generation\",\"reference_id\":\"asset-style-bible\",\"role\":\"style_bible\",\"source_asset_id\":\"style-bible\"}],\"shot_id\":\"garden-03\",\"title\":\"Release\"}],\"source_input\":{\"metadata\":{},\"references\":[],\"shots\":[{\"metadata\":{},\"prompt\":\"A fictional young botanist in a moss-green coat plants a silver seed in a moonlit glasshouse; a red field notebook rests by her left hand.\",\"references\":[],\"shot_id\":\"garden-01\",\"title\":\"Seed\"},{\"metadata\":{},\"prompt\":\"In the same glasshouse, the same botanist opens the red notebook as the silver seed grows into a luminous blue vine around the same clay pot.\",\"references\":[],\"shot_id\":\"garden-02\",\"title\":\"Bloom\"},{\"metadata\":{},\"prompt\":\"The same botanist raises the same clay pot; the blue vine releases three glowing moths that circle her while the open red notebook remains on the bench.\",\"references\":[],\"shot_id\":\"garden-03\",\"title\":\"Release\"}],\"story_id\":\"moon-garden\",\"title\":\"The Moon Garden\"},\"story_id\":\"moon-garden\",\"title\":\"The Moon Garden\",\"video_provider\":{\"endpoint_kind\":\"async-http\",\"model\":\"MiniMax-H3\",\"name\":\"minimax-h3-compatible\"},\"visual_bible\":{\"characters\":[],\"continuity_rules\":[\"Keep recurring character identity, wardrobe, and proportions stable.\",\"Carry visible prop and environment state only across shots that explicitly depend on it.\"],\"locations\":[],\"props\":[],\"style_prompt\":\"A clean cinematic visual style anchor with coherent palette, natural volumetric lighting, production design, and no people, characters, logos, captions, or watermarks.\"},\"visual_search_provider\":{\"endpoint_kind\":\"optional\",\"model\":\"images\",\"name\":\"serper\"},\"warnings\":[\"Offline deterministic preview: replace with the OpenAI Director for production planning.\",\"Plan contains 3 video calls but policy allows 0.\",\"Paid video generation is locked until explicitly enabled.\",\"OPENAI_API_KEY is not configured; this is an offline preview plan, not a production Agent plan.\"]}"
+      ]
+    },
+    {
+      "flags": {},
+      "id": 4,
+      "inputs": [
+        {
+          "link": 3,
+          "name": "plan",
+          "type": "SC_PLAN"
+        },
+        {
+          "link": 4,
+          "name": "policy",
+          "type": "SC_POLICY"
+        },
+        {
+          "link": null,
+          "name": "asset_id",
+          "type": "STRING"
+        }
+      ],
+      "mode": 0,
+      "order": 3,
+      "outputs": [
+        {
+          "links": [
+            7,
+            11,
+            15
+          ],
+          "name": "asset",
+          "type": "SC_ASSET"
+        }
+      ],
+      "pos": [
+        950,
+        40
+      ],
+      "properties": {
+        "Node name for S&R": "StoryCanvasSharedVisualAsset"
+      },
+      "size": [
+        300,
+        180
+      ],
+      "title": "Style · style_bible",
+      "type": "StoryCanvasSharedVisualAsset",
+      "widgets_values": [
+        "style-bible"
+      ]
+    },
+    {
+      "flags": {},
+      "id": 5,
+      "inputs": [
+        {
+          "link": 5,
+          "name": "plan",
+          "type": "SC_PLAN"
+        },
+        {
+          "link": 6,
+          "name": "policy",
+          "type": "SC_POLICY"
+        },
+        {
+          "link": 7,
+          "name": "ref_1_style_bible",
+          "type": "SC_ASSET"
+        }
+      ],
+      "mode": 0,
+      "order": 4,
+      "outputs": [
+        {
+          "links": [
+            10
+          ],
+          "name": "keyframe",
+          "type": "SC_ASSET"
+        },
+        {
+          "links": [
+            18
+          ],
+          "name": "video",
+          "type": "SC_VIDEO"
+        }
+      ],
+      "pos": [
+        1420,
+        250
+      ],
+      "properties": {
+        "Node name for S&R": "273e062c-9e4a-5899-8261-700adaf81bbd",
+        "storycanvas_shot_id": "garden-01"
+      },
+      "size": [
+        320,
+        238
+      ],
+      "title": "Shot 01 · Seed",
+      "type": "273e062c-9e4a-5899-8261-700adaf81bbd",
+      "widgets_values": []
+    },
+    {
+      "flags": {},
+      "id": 6,
+      "inputs": [
+        {
+          "link": 8,
+          "name": "plan",
+          "type": "SC_PLAN"
+        },
+        {
+          "link": 9,
+          "name": "policy",
+          "type": "SC_POLICY"
+        },
+        {
+          "link": 10,
+          "name": "ref_1_previous_shot",
+          "type": "SC_ASSET"
+        },
+        {
+          "link": 11,
+          "name": "ref_2_style_bible",
+          "type": "SC_ASSET"
+        }
+      ],
+      "mode": 0,
+      "order": 5,
+      "outputs": [
+        {
+          "links": [
+            14
+          ],
+          "name": "keyframe",
+          "type": "SC_ASSET"
+        },
+        {
+          "links": [
+            19
+          ],
+          "name": "video",
+          "type": "SC_VIDEO"
+        }
+      ],
+      "pos": [
+        1780,
+        250
+      ],
+      "properties": {
+        "Node name for S&R": "1b0fc49e-55bb-58dc-b24e-62eacd7f2604",
+        "storycanvas_shot_id": "garden-02"
+      },
+      "size": [
+        320,
+        264
+      ],
+      "title": "Shot 02 · Bloom",
+      "type": "1b0fc49e-55bb-58dc-b24e-62eacd7f2604",
+      "widgets_values": []
+    },
+    {
+      "flags": {},
+      "id": 7,
+      "inputs": [
+        {
+          "link": 12,
+          "name": "plan",
+          "type": "SC_PLAN"
+        },
+        {
+          "link": 13,
+          "name": "policy",
+          "type": "SC_POLICY"
+        },
+        {
+          "link": 14,
+          "name": "ref_1_previous_shot",
+          "type": "SC_ASSET"
+        },
+        {
+          "link": 15,
+          "name": "ref_2_style_bible",
+          "type": "SC_ASSET"
+        }
+      ],
+      "mode": 0,
+      "order": 6,
+      "outputs": [
+        {
+          "links": [],
+          "name": "keyframe",
+          "type": "SC_ASSET"
+        },
+        {
+          "links": [
+            20
+          ],
+          "name": "video",
+          "type": "SC_VIDEO"
+        }
+      ],
+      "pos": [
+        2140,
+        250
+      ],
+      "properties": {
+        "Node name for S&R": "a648d613-e321-55d3-997c-08d4062b1702",
+        "storycanvas_shot_id": "garden-03"
+      },
+      "size": [
+        320,
+        264
+      ],
+      "title": "Shot 03 · Release",
+      "type": "a648d613-e321-55d3-997c-08d4062b1702",
+      "widgets_values": []
+    },
+    {
+      "flags": {},
+      "id": 8,
+      "inputs": [
+        {
+          "link": 16,
+          "name": "plan",
+          "type": "SC_PLAN"
+        },
+        {
+          "link": 17,
+          "name": "policy",
+          "type": "SC_POLICY"
+        },
+        {
+          "link": null,
+          "name": "video_count",
+          "type": "INT"
+        },
+        {
+          "link": 18,
+          "name": "video_1",
+          "shape": 7,
+          "type": "SC_VIDEO"
+        },
+        {
+          "link": 19,
+          "name": "video_2",
+          "shape": 7,
+          "type": "SC_VIDEO"
+        },
+        {
+          "link": 20,
+          "name": "video_3",
+          "shape": 7,
+          "type": "SC_VIDEO"
+        }
+      ],
+      "mode": 0,
+      "order": 7,
+      "outputs": [
+        {
+          "links": [
+            23
+          ],
+          "name": "story_video",
+          "type": "SC_VIDEO"
+        }
+      ],
+      "pos": [
+        2620,
+        180
+      ],
+      "properties": {
+        "Node name for S&R": "StoryCanvasStoryAssemble"
+      },
+      "size": [
+        340,
+        252
+      ],
+      "title": "Assemble Per-Shot Videos",
+      "type": "StoryCanvasStoryAssemble",
+      "widgets_values": [
+        3
+      ]
+    },
+    {
+      "flags": {},
+      "id": 9,
+      "inputs": [
+        {
+          "link": 21,
+          "name": "plan",
+          "type": "SC_PLAN"
+        },
+        {
+          "link": 22,
+          "name": "policy",
+          "type": "SC_POLICY"
+        },
+        {
+          "link": 23,
+          "name": "story_video",
+          "shape": 7,
+          "type": "SC_VIDEO"
+        }
+      ],
+      "mode": 0,
+      "order": 8,
+      "outputs": [
+        {
+          "links": [],
+          "name": "manifest",
+          "type": "SC_MANIFEST"
+        }
+      ],
+      "pos": [
+        3090,
+        220
+      ],
+      "properties": {
+        "Node name for S&R": "StoryCanvasRunManifest"
+      },
+      "size": [
+        300,
+        180
+      ],
+      "title": "Auditable Run Manifest",
+      "type": "StoryCanvasRunManifest",
+      "widgets_values": []
+    }
+  ],
+  "revision": 0,
+  "version": 0.4
+}

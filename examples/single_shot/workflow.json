@@ -1,0 +1,1005 @@
+{
+  "config": {},
+  "definitions": {
+    "subgraphs": [
+      {
+        "category": "StoryCanvas/Shots",
+        "config": {},
+        "description": "Generated auditable Canvas-to-H3 workflow for clockmaker-shot.",
+        "extra": {
+          "storycanvas_shot_id": "clockmaker-shot",
+          "workflowRendererVersion": "LG"
+        },
+        "groups": [],
+        "id": "4328dcdd-fcc2-5220-b01a-7441d2af578b",
+        "inputNode": {
+          "bounding": [
+            0,
+            80,
+            140,
+            160
+          ],
+          "id": -1
+        },
+        "inputs": [
+          {
+            "id": "550e8c2a-23e2-5ed2-86e8-9cc9b64a09ee",
+            "linkIds": [
+              1002,
+              1007,
+              1009
+            ],
+            "name": "plan",
+            "pos": [
+              0,
+              120
+            ],
+            "type": "SC_PLAN"
+          },
+          {
+            "id": "d4c00074-3304-5ff4-aeba-f6069ad911e6",
+            "linkIds": [
+              1003,
+              1012
+            ],
+            "name": "policy",
+            "pos": [
+              0,
+              190
+            ],
+            "type": "SC_POLICY"
+          },
+          {
+            "id": "275437c1-b825-5478-9df0-3eac113419be",
+            "linkIds": [
+              1001,
+              1006
+            ],
+            "name": "ref_1_style_bible",
+            "pos": [
+              0,
+              260
+            ],
+            "type": "SC_ASSET"
+          }
+        ],
+        "links": [
+          {
+            "id": 1001,
+            "origin_id": -1,
+            "origin_slot": 2,
+            "target_id": 1001,
+            "target_slot": 1,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 1002,
+            "origin_id": -1,
+            "origin_slot": 0,
+            "target_id": 1002,
+            "target_slot": 0,
+            "type": "SC_PLAN"
+          },
+          {
+            "id": 1003,
+            "origin_id": -1,
+            "origin_slot": 1,
+            "target_id": 1002,
+            "target_slot": 1,
+            "type": "SC_POLICY"
+          },
+          {
+            "id": 1004,
+            "origin_id": 1001,
+            "origin_slot": 0,
+            "target_id": 1002,
+            "target_slot": 5,
+            "type": "SC_REF_PACK"
+          },
+          {
+            "id": 1005,
+            "origin_id": 1002,
+            "origin_slot": 0,
+            "target_id": 1003,
+            "target_slot": 1,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 1006,
+            "origin_id": -1,
+            "origin_slot": 2,
+            "target_id": 1003,
+            "target_slot": 2,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 1007,
+            "origin_id": -1,
+            "origin_slot": 0,
+            "target_id": 1004,
+            "target_slot": 0,
+            "type": "SC_PLAN"
+          },
+          {
+            "id": 1008,
+            "origin_id": 1003,
+            "origin_slot": 0,
+            "target_id": 1004,
+            "target_slot": 1,
+            "type": "SC_REF_PACK"
+          },
+          {
+            "id": 1009,
+            "origin_id": -1,
+            "origin_slot": 0,
+            "target_id": 1005,
+            "target_slot": 0,
+            "type": "SC_PLAN"
+          },
+          {
+            "id": 1010,
+            "origin_id": 1004,
+            "origin_slot": 0,
+            "target_id": 1005,
+            "target_slot": 1,
+            "type": "SC_H3_PROMPT"
+          },
+          {
+            "id": 1011,
+            "origin_id": 1003,
+            "origin_slot": 0,
+            "target_id": 1005,
+            "target_slot": 2,
+            "type": "SC_REF_PACK"
+          },
+          {
+            "id": 1012,
+            "origin_id": -1,
+            "origin_slot": 1,
+            "target_id": 1005,
+            "target_slot": 3,
+            "type": "SC_POLICY"
+          },
+          {
+            "id": 1013,
+            "origin_id": 1002,
+            "origin_slot": 0,
+            "target_id": -2,
+            "target_slot": 0,
+            "type": "SC_ASSET"
+          },
+          {
+            "id": 1014,
+            "origin_id": 1005,
+            "origin_slot": 0,
+            "target_id": -2,
+            "target_slot": 1,
+            "type": "SC_VIDEO"
+          }
+        ],
+        "name": "Shot 01 · The Clockwork Bird",
+        "nodes": [
+          {
+            "flags": {},
+            "id": 1001,
+            "inputs": [
+              {
+                "link": null,
+                "name": "reference_count",
+                "type": "INT",
+                "widget": {
+                  "name": "reference_count"
+                }
+              },
+              {
+                "link": 1001,
+                "name": "reference_1",
+                "type": "SC_ASSET"
+              }
+            ],
+            "mode": 0,
+            "order": 1000,
+            "outputs": [
+              {
+                "links": [
+                  1004
+                ],
+                "name": "reference_pack",
+                "type": "SC_REF_PACK"
+              }
+            ],
+            "pos": [
+              610,
+              180
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasReferencePack"
+            },
+            "size": [
+              300,
+              134
+            ],
+            "title": "Ordered Canvas References",
+            "type": "StoryCanvasReferencePack",
+            "widgets_values": [
+              1
+            ]
+          },
+          {
+            "flags": {},
+            "id": 1002,
+            "inputs": [
+              {
+                "link": 1002,
+                "name": "plan",
+                "type": "SC_PLAN"
+              },
+              {
+                "link": 1003,
+                "name": "policy",
+                "type": "SC_POLICY"
+              },
+              {
+                "link": null,
+                "name": "asset_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "asset_id"
+                }
+              },
+              {
+                "link": null,
+                "name": "shot_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "shot_id"
+                }
+              },
+              {
+                "link": null,
+                "name": "reference_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "reference_id"
+                }
+              },
+              {
+                "link": 1004,
+                "name": "reference_pack",
+                "shape": 7,
+                "type": "SC_REF_PACK"
+              }
+            ],
+            "mode": 0,
+            "order": 1001,
+            "outputs": [
+              {
+                "links": [
+                  1005,
+                  1013
+                ],
+                "name": "asset",
+                "type": "SC_ASSET"
+              }
+            ],
+            "pos": [
+              960,
+              150
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasReferenceAsset"
+            },
+            "size": [
+              300,
+              230
+            ],
+            "title": "Generate Final Canvas Keyframe",
+            "type": "StoryCanvasReferenceAsset",
+            "widgets_values": [
+              "clockmaker-shot-keyframe",
+              "clockmaker-shot",
+              ""
+            ]
+          },
+          {
+            "flags": {},
+            "id": 1003,
+            "inputs": [
+              {
+                "link": null,
+                "name": "reference_count",
+                "type": "INT",
+                "widget": {
+                  "name": "reference_count"
+                }
+              },
+              {
+                "link": 1005,
+                "name": "reference_1",
+                "type": "SC_ASSET"
+              },
+              {
+                "link": 1006,
+                "name": "reference_2",
+                "type": "SC_ASSET"
+              }
+            ],
+            "mode": 0,
+            "order": 1002,
+            "outputs": [
+              {
+                "links": [
+                  1008,
+                  1011
+                ],
+                "name": "reference_pack",
+                "type": "SC_REF_PACK"
+              }
+            ],
+            "pos": [
+              1260,
+              80
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasReferencePack"
+            },
+            "size": [
+              300,
+              158
+            ],
+            "title": "H3 Ordered References (Canvas First)",
+            "type": "StoryCanvasReferencePack",
+            "widgets_values": [
+              2
+            ]
+          },
+          {
+            "flags": {},
+            "id": 1004,
+            "inputs": [
+              {
+                "link": 1007,
+                "name": "plan",
+                "type": "SC_PLAN"
+              },
+              {
+                "link": 1008,
+                "name": "reference_pack",
+                "type": "SC_REF_PACK"
+              },
+              {
+                "link": null,
+                "name": "shot_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "shot_id"
+                }
+              }
+            ],
+            "mode": 0,
+            "order": 1003,
+            "outputs": [
+              {
+                "links": [
+                  1010
+                ],
+                "name": "h3_prompt",
+                "type": "SC_H3_PROMPT"
+              }
+            ],
+            "pos": [
+              1580,
+              80
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasH3PromptCompiler"
+            },
+            "size": [
+              300,
+              158
+            ],
+            "title": "Compile Six-Part H3 Prompt",
+            "type": "StoryCanvasH3PromptCompiler",
+            "widgets_values": [
+              "clockmaker-shot"
+            ]
+          },
+          {
+            "flags": {},
+            "id": 1005,
+            "inputs": [
+              {
+                "link": 1009,
+                "name": "plan",
+                "type": "SC_PLAN"
+              },
+              {
+                "link": 1010,
+                "name": "h3_prompt",
+                "type": "SC_H3_PROMPT"
+              },
+              {
+                "link": 1011,
+                "name": "reference_pack",
+                "type": "SC_REF_PACK"
+              },
+              {
+                "link": 1012,
+                "name": "policy",
+                "type": "SC_POLICY"
+              },
+              {
+                "link": null,
+                "name": "shot_id",
+                "type": "STRING",
+                "widget": {
+                  "name": "shot_id"
+                }
+              }
+            ],
+            "mode": 0,
+            "order": 1004,
+            "outputs": [
+              {
+                "links": [
+                  1014
+                ],
+                "name": "video",
+                "type": "SC_VIDEO"
+              }
+            ],
+            "pos": [
+              1900,
+              130
+            ],
+            "properties": {
+              "Node name for S&R": "StoryCanvasMiniMaxH3API"
+            },
+            "size": [
+              300,
+              206
+            ],
+            "title": "MiniMax-H3 Video (Paid Gate)",
+            "type": "StoryCanvasMiniMaxH3API",
+            "widgets_values": [
+              "clockmaker-shot"
+            ]
+          }
+        ],
+        "outputNode": {
+          "bounding": [
+            2250,
+            160,
+            140,
+            120
+          ],
+          "id": -2
+        },
+        "outputs": [
+          {
+            "id": "573b231a-ceed-576a-a70e-9c8d81c95c00",
+            "linkIds": [
+              1013
+            ],
+            "name": "keyframe",
+            "pos": [
+              1650,
+              200
+            ],
+            "type": "SC_ASSET"
+          },
+          {
+            "id": "e42cf592-8020-57cd-bdd1-f4c66bef4bbf",
+            "linkIds": [
+              1014
+            ],
+            "name": "video",
+            "pos": [
+              1650,
+              300
+            ],
+            "type": "SC_VIDEO"
+          }
+        ],
+        "revision": 0,
+        "state": {
+          "lastGroupId": 0,
+          "lastLinkId": 1014,
+          "lastNodeId": 1005,
+          "lastRerouteId": 0
+        },
+        "version": 1,
+        "widgets": []
+      }
+    ]
+  },
+  "extra": {
+    "storycanvas": {
+      "plan_id": "plan-34bfb1c6b8d7b6b2",
+      "schema_version": "storycanvas/v1",
+      "shot_count": 1,
+      "story_id": "clockmaker-shot"
+    },
+    "workflowRendererVersion": "LG"
+  },
+  "groups": [
+    {
+      "bounding": [
+        900,
+        0,
+        430,
+        360
+      ],
+      "color": "#275D6B",
+      "flags": {},
+      "font_size": 22,
+      "title": "Shared Visual Bible & Reusable Assets"
+    },
+    {
+      "bounding": [
+        1360,
+        100,
+        500,
+        620
+      ],
+      "color": "#6A4C93",
+      "flags": {},
+      "font_size": 22,
+      "title": "Expandable Shot Subgraphs"
+    }
+  ],
+  "last_link_id": 13,
+  "last_node_id": 7,
+  "links": [
+    [
+      1,
+      1,
+      0,
+      3,
+      0,
+      "SC_INPUT"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      1,
+      "SC_POLICY"
+    ],
+    [
+      3,
+      3,
+      0,
+      4,
+      0,
+      "SC_PLAN"
+    ],
+    [
+      4,
+      2,
+      0,
+      4,
+      1,
+      "SC_POLICY"
+    ],
+    [
+      5,
+      3,
+      0,
+      5,
+      0,
+      "SC_PLAN"
+    ],
+    [
+      6,
+      2,
+      0,
+      5,
+      1,
+      "SC_POLICY"
+    ],
+    [
+      7,
+      4,
+      0,
+      5,
+      2,
+      "SC_ASSET"
+    ],
+    [
+      8,
+      3,
+      0,
+      6,
+      0,
+      "SC_PLAN"
+    ],
+    [
+      9,
+      2,
+      0,
+      6,
+      1,
+      "SC_POLICY"
+    ],
+    [
+      10,
+      5,
+      1,
+      6,
+      3,
+      "SC_VIDEO"
+    ],
+    [
+      11,
+      3,
+      0,
+      7,
+      0,
+      "SC_PLAN"
+    ],
+    [
+      12,
+      2,
+      0,
+      7,
+      1,
+      "SC_POLICY"
+    ],
+    [
+      13,
+      6,
+      0,
+      7,
+      2,
+      "SC_VIDEO"
+    ]
+  ],
+  "nodes": [
+    {
+      "flags": {},
+      "id": 1,
+      "inputs": [
+        {
+          "link": null,
+          "name": "input_kind",
+          "type": "STRING"
+        },
+        {
+          "link": null,
+          "name": "payload_json",
+          "type": "STRING"
+        }
+      ],
+      "mode": 0,
+      "order": 0,
+      "outputs": [
+        {
+          "links": [
+            1
+          ],
+          "name": "story_input",
+          "type": "SC_INPUT"
+        }
+      ],
+      "pos": [
+        80,
+        120
+      ],
+      "properties": {
+        "Node name for S&R": "StoryCanvasInput"
+      },
+      "size": [
+        300,
+        180
+      ],
+      "title": "StoryCanvas Input",
+      "type": "StoryCanvasInput",
+      "widgets_values": [
+        "shot",
+        "{\"metadata\":{},\"prompt\":\"In a fictional amber-lit workshop, an elderly clockmaker tightens one brass screw on a palm-sized mechanical bird. The bird wakes, tests both wings, and lands beside a blue enamel teacup.\",\"references\":[],\"shot_id\":\"clockmaker-shot\",\"title\":\"The Clockwork Bird\"}"
+      ]
+    },
+    {
+      "flags": {},
+      "id": 2,
+      "inputs": [
+        {
+          "link": null,
+          "name": "policy_json",
+          "type": "STRING"
+        }
+      ],
+      "mode": 0,
+      "order": 1,
+      "outputs": [
+        {
+          "links": [
+            2,
+            4,
+            6,
+            9,
+            12
+          ],
+          "name": "policy",
+          "type": "SC_POLICY"
+        }
+      ],
+      "pos": [
+        80,
+        420
+      ],
+      "properties": {
+        "Node name for S&R": "StoryCanvasExecutionPolicy"
+      },
+      "size": [
+        300,
+        180
+      ],
+      "title": "Execution Policy · Preview Before Spend",
+      "type": "StoryCanvasExecutionPolicy",
+      "widgets_values": [
+        "{\"allow_paid_video\":false,\"max_concurrency\":2,\"max_image_calls\":2,\"max_search_calls\":8,\"max_shots\":1,\"max_video_calls\":0,\"mode\":\"assets\",\"require_preview\":true}"
+      ]
+    },
+    {
+      "flags": {},
+      "id": 3,
+      "inputs": [
+        {
+          "link": 1,
+          "name": "story_input",
+          "type": "SC_INPUT"
+        },
+        {
+          "link": 2,
+          "name": "policy",
+          "type": "SC_POLICY"
+        },
+        {
+          "link": null,
+          "name": "provider",
+          "type": "STRING"
+        },
+        {
+          "link": null,
+          "name": "precomputed_plan_json",
+          "type": "STRING"
+        }
+      ],
+      "mode": 0,
+      "order": 2,
+      "outputs": [
+        {
+          "links": [
+            3,
+            5,
+            8,
+            11
+          ],
+          "name": "plan",
+          "type": "SC_PLAN"
+        }
+      ],
+      "pos": [
+        470,
+        180
+      ],
+      "properties": {
+        "Node name for S&R": "StoryCanvasDirector"
+      },
+      "size": [
+        380,
+        300
+      ],
+      "title": "Typed StoryCanvas Director",
+      "type": "StoryCanvasDirector",
+      "widgets_values": [
+        "precomputed",
+        "{\"call_estimate\":{\"fact_search_calls\":0,\"image_generation_calls\":2,\"paid_video_locked\":true,\"planning_calls\":1,\"video_generation_calls\":1,\"visual_search_calls\":0},\"created_at\":\"2026-01-01T00:00:00Z\",\"fact_search_provider\":{\"endpoint_kind\":\"responses\",\"model\":\"web_search\",\"name\":\"openai\"},\"image_provider\":{\"endpoint_kind\":\"images\",\"model\":\"gpt-image-1\",\"name\":\"openai\"},\"input_kind\":\"shot\",\"input_sha256\":\"34bfb1c6b8d7b6b22ab413b20b4f4717632110997cf8c152de804dbef332ed90\",\"plan_id\":\"plan-34bfb1c6b8d7b6b2\",\"planning_provider\":{\"endpoint_kind\":\"offline\",\"model\":\"storycanvas-rule-director-v1\",\"name\":\"deterministic\"},\"schema_version\":\"storycanvas/v1\",\"shared_assets\":[{\"actual_prompt\":\"A clean cinematic visual style anchor with coherent palette, natural volumetric lighting, production design, and no people, characters, logos, captions, or watermarks.\",\"asset_id\":\"style-bible\",\"dependencies\":[],\"generation_provider\":\"openai\",\"input_mode\":\"text\",\"kind\":\"style\",\"planned_prompt\":\"A clean cinematic visual style anchor with coherent palette, natural volumetric lighting, production design, and no people, characters, logos, captions, or watermarks.\",\"references\":[],\"role\":\"style_bible\"}],\"shots\":[{\"dependencies\":[\"style-bible\"],\"duration_seconds\":10.0,\"h3_prompt\":\"Subject and scene: In a fictional amber-lit workshop, an elderly clockmaker tightens one brass screw on a palm-sized mechanical bird. The bird wakes, tests both wings, and lands beside a blue enamel teacup.\\nCamera: stable cinematic composition with one motivated movement.\\n0-3s: establish the subject, location, and current prop state.\\n3-7s: perform the central action with physically coherent motion.\\n7-10s: resolve the action while preserving identity and scene continuity.\\nSound: natural synchronized ambience and action sounds; no narration unless requested.\",\"image_prompt\":\"Create a cinematic 16:9 keyframe for: In a fictional amber-lit workshop, an elderly clockmaker tightens one brass screw on a palm-sized mechanical bird. The bird wakes, tests both wings, and lands beside a blue enamel teacup.. Preserve the supplied identity, wardrobe, location, prop state, and visual style. Clear subject staging, readable action, natural light, no text, no watermark.\",\"keyframe_asset_id\":\"clockmaker-shot-keyframe\",\"metadata\":{},\"order\":1,\"original_prompt\":\"In a fictional amber-lit workshop, an elderly clockmaker tightens one brass screw on a palm-sized mechanical bird. The bird wakes, tests both wings, and lands beside a blue enamel teacup.\",\"references\":[{\"description\":\"Generated reusable style anchor\",\"order\":1,\"provenance\":\"image_generation\",\"reference_id\":\"asset-style-bible\",\"role\":\"style_bible\",\"source_asset_id\":\"style-bible\"}],\"shot_id\":\"clockmaker-shot\",\"title\":\"The Clockwork Bird\"}],\"source_input\":{\"metadata\":{},\"prompt\":\"In a fictional amber-lit workshop, an elderly clockmaker tightens one brass screw on a palm-sized mechanical bird. The bird wakes, tests both wings, and lands beside a blue enamel teacup.\",\"references\":[],\"shot_id\":\"clockmaker-shot\",\"title\":\"The Clockwork Bird\"},\"story_id\":\"clockmaker-shot\",\"title\":\"The Clockwork Bird\",\"video_provider\":{\"endpoint_kind\":\"async-http\",\"model\":\"MiniMax-H3\",\"name\":\"minimax-h3-compatible\"},\"visual_bible\":{\"characters\":[],\"continuity_rules\":[\"Keep recurring character identity, wardrobe, and proportions stable.\",\"Carry visible prop and environment state only across shots that explicitly depend on it.\"],\"locations\":[],\"props\":[],\"style_prompt\":\"A clean cinematic visual style anchor with coherent palette, natural volumetric lighting, production design, and no people, characters, logos, captions, or watermarks.\"},\"visual_search_provider\":{\"endpoint_kind\":\"optional\",\"model\":\"images\",\"name\":\"serper\"},\"warnings\":[\"Offline deterministic preview: replace with the OpenAI Director for production planning.\",\"Plan contains 1 video calls but policy allows 0.\",\"Paid video generation is locked until explicitly enabled.\",\"OPENAI_API_KEY is not configured; this is an offline preview plan, not a production Agent plan.\"]}"
+      ]
+    },
+    {
+      "flags": {},
+      "id": 4,
+      "inputs": [
+        {
+          "link": 3,
+          "name": "plan",
+          "type": "SC_PLAN"
+        },
+        {
+          "link": 4,
+          "name": "policy",
+          "type": "SC_POLICY"
+        },
+        {
+          "link": null,
+          "name": "asset_id",
+          "type": "STRING"
+        }
+      ],
+      "mode": 0,
+      "order": 3,
+      "outputs": [
+        {
+          "links": [
+            7
+          ],
+          "name": "asset",
+          "type": "SC_ASSET"
+        }
+      ],
+      "pos": [
+        950,
+        40
+      ],
+      "properties": {
+        "Node name for S&R": "StoryCanvasSharedVisualAsset"
+      },
+      "size": [
+        300,
+        180
+      ],
+      "title": "Style · style_bible",
+      "type": "StoryCanvasSharedVisualAsset",
+      "widgets_values": [
+        "style-bible"
+      ]
+    },
+    {
+      "flags": {},
+      "id": 5,
+      "inputs": [
+        {
+          "link": 5,
+          "name": "plan",
+          "type": "SC_PLAN"
+        },
+        {
+          "link": 6,
+          "name": "policy",
+          "type": "SC_POLICY"
+        },
+        {
+          "link": 7,
+          "name": "ref_1_style_bible",
+          "type": "SC_ASSET"
+        }
+      ],
+      "mode": 0,
+      "order": 4,
+      "outputs": [
+        {
+          "links": [],
+          "name": "keyframe",
+          "type": "SC_ASSET"
+        },
+        {
+          "links": [
+            10
+          ],
+          "name": "video",
+          "type": "SC_VIDEO"
+        }
+      ],
+      "pos": [
+        1420,
+        250
+      ],
+      "properties": {
+        "Node name for S&R": "4328dcdd-fcc2-5220-b01a-7441d2af578b",
+        "storycanvas_shot_id": "clockmaker-shot"
+      },
+      "size": [
+        320,
+        238
+      ],
+      "title": "Shot 01 · The Clockwork Bird",
+      "type": "4328dcdd-fcc2-5220-b01a-7441d2af578b",
+      "widgets_values": []
+    },
+    {
+      "flags": {},
+      "id": 6,
+      "inputs": [
+        {
+          "link": 8,
+          "name": "plan",
+          "type": "SC_PLAN"
+        },
+        {
+          "link": 9,
+          "name": "policy",
+          "type": "SC_POLICY"
+        },
+        {
+          "link": null,
+          "name": "video_count",
+          "type": "INT"
+        },
+        {
+          "link": 10,
+          "name": "video_1",
+          "shape": 7,
+          "type": "SC_VIDEO"
+        }
+      ],
+      "mode": 0,
+      "order": 5,
+      "outputs": [
+        {
+          "links": [
+            13
+          ],
+          "name": "story_video",
+          "type": "SC_VIDEO"
+        }
+      ],
+      "pos": [
+        1900,
+        180
+      ],
+      "properties": {
+        "Node name for S&R": "StoryCanvasStoryAssemble"
+      },
+      "size": [
+        340,
+        204
+      ],
+      "title": "Assemble Per-Shot Videos",
+      "type": "StoryCanvasStoryAssemble",
+      "widgets_values": [
+        1
+      ]
+    },
+    {
+      "flags": {},
+      "id": 7,
+      "inputs": [
+        {
+          "link": 11,
+          "name": "plan",
+          "type": "SC_PLAN"
+        },
+        {
+          "link": 12,
+          "name": "policy",
+          "type": "SC_POLICY"
+        },
+        {
+          "link": 13,
+          "name": "story_video",
+          "shape": 7,
+          "type": "SC_VIDEO"
+        }
+      ],
+      "mode": 0,
+      "order": 6,
+      "outputs": [
+        {
+          "links": [],
+          "name": "manifest",
+          "type": "SC_MANIFEST"
+        }
+      ],
+      "pos": [
+        2370,
+        220
+      ],
+      "properties": {
+        "Node name for S&R": "StoryCanvasRunManifest"
+      },
+      "size": [
+        300,
+        180
+      ],
+      "title": "Auditable Run Manifest",
+      "type": "StoryCanvasRunManifest",
+      "widgets_values": []
+    }
+  ],
+  "revision": 0,
+  "version": 0.4
+}

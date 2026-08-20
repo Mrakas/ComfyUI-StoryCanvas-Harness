@@ -1,0 +1,226 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "style-bible",
+      "attempts": [
+        {
+          "attempt": 1,
+          "finished_at": "2026-01-01T00:00:00Z",
+          "started_at": "2026-01-01T00:00:00Z",
+          "status": "success"
+        }
+      ],
+      "input_mode": "text",
+      "kind": "image",
+      "metadata": {
+        "asset_kind": "style",
+        "cache": "miss",
+        "height": 768,
+        "mock": true,
+        "role": "style_bible",
+        "width": 1344
+      },
+      "ordered_references": [],
+      "path": "assets/style-bible.png",
+      "prompt": "A clean cinematic visual style anchor with coherent palette, natural volumetric lighting, production design, and no people, characters, logos, captions, or watermarks.",
+      "prompt_sha256": "5f251bab38834b1c1612ff521d25626380e5b1346fd8f538263fc54e7ad96c02",
+      "provenance": "image_generation",
+      "receipt": {
+        "created_at": "2026-01-01T00:00:00Z",
+        "metadata": {},
+        "model": "mock-image-v1",
+        "operation": "image_generation",
+        "provider": "mock",
+        "request_sha256": "eae4aab5b17105d3240811cfaf2b53fc162e234b8ffe8707e7ee9597b52750d3"
+      },
+      "sha256": "01975d2e63cc5963087d230bb01a5f5371396518448713b938eaec0892c33c36"
+    },
+    {
+      "artifact_id": "garden-01-keyframe",
+      "attempts": [
+        {
+          "attempt": 1,
+          "finished_at": "2026-01-01T00:00:00Z",
+          "started_at": "2026-01-01T00:00:00Z",
+          "status": "success"
+        }
+      ],
+      "input_mode": "text+image",
+      "kind": "image",
+      "metadata": {
+        "asset_kind": "shot_keyframe",
+        "cache": "miss",
+        "height": 768,
+        "mock": true,
+        "shot_id": "garden-01",
+        "width": 1344
+      },
+      "ordered_references": [
+        {
+          "description": "Generated reusable style anchor",
+          "order": 1,
+          "path": "assets/style-bible.png",
+          "provenance": "image_generation",
+          "reference_id": "asset-style-bible",
+          "role": "style_bible",
+          "sha256": "01975d2e63cc5963087d230bb01a5f5371396518448713b938eaec0892c33c36",
+          "source_asset_id": "style-bible"
+        }
+      ],
+      "path": "assets/garden-01-keyframe.png",
+      "prompt": "Create a cinematic 16:9 keyframe for: A fictional young botanist in a moss-green coat plants a silver seed in a moonlit glasshouse; a red field notebook rests by her left hand.. Preserve the supplied identity, wardrobe, location, prop state, and visual style. Clear subject staging, readable action, natural light, no text, no watermark.",
+      "prompt_sha256": "f8f3f1f0f2193f04453fc59aeb72d5e64e537f9013e7c357d6bfd20826e4de3f",
+      "provenance": "image_generation",
+      "receipt": {
+        "created_at": "2026-01-01T00:00:00Z",
+        "metadata": {},
+        "model": "mock-image-v1",
+        "operation": "image_generation",
+        "provider": "mock",
+        "request_sha256": "c4033a0a1fbf542846fcee045422ed48a5a68b06d9df36dbefec41f33d554300"
+      },
+      "sha256": "34f131f5409b598393e57a624d2d56ee01359e7786aa5a96b9eac3504df2daa9"
+    },
+    {
+      "artifact_id": "garden-02-keyframe",
+      "attempts": [
+        {
+          "attempt": 1,
+          "finished_at": "2026-01-01T00:00:00Z",
+          "started_at": "2026-01-01T00:00:00Z",
+          "status": "success"
+        }
+      ],
+      "input_mode": "text+image",
+      "kind": "image",
+      "metadata": {
+        "asset_kind": "shot_keyframe",
+        "cache": "miss",
+        "height": 768,
+        "mock": true,
+        "shot_id": "garden-02",
+        "width": 1344
+      },
+      "ordered_references": [
+        {
+          "description": "Previous keyframe for explicit same-scene continuity",
+          "order": 1,
+          "path": "assets/garden-01-keyframe.png",
+          "provenance": "previous_shot",
+          "reference_id": "previous-garden-01",
+          "role": "previous_shot",
+          "sha256": "34f131f5409b598393e57a624d2d56ee01359e7786aa5a96b9eac3504df2daa9",
+          "source_asset_id": "garden-01-keyframe"
+        },
+        {
+          "description": "Generated reusable style anchor",
+          "order": 2,
+          "path": "assets/style-bible.png",
+          "provenance": "image_generation",
+          "reference_id": "asset-style-bible",
+          "role": "style_bible",
+          "sha256": "01975d2e63cc5963087d230bb01a5f5371396518448713b938eaec0892c33c36",
+          "source_asset_id": "style-bible"
+        }
+      ],
+      "path": "assets/garden-02-keyframe.png",
+      "prompt": "Create a cinematic 16:9 keyframe for: In the same glasshouse, the same botanist opens the red notebook as the silver seed grows into a luminous blue vine around the same clay pot.. Preserve the supplied identity, wardrobe, location, prop state, and visual style. Clear subject staging, readable action, natural light, no text, no watermark.",
+      "prompt_sha256": "cdf154bb3fdaa8104f9741c8912ea8073a62b93b77cf83e466667f32e1158214",
+      "provenance": "image_generation",
+      "receipt": {
+        "created_at": "2026-01-01T00:00:00Z",
+        "metadata": {},
+        "model": "mock-image-v1",
+        "operation": "image_generation",
+        "provider": "mock",
+        "request_sha256": "08233159b84de0895814a526061ecd70e6d5725aebacada49c166a2016670e87"
+      },
+      "sha256": "77cc4768376a62960999267447ae6aa92a6b28c46d1643e9cf3db8c77fdd5e98"
+    },
+    {
+      "artifact_id": "garden-03-keyframe",
+      "attempts": [
+        {
+          "attempt": 1,
+          "finished_at": "2026-01-01T00:00:00Z",
+          "started_at": "2026-01-01T00:00:00Z",
+          "status": "success"
+        }
+      ],
+      "input_mode": "text+image",
+      "kind": "image",
+      "metadata": {
+        "asset_kind": "shot_keyframe",
+        "cache": "miss",
+        "height": 768,
+        "mock": true,
+        "shot_id": "garden-03",
+        "width": 1344
+      },
+      "ordered_references": [
+        {
+          "description": "Previous keyframe for explicit same-scene continuity",
+          "order": 1,
+          "path": "assets/garden-02-keyframe.png",
+          "provenance": "previous_shot",
+          "reference_id": "previous-garden-02",
+          "role": "previous_shot",
+          "sha256": "77cc4768376a62960999267447ae6aa92a6b28c46d1643e9cf3db8c77fdd5e98",
+          "source_asset_id": "garden-02-keyframe"
+        },
+        {
+          "description": "Generated reusable style anchor",
+          "order": 2,
+          "path": "assets/style-bible.png",
+          "provenance": "image_generation",
+          "reference_id": "asset-style-bible",
+          "role": "style_bible",
+          "sha256": "01975d2e63cc5963087d230bb01a5f5371396518448713b938eaec0892c33c36",
+          "source_asset_id": "style-bible"
+        }
+      ],
+      "path": "assets/garden-03-keyframe.png",
+      "prompt": "Create a cinematic 16:9 keyframe for: The same botanist raises the same clay pot; the blue vine releases three glowing moths that circle her while the open red notebook remains on the bench.. Preserve the supplied identity, wardrobe, location, prop state, and visual style. Clear subject staging, readable action, natural light, no text, no watermark.",
+      "prompt_sha256": "9b45f2fb6755e7fae143360b06760e0a93ebd323ec51a9a02c999ff0845fbc50",
+      "provenance": "image_generation",
+      "receipt": {
+        "created_at": "2026-01-01T00:00:00Z",
+        "metadata": {},
+        "model": "mock-image-v1",
+        "operation": "image_generation",
+        "provider": "mock",
+        "request_sha256": "03d2e2d65adc767fc24e2b78b81f29edf5fb593e0f6ece63fc5ad4cf35f6a40b"
+      },
+      "sha256": "7e69970d85a4736707720e6ee9493e5b1f6bd31f0dc64000c3df8e2b649701ef"
+    }
+  ],
+  "call_counts": {
+    "fact_search": 0,
+    "fact_search_cache_hits": 0,
+    "image_cache_hits": 0,
+    "image_generation": 4,
+    "planning": 1,
+    "visual_search": 0,
+    "visual_search_cache_hits": 0
+  },
+  "errors": [],
+  "estimated_cost": {},
+  "finished_at": "2026-01-01T00:00:00Z",
+  "input_sha256": "458bc8343e59763897d5dcb3be45fb9e759c1e2f315d047a8fab259333193496",
+  "plan_id": "plan-458bc8343e597638",
+  "policy": {
+    "allow_paid_video": false,
+    "max_concurrency": 4,
+    "max_image_calls": 4,
+    "max_search_calls": 8,
+    "max_shots": 3,
+    "max_video_calls": 0,
+    "mode": "assets",
+    "require_preview": true
+  },
+  "run_id": "run-45ab573bd6f129b8",
+  "run_root": ".",
+  "schema_version": "storycanvas/v1",
+  "started_at": "2026-01-01T00:00:00Z",
+  "status": "complete"
+}

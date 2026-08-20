@@ -1,0 +1,59 @@
+{
+  "artifact": {
+    "artifact_id": "garden-02-keyframe",
+    "attempts": [
+      {
+        "attempt": 1,
+        "finished_at": "2026-01-01T00:00:00Z",
+        "started_at": "2026-01-01T00:00:00Z",
+        "status": "success"
+      }
+    ],
+    "input_mode": "text+image",
+    "kind": "image",
+    "metadata": {
+      "asset_kind": "shot_keyframe",
+      "cache": "miss",
+      "height": 768,
+      "mock": true,
+      "shot_id": "garden-02",
+      "width": 1344
+    },
+    "ordered_references": [
+      {
+        "description": "Previous keyframe for explicit same-scene continuity",
+        "order": 1,
+        "path": "assets/garden-01-keyframe.png",
+        "provenance": "previous_shot",
+        "reference_id": "previous-garden-01",
+        "role": "previous_shot",
+        "sha256": "34f131f5409b598393e57a624d2d56ee01359e7786aa5a96b9eac3504df2daa9",
+        "source_asset_id": "garden-01-keyframe"
+      },
+      {
+        "description": "Generated reusable style anchor",
+        "order": 2,
+        "path": "assets/style-bible.png",
+        "provenance": "image_generation",
+        "reference_id": "asset-style-bible",
+        "role": "style_bible",
+        "sha256": "01975d2e63cc5963087d230bb01a5f5371396518448713b938eaec0892c33c36",
+        "source_asset_id": "style-bible"
+      }
+    ],
+    "path": "assets/garden-02-keyframe.png",
+    "prompt": "Create a cinematic 16:9 keyframe for: In the same glasshouse, the same botanist opens the red notebook as the silver seed grows into a luminous blue vine around the same clay pot.. Preserve the supplied identity, wardrobe, location, prop state, and visual style. Clear subject staging, readable action, natural light, no text, no watermark.",
+    "prompt_sha256": "cdf154bb3fdaa8104f9741c8912ea8073a62b93b77cf83e466667f32e1158214",
+    "provenance": "image_generation",
+    "receipt": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "metadata": {},
+      "model": "mock-image-v1",
+      "operation": "image_generation",
+      "provider": "mock",
+      "request_sha256": "08233159b84de0895814a526061ecd70e6d5725aebacada49c166a2016670e87"
+    },
+    "sha256": "77cc4768376a62960999267447ae6aa92a6b28c46d1643e9cf3db8c77fdd5e98"
+  },
+  "cache_request_sha256": "dee34f4d367de6c529b88757a991989115160c99efc85800125a46cb69ee5a65"
+}

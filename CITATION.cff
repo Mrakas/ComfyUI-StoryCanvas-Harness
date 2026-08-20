@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If StoryCanvas Harness supports your research, please cite the software release."
+title: "ComfyUI StoryCanvas Harness"
+type: software
+authors:
+  - name: "StoryCanvas Harness contributors"
+repository-code: "https://github.com/Mrakas/ComfyUI-StoryCanvas-Harness"
+url: "https://github.com/Mrakas/ComfyUI-StoryCanvas-Harness"
+license: Apache-2.0
+version: 0.1.0
+date-released: 2026-08-21
+abstract: >-
+  A typed, auditable harness that compiles agent-planned multi-reference story
+  workflows into editable ComfyUI canvases and resumable media-generation runs.
+keywords:
+  - ComfyUI
+  - agent harness
+  - video generation
+  - storyboard
+  - provenance

@@ -1,0 +1,20 @@
+{
+  "input_kind": "shot",
+  "payload": {
+    "metadata": {},
+    "prompt": "In a fictional amber-lit workshop, an elderly clockmaker tightens one brass screw on a palm-sized mechanical bird. The bird wakes, tests both wings, and lands beside a blue enamel teacup.",
+    "references": [],
+    "shot_id": "clockmaker-shot",
+    "title": "The Clockwork Bird"
+  },
+  "policy": {
+    "allow_paid_video": false,
+    "max_concurrency": 2,
+    "max_image_calls": 2,
+    "max_search_calls": 8,
+    "max_shots": 1,
+    "max_video_calls": 0,
+    "mode": "assets",
+    "require_preview": true
+  }
+}

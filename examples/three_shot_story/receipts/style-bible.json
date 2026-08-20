@@ -1,0 +1,38 @@
+{
+  "artifact": {
+    "artifact_id": "style-bible",
+    "attempts": [
+      {
+        "attempt": 1,
+        "finished_at": "2026-01-01T00:00:00Z",
+        "started_at": "2026-01-01T00:00:00Z",
+        "status": "success"
+      }
+    ],
+    "input_mode": "text",
+    "kind": "image",
+    "metadata": {
+      "asset_kind": "style",
+      "cache": "miss",
+      "height": 768,
+      "mock": true,
+      "role": "style_bible",
+      "width": 1344
+    },
+    "ordered_references": [],
+    "path": "assets/style-bible.png",
+    "prompt": "A clean cinematic visual style anchor with coherent palette, natural volumetric lighting, production design, and no people, characters, logos, captions, or watermarks.",
+    "prompt_sha256": "5f251bab38834b1c1612ff521d25626380e5b1346fd8f538263fc54e7ad96c02",
+    "provenance": "image_generation",
+    "receipt": {
+      "created_at": "2026-01-01T00:00:00Z",
+      "metadata": {},
+      "model": "mock-image-v1",
+      "operation": "image_generation",
+      "provider": "mock",
+      "request_sha256": "eae4aab5b17105d3240811cfaf2b53fc162e234b8ffe8707e7ee9597b52750d3"
+    },
+    "sha256": "01975d2e63cc5963087d230bb01a5f5371396518448713b938eaec0892c33c36"
+  },
+  "cache_request_sha256": "a722b7d09d6649bcc385f09b5567ea89cb7d4c641c7951b02bc93dfc07908b5f"
+}

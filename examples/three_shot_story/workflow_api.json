@@ -1,0 +1,343 @@
+{
+  "1": {
+    "class_type": "StoryCanvasInput",
+    "inputs": {
+      "input_kind": "story",
+      "payload_json": "{\"metadata\":{},\"references\":[],\"shots\":[{\"metadata\":{},\"prompt\":\"A fictional young botanist in a moss-green coat plants a silver seed in a moonlit glasshouse; a red field notebook rests by her left hand.\",\"references\":[],\"shot_id\":\"garden-01\",\"title\":\"Seed\"},{\"metadata\":{},\"prompt\":\"In the same glasshouse, the same botanist opens the red notebook as the silver seed grows into a luminous blue vine around the same clay pot.\",\"references\":[],\"shot_id\":\"garden-02\",\"title\":\"Bloom\"},{\"metadata\":{},\"prompt\":\"The same botanist raises the same clay pot; the blue vine releases three glowing moths that circle her while the open red notebook remains on the bench.\",\"references\":[],\"shot_id\":\"garden-03\",\"title\":\"Release\"}],\"story_id\":\"moon-garden\",\"title\":\"The Moon Garden\"}"
+    }
+  },
+  "10": {
+    "class_type": "StoryCanvasReferencePack",
+    "inputs": {
+      "reference_1": [
+        "6",
+        0
+      ],
+      "reference_2": [
+        "4",
+        0
+      ],
+      "reference_count": 2
+    }
+  },
+  "11": {
+    "class_type": "StoryCanvasReferenceAsset",
+    "inputs": {
+      "asset_id": "garden-02-keyframe",
+      "plan": [
+        "3",
+        0
+      ],
+      "policy": [
+        "2",
+        0
+      ],
+      "reference_id": "",
+      "reference_pack": [
+        "10",
+        0
+      ],
+      "shot_id": "garden-02"
+    }
+  },
+  "12": {
+    "class_type": "StoryCanvasReferencePack",
+    "inputs": {
+      "reference_1": [
+        "11",
+        0
+      ],
+      "reference_2": [
+        "6",
+        0
+      ],
+      "reference_3": [
+        "4",
+        0
+      ],
+      "reference_count": 3
+    }
+  },
+  "13": {
+    "class_type": "StoryCanvasH3PromptCompiler",
+    "inputs": {
+      "plan": [
+        "3",
+        0
+      ],
+      "reference_pack": [
+        "12",
+        0
+      ],
+      "shot_id": "garden-02"
+    }
+  },
+  "14": {
+    "class_type": "StoryCanvasMiniMaxH3API",
+    "inputs": {
+      "h3_prompt": [
+        "13",
+        0
+      ],
+      "plan": [
+        "3",
+        0
+      ],
+      "policy": [
+        "2",
+        0
+      ],
+      "reference_pack": [
+        "12",
+        0
+      ],
+      "shot_id": "garden-02"
+    }
+  },
+  "15": {
+    "class_type": "StoryCanvasReferencePack",
+    "inputs": {
+      "reference_1": [
+        "11",
+        0
+      ],
+      "reference_2": [
+        "4",
+        0
+      ],
+      "reference_count": 2
+    }
+  },
+  "16": {
+    "class_type": "StoryCanvasReferenceAsset",
+    "inputs": {
+      "asset_id": "garden-03-keyframe",
+      "plan": [
+        "3",
+        0
+      ],
+      "policy": [
+        "2",
+        0
+      ],
+      "reference_id": "",
+      "reference_pack": [
+        "15",
+        0
+      ],
+      "shot_id": "garden-03"
+    }
+  },
+  "17": {
+    "class_type": "StoryCanvasReferencePack",
+    "inputs": {
+      "reference_1": [
+        "16",
+        0
+      ],
+      "reference_2": [
+        "11",
+        0
+      ],
+      "reference_3": [
+        "4",
+        0
+      ],
+      "reference_count": 3
+    }
+  },
+  "18": {
+    "class_type": "StoryCanvasH3PromptCompiler",
+    "inputs": {
+      "plan": [
+        "3",
+        0
+      ],
+      "reference_pack": [
+        "17",
+        0
+      ],
+      "shot_id": "garden-03"
+    }
+  },
+  "19": {
+    "class_type": "StoryCanvasMiniMaxH3API",
+    "inputs": {
+      "h3_prompt": [
+        "18",
+        0
+      ],
+      "plan": [
+        "3",
+        0
+      ],
+      "policy": [
+        "2",
+        0
+      ],
+      "reference_pack": [
+        "17",
+        0
+      ],
+      "shot_id": "garden-03"
+    }
+  },
+  "2": {
+    "class_type": "StoryCanvasExecutionPolicy",
+    "inputs": {
+      "policy_json": "{\"allow_paid_video\":false,\"max_concurrency\":4,\"max_image_calls\":4,\"max_search_calls\":8,\"max_shots\":3,\"max_video_calls\":0,\"mode\":\"assets\",\"require_preview\":true}"
+    }
+  },
+  "20": {
+    "class_type": "StoryCanvasStoryAssemble",
+    "inputs": {
+      "plan": [
+        "3",
+        0
+      ],
+      "policy": [
+        "2",
+        0
+      ],
+      "video_1": [
+        "9",
+        0
+      ],
+      "video_2": [
+        "14",
+        0
+      ],
+      "video_3": [
+        "19",
+        0
+      ],
+      "video_count": 3
+    }
+  },
+  "21": {
+    "class_type": "StoryCanvasRunManifest",
+    "inputs": {
+      "plan": [
+        "3",
+        0
+      ],
+      "policy": [
+        "2",
+        0
+      ],
+      "story_video": [
+        "20",
+        0
+      ]
+    }
+  },
+  "3": {
+    "class_type": "StoryCanvasDirector",
+    "inputs": {
+      "policy": [
+        "2",
+        0
+      ],
+      "precomputed_plan_json": "{\"call_estimate\":{\"fact_search_calls\":0,\"image_generation_calls\":4,\"paid_video_locked\":true,\"planning_calls\":1,\"video_generation_calls\":3,\"visual_search_calls\":0},\"created_at\":\"2026-01-01T00:00:00Z\",\"fact_search_provider\":{\"endpoint_kind\":\"responses\",\"model\":\"web_search\",\"name\":\"openai\"},\"image_provider\":{\"endpoint_kind\":\"images\",\"model\":\"gpt-image-1\",\"name\":\"openai\"},\"input_kind\":\"story\",\"input_sha256\":\"458bc8343e59763897d5dcb3be45fb9e759c1e2f315d047a8fab259333193496\",\"plan_id\":\"plan-458bc8343e597638\",\"planning_provider\":{\"endpoint_kind\":\"offline\",\"model\":\"storycanvas-rule-director-v1\",\"name\":\"deterministic\"},\"schema_version\":\"storycanvas/v1\",\"shared_assets\":[{\"actual_prompt\":\"A clean cinematic visual style anchor with coherent palette, natural volumetric lighting, production design, and no people, characters, logos, captions, or watermarks.\",\"asset_id\":\"style-bible\",\"dependencies\":[],\"generation_provider\":\"openai\",\"input_mode\":\"text\",\"kind\":\"style\",\"planned_prompt\":\"A clean cinematic visual style anchor with coherent palette, natural volumetric lighting, production design, and no people, characters, logos, captions, or watermarks.\",\"references\":[],\"role\":\"style_bible\"}],\"shots\":[{\"dependencies\":[\"style-bible\"],\"duration_seconds\":10.0,\"h3_prompt\":\"Subject and scene: A fictional young botanist in a moss-green coat plants a silver seed in a moonlit glasshouse; a red field notebook rests by her left hand.\\nCamera: stable cinematic composition with one motivated movement.\\n0-3s: establish the subject, location, and current prop state.\\n3-7s: perform the central action with physically coherent motion.\\n7-10s: resolve the action while preserving identity and scene continuity.\\nSound: natural synchronized ambience and action sounds; no narration unless requested.\",\"image_prompt\":\"Create a cinematic 16:9 keyframe for: A fictional young botanist in a moss-green coat plants a silver seed in a moonlit glasshouse; a red field notebook rests by her left hand.. Preserve the supplied identity, wardrobe, location, prop state, and visual style. Clear subject staging, readable action, natural light, no text, no watermark.\",\"keyframe_asset_id\":\"garden-01-keyframe\",\"metadata\":{},\"order\":1,\"original_prompt\":\"A fictional young botanist in a moss-green coat plants a silver seed in a moonlit glasshouse; a red field notebook rests by her left hand.\",\"references\":[{\"description\":\"Generated reusable style anchor\",\"order\":1,\"provenance\":\"image_generation\",\"reference_id\":\"asset-style-bible\",\"role\":\"style_bible\",\"source_asset_id\":\"style-bible\"}],\"shot_id\":\"garden-01\",\"title\":\"Seed\"},{\"dependencies\":[\"garden-01-keyframe\",\"style-bible\"],\"duration_seconds\":10.0,\"h3_prompt\":\"Subject and scene: In the same glasshouse, the same botanist opens the red notebook as the silver seed grows into a luminous blue vine around the same clay pot.\\nCamera: stable cinematic composition with one motivated movement.\\n0-3s: establish the subject, location, and current prop state.\\n3-7s: perform the central action with physically coherent motion.\\n7-10s: resolve the action while preserving identity and scene continuity.\\nSound: natural synchronized ambience and action sounds; no narration unless requested.\",\"image_prompt\":\"Create a cinematic 16:9 keyframe for: In the same glasshouse, the same botanist opens the red notebook as the silver seed grows into a luminous blue vine around the same clay pot.. Preserve the supplied identity, wardrobe, location, prop state, and visual style. Clear subject staging, readable action, natural light, no text, no watermark.\",\"keyframe_asset_id\":\"garden-02-keyframe\",\"metadata\":{},\"order\":2,\"original_prompt\":\"In the same glasshouse, the same botanist opens the red notebook as the silver seed grows into a luminous blue vine around the same clay pot.\",\"previous_shot_id\":\"garden-01\",\"references\":[{\"description\":\"Previous keyframe for explicit same-scene continuity\",\"order\":1,\"provenance\":\"previous_shot\",\"reference_id\":\"previous-garden-01\",\"role\":\"previous_shot\",\"source_asset_id\":\"garden-01-keyframe\"},{\"description\":\"Generated reusable style anchor\",\"order\":2,\"provenance\":\"image_generation\",\"reference_id\":\"asset-style-bible\",\"role\":\"style_bible\",\"source_asset_id\":\"style-bible\"}],\"shot_id\":\"garden-02\",\"title\":\"Bloom\"},{\"dependencies\":[\"garden-02-keyframe\",\"style-bible\"],\"duration_seconds\":10.0,\"h3_prompt\":\"Subject and scene: The same botanist raises the same clay pot; the blue vine releases three glowing moths that circle her while the open red notebook remains on the bench.\\nCamera: stable cinematic composition with one motivated movement.\\n0-3s: establish the subject, location, and current prop state.\\n3-7s: perform the central action with physically coherent motion.\\n7-10s: resolve the action while preserving identity and scene continuity.\\nSound: natural synchronized ambience and action sounds; no narration unless requested.\",\"image_prompt\":\"Create a cinematic 16:9 keyframe for: The same botanist raises the same clay pot; the blue vine releases three glowing moths that circle her while the open red notebook remains on the bench.. Preserve the supplied identity, wardrobe, location, prop state, and visual style. Clear subject staging, readable action, natural light, no text, no watermark.\",\"keyframe_asset_id\":\"garden-03-keyframe\",\"metadata\":{},\"order\":3,\"original_prompt\":\"The same botanist raises the same clay pot; the blue vine releases three glowing moths that circle her while the open red notebook remains on the bench.\",\"previous_shot_id\":\"garden-02\",\"references\":[{\"description\":\"Previous keyframe for explicit same-scene continuity\",\"order\":1,\"provenance\":\"previous_shot\",\"reference_id\":\"previous-garden-02\",\"role\":\"previous_shot\",\"source_asset_id\":\"garden-02-keyframe\"},{\"description\":\"Generated reusable style anchor\",\"order\":2,\"provenance\":\"image_generation\",\"reference_id\":\"asset-style-bible\",\"role\":\"style_bible\",\"source_asset_id\":\"style-bible\"}],\"shot_id\":\"garden-03\",\"title\":\"Release\"}],\"source_input\":{\"metadata\":{},\"references\":[],\"shots\":[{\"metadata\":{},\"prompt\":\"A fictional young botanist in a moss-green coat plants a silver seed in a moonlit glasshouse; a red field notebook rests by her left hand.\",\"references\":[],\"shot_id\":\"garden-01\",\"title\":\"Seed\"},{\"metadata\":{},\"prompt\":\"In the same glasshouse, the same botanist opens the red notebook as the silver seed grows into a luminous blue vine around the same clay pot.\",\"references\":[],\"shot_id\":\"garden-02\",\"title\":\"Bloom\"},{\"metadata\":{},\"prompt\":\"The same botanist raises the same clay pot; the blue vine releases three glowing moths that circle her while the open red notebook remains on the bench.\",\"references\":[],\"shot_id\":\"garden-03\",\"title\":\"Release\"}],\"story_id\":\"moon-garden\",\"title\":\"The Moon Garden\"},\"story_id\":\"moon-garden\",\"title\":\"The Moon Garden\",\"video_provider\":{\"endpoint_kind\":\"async-http\",\"model\":\"MiniMax-H3\",\"name\":\"minimax-h3-compatible\"},\"visual_bible\":{\"characters\":[],\"continuity_rules\":[\"Keep recurring character identity, wardrobe, and proportions stable.\",\"Carry visible prop and environment state only across shots that explicitly depend on it.\"],\"locations\":[],\"props\":[],\"style_prompt\":\"A clean cinematic visual style anchor with coherent palette, natural volumetric lighting, production design, and no people, characters, logos, captions, or watermarks.\"},\"visual_search_provider\":{\"endpoint_kind\":\"optional\",\"model\":\"images\",\"name\":\"serper\"},\"warnings\":[\"Offline deterministic preview: replace with the OpenAI Director for production planning.\",\"Plan contains 3 video calls but policy allows 0.\",\"Paid video generation is locked until explicitly enabled.\",\"OPENAI_API_KEY is not configured; this is an offline preview plan, not a production Agent plan.\"]}",
+      "provider": "precomputed",
+      "story_input": [
+        "1",
+        0
+      ]
+    }
+  },
+  "4": {
+    "class_type": "StoryCanvasSharedVisualAsset",
+    "inputs": {
+      "asset_id": "style-bible",
+      "plan": [
+        "3",
+        0
+      ],
+      "policy": [
+        "2",
+        0
+      ]
+    }
+  },
+  "5": {
+    "class_type": "StoryCanvasReferencePack",
+    "inputs": {
+      "reference_1": [
+        "4",
+        0
+      ],
+      "reference_count": 1
+    }
+  },
+  "6": {
+    "class_type": "StoryCanvasReferenceAsset",
+    "inputs": {
+      "asset_id": "garden-01-keyframe",
+      "plan": [
+        "3",
+        0
+      ],
+      "policy": [
+        "2",
+        0
+      ],
+      "reference_id": "",
+      "reference_pack": [
+        "5",
+        0
+      ],
+      "shot_id": "garden-01"
+    }
+  },
+  "7": {
+    "class_type": "StoryCanvasReferencePack",
+    "inputs": {
+      "reference_1": [
+        "6",
+        0
+      ],
+      "reference_2": [
+        "4",
+        0
+      ],
+      "reference_count": 2
+    }
+  },
+  "8": {
+    "class_type": "StoryCanvasH3PromptCompiler",
+    "inputs": {
+      "plan": [
+        "3",
+        0
+      ],
+      "reference_pack": [
+        "7",
+        0
+      ],
+      "shot_id": "garden-01"
+    }
+  },
+  "9": {
+    "class_type": "StoryCanvasMiniMaxH3API",
+    "inputs": {
+      "h3_prompt": [
+        "8",
+        0
+      ],
+      "plan": [
+        "3",
+        0
+      ],
+      "policy": [
+        "2",
+        0
+      ],
+      "reference_pack": [
+        "7",
+        0
+      ],
+      "shot_id": "garden-01"
+    }
+  }
+}
