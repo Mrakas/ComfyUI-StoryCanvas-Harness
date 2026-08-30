@@ -23,7 +23,9 @@ jobs:
       - name: Install ffmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - name: Install package
-        run: python -m pip install --upgrade pip && python -m pip install -e ".[dev]"
+        run: |
+          python -m pip install --upgrade pip "setuptools>=83" wheel
+          python -m pip install -e ".[dev]"
       - name: Ruff
         run: ruff format --check . && ruff check .
       - name: Mypy

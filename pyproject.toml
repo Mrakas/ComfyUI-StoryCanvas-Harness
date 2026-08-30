@@ -93,6 +93,10 @@ warn_unused_ignores = true
 module = ["storycanvas_harness.comfy_api"]
 ignore_errors = true
 
+[[tool.mypy.overrides]]
+module = ["openai_codex", "openai_codex.*"]
+ignore_missing_imports = true
+
 [tool.coverage.run]
 source = ["storycanvas_harness"]
 omit = ["storycanvas_harness/comfy_nodes.py"]
