@@ -11,7 +11,7 @@ StoryCanvas is both a ComfyUI custom-node package and a workflow compiler.
 - Provider credentials only for the capabilities you explicitly enable.
 
 Release `0.1.0` is browser-validated against ComfyUI `0.33.0` with frontend
-`1.49.6`; CI separately covers Python 3.10 and 3.12. Newer ComfyUI releases may
+`1.48.7`; CI separately covers Python 3.10 and 3.12. Newer ComfyUI releases may
 change frontend extension or subgraph serialization details, so report the exact
 backend/frontend versions with compatibility bugs.
 
@@ -26,7 +26,21 @@ cd ComfyUI-StoryCanvas-Harness
 /path/to/ComfyUI/python -m pip install -r requirements.txt
 ```
 
-Use the same Python environment that launches ComfyUI. Restart the server and confirm that ten `StoryCanvas` node classes appear without import errors.
+Use the same Python environment that launches ComfyUI. Restart the server and confirm that thirteen `StoryCanvas` node classes appear without import errors.
+
+For a pinned local macOS installation beside this repository checkout:
+
+```bash
+cd /path/to/ComfyUI-StoryCanvas-Harness
+./scripts/install_local_comfyui_macos.sh
+./scripts/start_local_comfyui.sh
+```
+
+The installer pins ComfyUI `v0.33.0`, creates a Python 3.12 `uv` environment,
+and links this checkout as a custom node; it does not download model weights.
+The start script listens only on `127.0.0.1:8188`, enables Codex login mode without
+an OpenAI API key, and leaves MiniMax credentials entirely to the caller's
+runtime environment.
 
 ## Builder flow
 
@@ -55,6 +69,32 @@ The extension calls StoryCanvas routes hosted by the same ComfyUI server. `app.l
 | `MiniMax H3 API` | Runs the gated, resumable video provider |
 | `Story Assemble` | Concatenates ready per-shot videos |
 | `Run Manifest` | Writes manifest, JSONL prompt audit, and HTML audit |
+| `Text Preview (Read-only)` | Displays existing Story, Prompt, receipt, and continuity text through `ui.text` |
+| `Image Preview (Read-only)` | Displays existing references, Canvas keyframes, and midframes through `ui.images` |
+| `Video Preview (Read-only)` | Displays existing MP4 files through ComfyUI animated-media UI |
+
+## Read-only Run review App
+
+To review an already-completed StoryCanvas Run without exposing any generation
+controls or making provider calls:
+
+```bash
+uv run storycanvas comfy-review \
+  --run-dir /path/to/completed/run-id \
+  --comfy-root /path/to/ComfyUI
+```
+
+The importer validates the Run manifest, Prompt records, receipts, media SHA-256,
+image decoding, `ffprobe`, and complete video decoding. It then hard-links media
+under `ComfyUI/input/storycanvas/<run_id>/` (copying only when a hard link is not
+possible), writes `review_workflow.json` beside the Run, and saves a `.app.json`
+workflow under `ComfyUI/user/default/workflows/`.
+
+The saved workflow defaults to a media-first Graph Mode, where the three
+read-only preview node types expose images, videos, Prompts, and the Visual Bible
+as a dependency DAG. **Run** reads local files and cannot call the Director,
+ImageGen, MiniMax, or another network provider. App Mode remains available for a
+gallery-style view.
 
 ## Subgraph layout
 

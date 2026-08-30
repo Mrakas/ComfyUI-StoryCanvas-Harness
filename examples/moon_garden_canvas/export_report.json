@@ -1,0 +1,129 @@
+{
+  "comfyui_required": false,
+  "counts": {
+    "edges": 24,
+    "media": 8,
+    "nodes": 20
+  },
+  "graph_sha256": "8dc0c12596c2ee409e549139b19ed3248e2b5d1d1627ad6654dfc3eab579cebc",
+  "inputs": {
+    "canvas_plan_sha256": "6d0aa72080a2381d1047190fc3236dec1d9ac48c6d5e8ef292779e92c67aef27",
+    "run_manifest_sha256": "625cc32c2f2bf9eb76dca7bdcd7272fc33136812d2e163748511baea135ad632"
+  },
+  "media": [
+    {
+      "bytes": 1632876,
+      "kind": "video",
+      "path": "media/0c3a5187658eacc61792c14bc2656c03c2caea14a40b4b6db278c8ff0cd9c78f.mp4",
+      "sha256": "0c3a5187658eacc61792c14bc2656c03c2caea14a40b4b6db278c8ff0cd9c78f",
+      "transfer_mode": "hardlink",
+      "validation": {
+        "codec": "h264",
+        "duration_seconds": "10.125000",
+        "has_audio": true,
+        "height": 768,
+        "width": 1344
+      }
+    },
+    {
+      "bytes": 1496925,
+      "kind": "video",
+      "path": "media/32cf7fe537ea6c62de3efa16e7eb561ebdd94a925c4d12a5c155f76021fb2f31.mp4",
+      "sha256": "32cf7fe537ea6c62de3efa16e7eb561ebdd94a925c4d12a5c155f76021fb2f31",
+      "transfer_mode": "hardlink",
+      "validation": {
+        "codec": "h264",
+        "duration_seconds": "10.125000",
+        "has_audio": true,
+        "height": 768,
+        "width": 1344
+      }
+    },
+    {
+      "bytes": 1562617,
+      "kind": "image",
+      "path": "media/3edab7ae50d35a7651f128ce7c26835440f38215447dc0012288a1f3cd52290b.png",
+      "sha256": "3edab7ae50d35a7651f128ce7c26835440f38215447dc0012288a1f3cd52290b",
+      "transfer_mode": "hardlink",
+      "validation": {
+        "format": "PNG",
+        "height": 768,
+        "width": 1344
+      }
+    },
+    {
+      "bytes": 4908894,
+      "kind": "video",
+      "path": "media/42fa99bf102c117547077b650e19e59c5c0f1b50ece1d34fd6a0135b64e94d9f.mp4",
+      "sha256": "42fa99bf102c117547077b650e19e59c5c0f1b50ece1d34fd6a0135b64e94d9f",
+      "transfer_mode": "hardlink",
+      "validation": {
+        "codec": "h264",
+        "duration_seconds": "30.407000",
+        "has_audio": true,
+        "height": 768,
+        "width": 1344
+      }
+    },
+    {
+      "bytes": 1783443,
+      "kind": "video",
+      "path": "media/971f10f58a62c559858970d1c501b6862d8f3a95327ac69c7e6a9385ecfceb94.mp4",
+      "sha256": "971f10f58a62c559858970d1c501b6862d8f3a95327ac69c7e6a9385ecfceb94",
+      "transfer_mode": "hardlink",
+      "validation": {
+        "codec": "h264",
+        "duration_seconds": "10.125000",
+        "has_audio": true,
+        "height": 768,
+        "width": 1344
+      }
+    },
+    {
+      "bytes": 1495600,
+      "kind": "image",
+      "path": "media/abd2edec5b28c24285f5f058f3e7efa1ba0e776d996b87c7ec404d69e1c13c10.png",
+      "sha256": "abd2edec5b28c24285f5f058f3e7efa1ba0e776d996b87c7ec404d69e1c13c10",
+      "transfer_mode": "hardlink",
+      "validation": {
+        "format": "PNG",
+        "height": 768,
+        "width": 1344
+      }
+    },
+    {
+      "bytes": 1521303,
+      "kind": "image",
+      "path": "media/c6fe17d838cf453e03184fab633c01f34c36e6e03c038d01ceb055bc029c8098.png",
+      "sha256": "c6fe17d838cf453e03184fab633c01f34c36e6e03c038d01ceb055bc029c8098",
+      "transfer_mode": "hardlink",
+      "validation": {
+        "format": "PNG",
+        "height": 768,
+        "width": 1344
+      }
+    },
+    {
+      "bytes": 1483202,
+      "kind": "image",
+      "path": "media/cc284593cac6ea5ef6cd7bd2a580b2b874c0b2f835513ae7a503c6955b2bc4dd.png",
+      "sha256": "cc284593cac6ea5ef6cd7bd2a580b2b874c0b2f835513ae7a503c6955b2bc4dd",
+      "transfer_mode": "hardlink",
+      "validation": {
+        "format": "PNG",
+        "height": 768,
+        "width": 1344
+      }
+    }
+  ],
+  "network_calls": false,
+  "outputs": {
+    "graph": "canvas_graph.json",
+    "graph_file_sha256": "b3928aac1ea74f44da21c767a5dd4980e0c69ee7190566d7a5613665120965c9",
+    "index": "index.html",
+    "index_sha256": "179362b5bbff3a9ef5e90f1892ec54c927a7583c1d0567177adb0fadc352bf87"
+  },
+  "plan_id": "plan-458bc8343e597638",
+  "run_id": "run-c6317dc222502af8",
+  "schema_version": "storycanvas/canvas-export/v1"
+}
