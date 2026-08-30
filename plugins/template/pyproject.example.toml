@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "storycanvas-plugin-example"
+version = "0.1.0"
+dependencies = ["storycanvas-harness>=0.1.0"]
+
+[project.entry-points."storycanvas.plugins"]
+"community.example-plugin" = "plugin:create_plugin"

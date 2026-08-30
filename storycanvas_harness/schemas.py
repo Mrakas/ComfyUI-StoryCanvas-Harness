@@ -281,6 +281,8 @@ class RunManifest(StrictModel):
     input_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     policy: ExecutionPolicy
     run_root: str
+    composition_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    plugins: list[SafeId] = Field(default_factory=list)
     artifacts: list[ArtifactRecord] = Field(default_factory=list)
     errors: list[dict[str, Any]] = Field(default_factory=list)
     call_counts: dict[str, int] = Field(default_factory=dict)

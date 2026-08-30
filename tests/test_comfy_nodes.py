@@ -7,16 +7,23 @@ from storycanvas_harness.comfy_nodes import (
     StoryCanvasH3PromptCompilerNode,
     StoryCanvasInputNode,
     StoryCanvasReferencePackNode,
+    StoryCanvasTextPreviewNode,
 )
 from storycanvas_harness.providers.director import DeterministicDirector
 from storycanvas_harness.schemas import ExecutionPolicy, ShotInput
 
 
 def test_all_public_node_types_are_registered() -> None:
-    assert len(NODE_CLASS_MAPPINGS) == 10
+    assert len(NODE_CLASS_MAPPINGS) == 13
     for node in NODE_CLASS_MAPPINGS.values():
         assert node.CATEGORY.startswith("StoryCanvas")
         assert node.FUNCTION
+
+
+def test_text_preview_uses_standard_ui_text_protocol() -> None:
+    result = StoryCanvasTextPreviewNode().preview("Story", "Read-only content")
+    assert result["ui"]["text"] == ("Story\n\nRead-only content",)
+    assert result["result"][0]["read_only"] is True
 
 
 def test_precomputed_plan_round_trip_and_prompt_binding() -> None:

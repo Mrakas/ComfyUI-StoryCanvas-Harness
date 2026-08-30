@@ -1,0 +1,18 @@
+{
+  "input_kind": "shot",
+  "payload": {
+    "shot_id": "paper-fox",
+    "title": "Lantern Trail",
+    "prompt": "A fictional paper fox follows three blue lanterns through a quiet cardboard forest."
+  },
+  "policy": {
+    "mode": "plan_only",
+    "allow_paid_video": false,
+    "max_shots": 1,
+    "max_search_calls": 0,
+    "max_image_calls": 0,
+    "max_video_calls": 0,
+    "max_concurrency": 1,
+    "require_preview": true
+  }
+}

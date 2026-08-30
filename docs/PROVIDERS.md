@@ -12,6 +12,31 @@ Providers implement small protocols; the harness owns planning limits, dependenc
 | Visual search | Serper Images, optional | `SERPER_API_KEY` |
 | Video | MiniMax-H3-compatible async HTTP | `MINIMAX_H3_API_KEY`, `MINIMAX_H3_BASE_URL`, `MINIMAX_H3_MODEL` |
 
+## Codex app-server login mode
+
+Install the optional SDK and select the provider explicitly:
+
+```bash
+uv sync --extra codex
+export STORYCANVAS_PROVIDER_MODE=codex
+export STORYCANVAS_CODEX_ENABLED=true
+export STORYCANVAS_CODEX_MODEL=gpt-5.6-sol
+export STORYCANVAS_CODEX_REASONING_EFFORT=medium
+```
+
+`CodexAppServerClient` launches the local Codex app-server through the official
+Python SDK. It calls the account and model-capability methods, requires an
+existing `chatgpt` login, verifies the requested model and reasoning effort,
+and creates one ephemeral thread per operation. It never opens, copies, logs,
+or serializes `auth.json`.
+
+`CodexDirector` uses strict JSON Schema output. `CodexImageProvider` sends the
+actual ordered files as `localImage` inputs and accepts only a completed native
+`imageGeneration` item. Receipts retain thread, turn, item, model, effort,
+actual Prompt, duration, and non-secret usage metadata. Login expiry, quota,
+moderation, missing ImageGen, and transport failures stop the real run; there
+is no automatic fallback to an API key or mock image.
+
 With `STORYCANVAS_PROVIDER_MODE=mock`, the harness uses deterministic offline planning, mock search, deterministic PNGs, and a one-second ffmpeg video. Mock mode is for tests and workflow demonstrations.
 
 If no `OPENAI_API_KEY` is present and mock mode is not selected, planning falls back to an offline preview Director while real search and image providers stay unavailable. The plan includes an explicit warning.

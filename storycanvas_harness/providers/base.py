@@ -6,9 +6,12 @@ from typing import Any, Protocol
 from pydantic import Field
 
 from ..schemas import (
+    ArtifactRecord,
     CanvasPlan,
+    CompiledWorkflow,
     ExecutionPolicy,
     ProviderReceipt,
+    RunManifest,
     ShotInput,
     StoryInput,
     StrictModel,
@@ -43,6 +46,20 @@ class DirectorProvider(Protocol):
     def plan(self, value: ShotInput | StoryInput, policy: ExecutionPolicy) -> CanvasPlan: ...
 
 
+class PlanProcessor(Protocol):
+    """Typed post-Director hook for reference and Prompt planning methods."""
+
+    name: str
+    model: str
+
+    def transform(
+        self,
+        plan: CanvasPlan,
+        source: ShotInput | StoryInput,
+        policy: ExecutionPolicy,
+    ) -> CanvasPlan: ...
+
+
 class FactSearchProvider(Protocol):
     name: str
     model: str
@@ -75,3 +92,22 @@ class VideoProvider(Protocol):
         destination: Path,
         state_path: Path,
     ) -> GeneratedFile: ...
+
+
+class EvaluationProvider(Protocol):
+    name: str
+    model: str
+
+    def evaluate(
+        self,
+        plan: CanvasPlan,
+        manifest: RunManifest,
+        run_root: Path,
+    ) -> list[ArtifactRecord]: ...
+
+
+class WorkflowRenderer(Protocol):
+    name: str
+    model: str
+
+    def compile(self, plan: CanvasPlan, policy: ExecutionPolicy) -> CompiledWorkflow: ...

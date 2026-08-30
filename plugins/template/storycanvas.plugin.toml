@@ -1,0 +1,7 @@
+id = "community.example-plugin"
+version = "0.1.0"
+api_version = "storycanvas/plugin/v1"
+description = "Minimal third-party StoryCanvas image-Prompt processor template."
+provides = ["prompt.compile.image"]
+requires = ["story.plan"]
+permissions = []

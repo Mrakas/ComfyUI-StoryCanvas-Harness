@@ -68,6 +68,12 @@ def test_assets_mode_records_every_actual_prompt_and_reference(
     assert len(shot_rows) == 2
     assert all(row["input_mode"] == "text+image" for row in shot_rows)
     assert all(row["ordered_references"] for row in shot_rows)
+    journals = list((record.root / "receipts").glob("*.attempts.jsonl"))
+    assert len(journals) == 3
+    assert all(
+        json.loads(path.read_text().splitlines()[-1])["attempt"]["status"] == "success"
+        for path in journals
+    )
 
 
 def test_valid_asset_receipts_are_reused(mock_canvas: StoryCanvas) -> None:
@@ -81,6 +87,53 @@ def test_valid_asset_receipts_are_reused(mock_canvas: StoryCanvas) -> None:
     assert [item.sha256 for item in first.manifest.artifacts] == [
         item.sha256 for item in second.manifest.artifacts
     ]
+
+
+@pytest.mark.skipif(not shutil.which("ffmpeg"), reason="ffmpeg is required")
+def test_assets_run_can_complete_videos_without_regenerating_images(
+    mock_canvas: StoryCanvas,
+) -> None:
+    story = StoryInput(
+        title="Moon garden",
+        shots=[ShotInput(prompt="Plant a seed."), ShotInput(prompt="The vine grows.")],
+    )
+    assets_policy = ExecutionPolicy(
+        mode=ExecutionMode.ASSETS,
+        max_shots=2,
+        max_image_calls=3,
+        max_video_calls=0,
+        max_concurrency=2,
+    )
+    assets = mock_canvas.run(story, assets_policy)
+    image_shas = {
+        artifact.artifact_id: artifact.sha256
+        for artifact in assets.manifest.artifacts
+        if artifact.kind == "image"
+    }
+
+    completed = mock_canvas.complete_videos(
+        assets.root,
+        ExecutionPolicy(
+            mode=ExecutionMode.FULL,
+            allow_paid_video=True,
+            max_shots=2,
+            max_image_calls=3,
+            max_video_calls=2,
+            max_concurrency=1,
+        ),
+    )
+
+    assert completed.root == assets.root
+    assert completed.run_id == assets.run_id
+    assert completed.manifest.status == RunStatus.COMPLETE
+    assert completed.manifest.call_counts["image_generation"] == 3
+    assert completed.manifest.call_counts["video_generation"] == 2
+    assert image_shas == {
+        artifact.artifact_id: artifact.sha256
+        for artifact in completed.manifest.artifacts
+        if artifact.kind == "image"
+    }
+    assert len(list((assets.root / "videos" / "shots").glob("*.mp4"))) == 2
 
 
 def test_policy_violation_happens_before_any_image_call(mock_canvas: StoryCanvas) -> None:
@@ -110,3 +163,7 @@ def test_full_mock_story_generates_shots_and_assembled_video(mock_canvas: StoryC
     shot_videos = list((record.root / "videos" / "shots").glob("*.mp4"))
     assert len(shot_videos) == 2
     assert all(path.stat().st_size > 0 for path in shot_videos)
+    audit = (record.root / "audit.html").read_text(encoding="utf-8")
+    assert audit.count("<img") == 3
+    assert audit.count("<video") == 2
+    assert str(record.root) not in audit

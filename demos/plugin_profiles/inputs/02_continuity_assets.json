@@ -1,0 +1,29 @@
+{
+  "input_kind": "story",
+  "payload": {
+    "story_id": "cloud-library",
+    "title": "The Cloud Library",
+    "shots": [
+      {
+        "shot_id": "cloud-library-01",
+        "title": "Arrival",
+        "prompt": "A fictional child archivist in a yellow raincoat enters a library floating above pink clouds and places a red compass on an oak desk."
+      },
+      {
+        "shot_id": "cloud-library-02",
+        "title": "The Map",
+        "prompt": "In the same floating library, the same child opens the red compass and a glowing paper map unfolds above the same oak desk."
+      }
+    ]
+  },
+  "policy": {
+    "mode": "assets",
+    "allow_paid_video": false,
+    "max_shots": 2,
+    "max_search_calls": 4,
+    "max_image_calls": 3,
+    "max_video_calls": 0,
+    "max_concurrency": 3,
+    "require_preview": true
+  }
+}

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>{{ title }} · StoryCanvas</title>
+  <style>
+    :root {
+      --ink:#101510; --muted:#647067; --paper:#f3f4ef; --panel:#fbfcf8;
+      --acid:#b8ff35; --line:#98a198; --violet:#7455d9; --teal:#1696a7;
+      --green:#3f8a5c; --orange:#d86e35; --shadow:0 18px 50px rgba(20,28,22,.13);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button{font:inherit}
+    .shell{height:100%;display:grid;grid-template-rows:76px 1fr}
+    .topbar{display:flex;align-items:center;gap:22px;padding:0 26px;background:#111611;color:white;border-bottom:1px solid #303830;z-index:20}
+    .brand{display:flex;align-items:center;gap:13px;min-width:280px}
+    .mark{width:34px;height:34px;border:1px solid #526052;background:linear-gradient(135deg,#b8ff35 0 22%,#1d241e 22% 45%,#b8ff35 45% 56%,#1d241e 56%);box-shadow:inset 0 0 0 5px #111611}
+    .brand strong{display:block;font-size:14px;letter-spacing:.08em;text-transform:uppercase}.brand span{display:block;margin-top:3px;color:#9dab9e;font:10px ui-monospace,SFMono-Regular,monospace;letter-spacing:.1em}
+    .story-title{min-width:0;flex:1}.story-title h1{font-size:18px;line-height:1.2;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.story-title p{margin:4px 0 0;color:#aeb9af;font-size:11px}
+    .controls{display:flex;align-items:center;gap:8px}.controls button{border:1px solid #3f493f;background:#181f19;color:#eef2ed;padding:9px 12px;cursor:pointer}.controls button:hover,.controls button:focus-visible{border-color:var(--acid);outline:none}.controls .play{background:var(--acid);color:#111611;border-color:var(--acid);font-weight:800}.stage-label{min-width:180px;text-align:right;color:#b9c3ba;font:11px ui-monospace,SFMono-Regular,monospace}
+    .workspace{position:relative;overflow:hidden;cursor:grab;background-color:#eef0eb;background-image:linear-gradient(#d8dcd5 1px,transparent 1px),linear-gradient(90deg,#d8dcd5 1px,transparent 1px);background-size:32px 32px}.workspace.dragging{cursor:grabbing}
+    .board{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+    .edges{position:absolute;inset:0;overflow:visible;pointer-events:none}.edge{opacity:0;transition:opacity .5s ease}.edge.visible{opacity:.82}.edge path{fill:none;stroke:#7b877e;stroke-width:2.3;vector-effect:non-scaling-stroke}.edge.dashed path{stroke-dasharray:9 7}.edge text{font:600 11px ui-monospace,SFMono-Regular,monospace;fill:#556159;paint-order:stroke;stroke:#eef0eb;stroke-width:6;stroke-linejoin:round}
+    .node{position:absolute;border:1px solid #a9b1aa;background:rgba(251,252,248,.97);box-shadow:var(--shadow);overflow:hidden;opacity:0;transform:translateY(16px) scale(.97);transition:opacity .52s ease,transform .52s cubic-bezier(.2,.75,.25,1),box-shadow .2s ease,border-color .2s ease;cursor:pointer}.node.visible{opacity:1;transform:none}.node:hover{box-shadow:0 22px 60px rgba(20,28,22,.2);border-color:#222c24}.node.focused{outline:5px solid rgba(184,255,53,.72);outline-offset:5px}
+    .node header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid #d8ddd7;background:#f3f5f0}.node .kind{font:800 9px ui-monospace,SFMono-Regular,monospace;letter-spacing:.12em;text-transform:uppercase}.node .stage{font:700 9px ui-monospace,SFMono-Regular,monospace;color:#7a867d}.node h2{font-size:17px;line-height:1.15;margin:15px 16px 8px}.node .summary{font-size:12px;line-height:1.45;color:#56625a;margin:0 16px 14px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden}.node .media{display:grid;grid-template-columns:repeat(auto-fit,minmax(82px,1fr));gap:4px;padding:0 10px 10px}.node img,.node video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#d8ddd7}.node video{pointer-events:auto}.node.input{border-color:#83934c}.node.input .kind{color:#617523}.node.director,.node.plugin{border-color:#7867c7}.node.director .kind,.node.plugin .kind{color:#5a43b3}.node.state{border-color:#218e9c}.node.state .kind{color:#087787}.node.prompt{border-color:#c9693b}.node.prompt .kind{color:#a84a20}.node.image{border-color:#5877c5}.node.image .kind{color:#365bac}.node.video,.node.output{border-color:#3f8a5c}.node.video .kind,.node.output .kind{color:#267143}.node.receipt{border-color:#7c857e}.node.receipt .kind{color:#515b54}
+    .details{position:absolute;z-index:30;right:0;top:0;bottom:0;width:min(440px,88vw);background:#101510;color:#f1f4ef;border-left:1px solid #384138;box-shadow:-18px 0 60px #0005;transform:translateX(102%);transition:transform .28s ease;display:grid;grid-template-rows:auto 1fr}.details.open{transform:none}.details header{display:flex;align-items:flex-start;justify-content:space-between;padding:22px;border-bottom:1px solid #333b34}.details h2{font-size:20px;margin:0}.details small{display:block;color:#9eaa9f;margin-top:6px}.details button{border:0;background:transparent;color:white;font-size:25px;cursor:pointer}.detail-body{padding:20px 22px 50px;overflow:auto}.detail-section{margin-bottom:24px}.detail-section h3{color:var(--acid);font:800 10px ui-monospace,SFMono-Regular,monospace;letter-spacing:.13em;text-transform:uppercase}.detail-section pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.55 ui-monospace,SFMono-Regular,monospace;color:#d4dbd4;background:#181e19;border:1px solid #303830;padding:14px}
+    .hint{position:absolute;z-index:12;left:22px;bottom:20px;background:#111611e8;color:#d7ded7;border:1px solid #384138;padding:10px 13px;font:10px ui-monospace,SFMono-Regular,monospace;letter-spacing:.05em}.zoom{color:var(--acid)}
+    .takeaway{position:absolute;z-index:15;left:50%;bottom:32px;transform:translate(-50%,28px);opacity:0;pointer-events:none;background:#111611;color:white;border:1px solid #465047;padding:16px 24px;box-shadow:0 16px 50px #0005;text-align:center;transition:opacity .5s ease,transform .5s ease}.takeaway.visible{opacity:1;transform:translate(-50%,0)}.takeaway strong{display:block;color:var(--acid);font-size:17px}.takeaway span{display:block;color:#c3ccc4;font-size:11px;margin-top:5px}
+    @media (max-width:900px){.brand{min-width:auto}.brand span,.story-title p,.stage-label{display:none}.topbar{gap:12px;padding:0 12px}.controls button{padding:8px}.story-title h1{font-size:14px}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><div class="mark" aria-hidden="true"></div><div><strong>StoryCanvas</strong><span>persistent media graph</span></div></div>
+      <div class="story-title"><h1 id="story-title"></h1><p id="story-subtitle"></p></div>
+      <div class="stage-label" id="stage-label"></div>
+      <div class="controls">
+        <button type="button" id="reset">Reset</button>
+        <button type="button" id="next">Next</button>
+        <button type="button" id="play" class="play">▶ Play</button>
+      </div>
+    </header>
+    <section class="workspace" id="workspace" aria-label="StoryCanvas dependency graph">
+      <div class="board" id="board"><svg class="edges" id="edges" aria-hidden="true"></svg></div>
+      <div class="hint">drag to pan · wheel to zoom · click a node · <span class="zoom" id="zoom">100%</span></div>
+      <div class="takeaway" id="takeaway"><strong>From a prompt to maintainable media state.</strong><span>Every method, dependency, prompt, artifact and receipt stays inspectable.</span></div>
+      <aside class="details" id="details" aria-label="Node details"><header><div><h2 id="detail-title"></h2><small id="detail-meta"></small></div><button type="button" id="detail-close" aria-label="Close">×</button></header><div class="detail-body" id="detail-body"></div></aside>
+    </section>
+  </main>
+  <script>
+    const GRAPH = {{ graph_json | tojson }};
+    const workspace = document.getElementById('workspace');
+    const board = document.getElementById('board');
+    const edgeSvg = document.getElementById('edges');
+    const details = document.getElementById('details');
+    const zoomLabel = document.getElementById('zoom');
+    const takeaway = document.getElementById('takeaway');
+    let stage = 0, playing = false, scale = 1, offsetX = 0, offsetY = 0, dragging = false, lastX = 0, lastY = 0;
+    let timers = [];
+    const nodeElements = new Map();
+    const edgeElements = [];
+
+    document.getElementById('story-title').textContent = GRAPH.title;
+    document.getElementById('story-subtitle').textContent = GRAPH.subtitle;
+    board.style.width = `${GRAPH.board.width}px`; board.style.height = `${GRAPH.board.height}px`;
+    edgeSvg.setAttribute('width', GRAPH.board.width); edgeSvg.setAttribute('height', GRAPH.board.height); edgeSvg.setAttribute('viewBox', `0 0 ${GRAPH.board.width} ${GRAPH.board.height}`);
+
+    function mediaElement(item) {
+      if (item.kind === 'video') {
+        const video = document.createElement('video'); video.src = item.path; video.muted = true; video.loop = true; video.playsInline = true; video.preload = 'auto'; video.controls = true; return video;
+      }
+      const image = document.createElement('img'); image.src = item.path; image.alt = item.role || 'StoryCanvas media'; image.loading = 'eager'; return image;
+    }
+    function renderNodes() {
+      for (const node of GRAPH.nodes) {
+        const element = document.createElement('article'); element.className = `node ${node.kind}`; element.dataset.stage = node.stage; element.dataset.nodeId = node.node_id;
+        Object.assign(element.style,{left:`${node.x}px`,top:`${node.y}px`,width:`${node.width}px`,height:`${node.height}px`});
+        const header = document.createElement('header'); const kind = document.createElement('span'); kind.className='kind'; kind.textContent=node.kind; const badge=document.createElement('span');badge.className='stage';badge.textContent=`0${node.stage}`; header.append(kind,badge);
+        const title=document.createElement('h2');title.textContent=node.title; const summary=document.createElement('p');summary.className='summary';summary.textContent=node.summary;
+        element.append(header,title,summary);
+        if (node.media && node.media.length) { const media=document.createElement('div');media.className='media'; for (const item of node.media.slice(0,4)) media.append(mediaElement(item)); element.append(media); }
+        element.addEventListener('click', event => { if (event.target.closest('video')) return; openDetails(node); });
+        board.append(element); nodeElements.set(node.node_id,element);
+      }
+    }
+    function anchor(node, side) { if(side==='left')return[node.x,node.y+node.height/2]; if(side==='right')return[node.x+node.width,node.y+node.height/2]; if(side==='top')return[node.x+node.width/2,node.y]; return[node.x+node.width/2,node.y+node.height]; }
+    function edgePath(source,target) { const horizontal=target.x>source.x+source.width; const start=anchor(source,horizontal?'right':'bottom'); const end=anchor(target,horizontal?'left':'top'); if(horizontal){const mid=(start[0]+end[0])/2;return`M ${start[0]} ${start[1]} C ${mid} ${start[1]}, ${mid} ${end[1]}, ${end[0]} ${end[1]}`;} const mid=(start[1]+end[1])/2;return`M ${start[0]} ${start[1]} C ${start[0]} ${mid}, ${end[0]} ${mid}, ${end[0]} ${end[1]}`;}
+    function renderEdges() { const byId=new Map(GRAPH.nodes.map(node=>[node.node_id,node])); const ns='http://www.w3.org/2000/svg'; const defs=document.createElementNS(ns,'defs');defs.innerHTML='<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7b877e"></path></marker>';edgeSvg.append(defs); for(const edge of GRAPH.edges){const source=byId.get(edge.source),target=byId.get(edge.target);if(!source||!target)continue;const group=document.createElementNS(ns,'g');group.classList.add('edge');if(edge.dashed)group.classList.add('dashed');group.dataset.stage=edge.stage;const path=document.createElementNS(ns,'path');path.setAttribute('d',edgePath(source,target));path.setAttribute('marker-end','url(#arrow)');group.append(path);const text=document.createElementNS(ns,'text');const px=(source.x+source.width+target.x)/2,py=(source.y+source.height/2+target.y+target.height/2)/2-8;text.setAttribute('x',px);text.setAttribute('y',py);text.setAttribute('text-anchor','middle');text.textContent=edge.label;group.append(text);edgeSvg.append(group);edgeElements.push(group);}}
+    function applyTransform(){board.style.transform=`translate(${offsetX}px,${offsetY}px) scale(${scale})`;zoomLabel.textContent=`${Math.round(scale*100)}%`;}
+    function visibleBounds(){const visible=GRAPH.nodes.filter(n=>n.stage<=stage);if(!visible.length)return{x:0,y:0,width:400,height:300};const x=Math.min(...visible.map(n=>n.x)),y=Math.min(...visible.map(n=>n.y)),right=Math.max(...visible.map(n=>n.x+n.width)),bottom=Math.max(...visible.map(n=>n.y+n.height));return{x,y,width:right-x,height:bottom-y};}
+    function fitVisible(){const b=visibleBounds(),pad=90,w=workspace.clientWidth,h=workspace.clientHeight;scale=Math.min(1.08,(w-pad*2)/b.width,(h-pad*2)/b.height);offsetX=(w-b.width*scale)/2-b.x*scale;offsetY=(h-b.height*scale)/2-b.y*scale;applyTransform();}
+    function focusNode(nodeId){const node=GRAPH.nodes.find(item=>item.node_id===nodeId);if(!node)return;nodeElements.forEach(el=>el.classList.remove('focused'));nodeElements.get(nodeId)?.classList.add('focused');scale=Math.min(1.12,Math.max(.78,workspace.clientWidth/(node.width*2.25)));offsetX=workspace.clientWidth/2-(node.x+node.width/2)*scale;offsetY=workspace.clientHeight/2-(node.y+node.height/2)*scale;applyTransform();const video=nodeElements.get(nodeId)?.querySelector('video');video?.play().catch(()=>{});}
+    function setStage(value,{fit=true}={}){stage=Math.max(0,Math.min(6,value));nodeElements.forEach((element,id)=>{const node=GRAPH.nodes.find(item=>item.node_id===id);element.classList.toggle('visible',node.stage<=stage);if(node.stage>stage){element.classList.remove('focused');for(const video of element.querySelectorAll('video'))video.pause();}});for(const edge of edgeElements)edge.classList.toggle('visible',Number(edge.dataset.stage)<=stage);document.getElementById('stage-label').textContent=stage?`${stage}/6 · ${GRAPH.stages[stage-1]}`:'0/6 · Ready';takeaway.classList.toggle('visible',stage===6&&!playing);if(fit)requestAnimationFrame(fitVisible);}
+    function clearTimers(){for(const timer of timers)clearTimeout(timer);timers=[];}
+    function reset(){clearTimers();playing=false;document.getElementById('play').textContent='▶ Play';takeaway.classList.remove('visible');setStage(0);}
+    function play(){reset();playing=true;document.getElementById('play').textContent='■ Playing';const events=[[350,1],[2200,2],[5000,3],[8000,4],[12000,5],[16000,6],[16500,'focus'],[18400,'focus2'],[20300,'focus3'],[22200,'all'],[23800,'done']];for(const [at,event] of events){timers.push(setTimeout(()=>{if(typeof event==='number')setStage(event);else if(event==='focus')focusNode(GRAPH.nodes.find(n=>n.kind==='video')?.node_id);else if(event==='focus2')focusNode(GRAPH.nodes.filter(n=>n.kind==='video')[1]?.node_id);else if(event==='focus3')focusNode(GRAPH.nodes.filter(n=>n.kind==='video')[2]?.node_id);else if(event==='all'){nodeElements.forEach(el=>el.classList.remove('focused'));fitVisible();takeaway.classList.add('visible');}else{playing=false;document.getElementById('play').textContent='↻ Replay';window.dispatchEvent(new CustomEvent('storycanvas-demo-done'));}},at));}}
+    function openDetails(node){document.getElementById('detail-title').textContent=node.title;document.getElementById('detail-meta').textContent=`${node.kind} · stage ${node.stage} · ${node.node_id}`;const body=document.getElementById('detail-body');body.replaceChildren();const values=[['Summary',node.summary],['Details',JSON.stringify(node.details,null,2)],['Media',JSON.stringify(node.media||[],null,2)]];for(const [label,value] of values){const section=document.createElement('section');section.className='detail-section';const h=document.createElement('h3');h.textContent=label;const pre=document.createElement('pre');pre.textContent=value;section.append(h,pre);body.append(section);}details.classList.add('open');}
+    document.getElementById('detail-close').addEventListener('click',()=>details.classList.remove('open'));document.getElementById('reset').addEventListener('click',reset);document.getElementById('next').addEventListener('click',()=>{playing=false;clearTimers();setStage(stage===6?0:stage+1);});document.getElementById('play').addEventListener('click',play);
+    workspace.addEventListener('pointerdown',event=>{if(event.target.closest('.node,.details,.controls'))return;dragging=true;lastX=event.clientX;lastY=event.clientY;workspace.classList.add('dragging');workspace.setPointerCapture(event.pointerId);});workspace.addEventListener('pointermove',event=>{if(!dragging)return;offsetX+=event.clientX-lastX;offsetY+=event.clientY-lastY;lastX=event.clientX;lastY=event.clientY;applyTransform();});workspace.addEventListener('pointerup',()=>{dragging=false;workspace.classList.remove('dragging');});workspace.addEventListener('wheel',event=>{event.preventDefault();const rect=workspace.getBoundingClientRect(),mx=event.clientX-rect.left,my=event.clientY-rect.top,old=scale;scale=Math.max(.18,Math.min(1.8,scale*(event.deltaY<0?1.1:.9)));offsetX=mx-(mx-offsetX)*(scale/old);offsetY=my-(my-offsetY)*(scale/old);applyTransform();},{passive:false});window.addEventListener('resize',()=>fitVisible());
+    renderNodes();renderEdges();setStage(new URLSearchParams(location.search).get('final')==='1'?6:0);if(new URLSearchParams(location.search).get('demo')==='1')setTimeout(play,400);
+    window.storyCanvasDemo={play,reset,setStage,focusNode,get stage(){return stage},get playing(){return playing}};
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+id = "storycanvas.pack.basic"
+version = "0.1.0"
+api_version = "storycanvas/pack/v1"
+description = "Credential-free StoryCanvas reference composition."
+profile = "../../profiles/basic.json"
+
+plugins = [
+  "storycanvas.director.basic",
+  "storycanvas.search.fact.mock",
+  "storycanvas.search.visual.mock",
+  "storycanvas.image.mock",
+  "storycanvas.video.mock",
+  "storycanvas.renderer.comfyui",
+]
+
+skills = ["../../skills/continuity-planning/SKILL.md"]

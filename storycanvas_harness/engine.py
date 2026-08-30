@@ -8,7 +8,7 @@ import socket
 from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from pathlib import Path
 from threading import Lock
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 from urllib.parse import urljoin, urlparse
 
 import httpx
@@ -17,14 +17,30 @@ from PIL import Image
 from .audit import render_audit
 from .errors import PolicyViolation, ProviderError
 from .media import concat_videos, full_decode, probe_media
+from .protocol import (
+    CANVAS_RENDER,
+    EVALUATION_RUN,
+    FACT_SEARCH,
+    IMAGE_GENERATE,
+    IMAGE_PROMPT_COMPILE,
+    REFERENCE_PLAN,
+    STORY_PLAN,
+    VIDEO_GENERATE,
+    VIDEO_PROMPT_COMPILE,
+    VISUAL_SEARCH,
+)
 from .providers.base import (
     DirectorProvider,
+    EvaluationProvider,
     FactSearchProvider,
     ImageProvider,
+    PlanProcessor,
     SearchResult,
     VideoProvider,
     VisualSearchProvider,
+    WorkflowRenderer,
 )
+from .providers.codex import CodexAppServerClient, CodexDirector, CodexImageProvider
 from .providers.director import DeterministicDirector, OpenAIDirector
 from .providers.image import MockImageProvider, OpenAIImageProvider
 from .providers.search import MockFactSearch, MockVisualSearch, OpenAIFactSearch, SerperVisualSearch
@@ -56,6 +72,9 @@ from .utils import (
 )
 from .workflow import compile_workflow
 
+if TYPE_CHECKING:
+    from .plugins.registry import PluginRegistry
+
 
 class StoryCanvas:
     """Python SDK and deterministic execution harness.
@@ -73,6 +92,9 @@ class StoryCanvas:
         visual_search: VisualSearchProvider | None = None,
         image_provider: ImageProvider | None = None,
         video_provider: VideoProvider | None = None,
+        workflow_renderer: WorkflowRenderer | None = None,
+        plan_processors: list[PlanProcessor] | None = None,
+        evaluator: EvaluationProvider | None = None,
     ):
         self.runs_dir = Path(runs_dir or os.environ.get("STORYCANVAS_RUNS_DIR", "./runs"))
         self.director = director or DeterministicDirector()
@@ -80,6 +102,90 @@ class StoryCanvas:
         self.visual_search = visual_search
         self.image_provider = image_provider
         self.video_provider = video_provider
+        self.workflow_renderer = workflow_renderer
+        self.plan_processors = plan_processors or []
+        self.evaluator = evaluator
+        self._plugin_registry: PluginRegistry | None = None
+
+    @classmethod
+    def from_registry(
+        cls,
+        registry: PluginRegistry,
+        *,
+        runs_dir: str | Path | None = None,
+    ) -> StoryCanvas:
+        """Compose the current engine from Plugin API v1 capability services."""
+
+        canvas = cls(
+            runs_dir=runs_dir,
+            director=cast(DirectorProvider, registry.resolve_service(STORY_PLAN)),
+            fact_search=(
+                cast(FactSearchProvider, registry.resolve_service(FACT_SEARCH))
+                if registry.has_capability(FACT_SEARCH, active_only=True)
+                else None
+            ),
+            visual_search=(
+                cast(VisualSearchProvider, registry.resolve_service(VISUAL_SEARCH))
+                if registry.has_capability(VISUAL_SEARCH, active_only=True)
+                else None
+            ),
+            image_provider=(
+                cast(ImageProvider, registry.resolve_service(IMAGE_GENERATE))
+                if registry.has_capability(IMAGE_GENERATE, active_only=True)
+                else None
+            ),
+            video_provider=(
+                cast(VideoProvider, registry.resolve_service(VIDEO_GENERATE))
+                if registry.has_capability(VIDEO_GENERATE, active_only=True)
+                else None
+            ),
+            workflow_renderer=(
+                cast(WorkflowRenderer, registry.resolve_service(CANVAS_RENDER))
+                if registry.has_capability(CANVAS_RENDER, active_only=True)
+                else None
+            ),
+            plan_processors=[
+                cast(PlanProcessor, registry.resolve_service(capability))
+                for capability in (
+                    REFERENCE_PLAN,
+                    IMAGE_PROMPT_COMPILE,
+                    VIDEO_PROMPT_COMPILE,
+                )
+                if registry.has_capability(capability, active_only=True)
+            ],
+            evaluator=(
+                cast(EvaluationProvider, registry.resolve_service(EVALUATION_RUN))
+                if registry.has_capability(EVALUATION_RUN, active_only=True)
+                else None
+            ),
+        )
+        canvas._plugin_registry = registry
+        return canvas
+
+    @classmethod
+    def from_profile(
+        cls,
+        profile_path: str | Path,
+        *,
+        runs_dir: str | Path | None = None,
+    ) -> StoryCanvas:
+        from .plugins import build_builtin_registry, load_profile
+
+        selected_runs_dir = Path(runs_dir or os.environ.get("STORYCANVAS_RUNS_DIR", "./runs"))
+        profile = load_profile(Path(profile_path))
+        registry = build_builtin_registry(profile, root=selected_runs_dir.parent)
+        return cls.from_registry(registry, runs_dir=selected_runs_dir)
+
+    def close(self) -> None:
+        if self._plugin_registry is not None:
+            self._plugin_registry.dispose_all()
+            self._plugin_registry = None
+
+    def __enter__(self) -> StoryCanvas:
+        return self
+
+    def __exit__(self, *_: object) -> None:
+        self.close()
 
     @classmethod
     def from_environment(cls, *, runs_dir: str | Path | None = None) -> StoryCanvas:
@@ -92,6 +198,27 @@ class StoryCanvas:
                 visual_search=MockVisualSearch(),
                 image_provider=MockImageProvider(),
                 video_provider=MockVideoProvider(),
+            )
+        if mode == "codex":
+            if os.getenv("STORYCANVAS_CODEX_ENABLED", "false").casefold() not in {
+                "1",
+                "true",
+                "yes",
+            }:
+                raise ProviderError("Codex provider mode requires STORYCANVAS_CODEX_ENABLED=true")
+            selected_runs_dir = Path(runs_dir or os.environ.get("STORYCANVAS_RUNS_DIR", "./runs"))
+            codex_client = CodexAppServerClient()
+            codex_client.capability(selected_runs_dir)
+            video_provider = None
+            if os.getenv("MINIMAX_H3_API_KEY") and os.getenv("MINIMAX_H3_BASE_URL"):
+                video_provider = MiniMaxH3CompatibleProvider()
+            return cls(
+                runs_dir=selected_runs_dir,
+                director=CodexDirector(client=codex_client, cwd=selected_runs_dir),
+                fact_search=None,
+                visual_search=None,
+                image_provider=CodexImageProvider(client=codex_client),
+                video_provider=video_provider,
             )
         api_key = os.getenv("OPENAI_API_KEY", "")
         director: DirectorProvider
@@ -124,8 +251,27 @@ class StoryCanvas:
     ) -> CanvasPlan:
         selected_policy = policy or ExecutionPolicy()
         plan = self.director.plan(value, selected_policy)
+        for processor in self.plan_processors:
+            original_input_sha = plan.input_sha256
+            try:
+                transformed = processor.transform(
+                    plan.model_copy(deep=True), value, selected_policy
+                )
+                plan = CanvasPlan.model_validate(
+                    transformed.model_dump(mode="json", exclude_none=True)
+                )
+            except Exception as error:
+                raise ProviderError(
+                    f"Plan processor {processor.name!r} failed: {type(error).__name__}: {error}"
+                ) from error
+            if plan.input_sha256 != original_input_sha:
+                raise ProviderError(
+                    f"Plan processor {processor.name!r} changed immutable input identity"
+                )
+            plan.warnings.append(f"Plan processor applied: {processor.name} ({processor.model}).")
         if (
             isinstance(self.director, DeterministicDirector)
+            and self._plugin_registry is None
             and os.getenv("STORYCANVAS_PROVIDER_MODE", "openai").casefold() != "mock"
         ):
             plan.warnings.append(
@@ -136,7 +282,10 @@ class StoryCanvas:
     def compile_workflow(
         self, plan: CanvasPlan, policy: ExecutionPolicy | None = None
     ) -> CompiledWorkflow:
-        return compile_workflow(plan, policy or ExecutionPolicy())
+        selected_policy = policy or ExecutionPolicy()
+        if self.workflow_renderer is not None:
+            return self.workflow_renderer.compile(plan, selected_policy)
+        return compile_workflow(plan, selected_policy)
 
     def _preflight(self, plan: CanvasPlan, policy: ExecutionPolicy) -> None:
         if len(plan.shots) > policy.max_shots:
@@ -165,7 +314,8 @@ class StoryCanvas:
                 raise ProviderError("The plan requires visual search but no provider is configured")
             if self.image_provider is None:
                 raise ProviderError(
-                    "No image provider is configured. Set OPENAI_API_KEY or explicitly use mock mode."
+                    "No image provider is configured. Use Codex login mode, set OPENAI_API_KEY, "
+                    "or explicitly use mock mode."
                 )
         if policy.mode == ExecutionMode.FULL:
             if not policy.allow_paid_video:
@@ -182,6 +332,14 @@ class StoryCanvas:
     def _write_prompt_rows(root: Path, rows: list[dict[str, Any]]) -> None:
         text = "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows)
         atomic_write_text(root / "prompts.jsonl", text)
+
+    @staticmethod
+    def _append_jsonl(path: Path, row: dict[str, Any]) -> None:
+        existing = path.read_text(encoding="utf-8") if path.is_file() else ""
+        atomic_write_text(
+            path,
+            existing + json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n",
+        )
 
     @staticmethod
     def _reference_paths(
@@ -383,6 +541,7 @@ class StoryCanvas:
         reference_paths, resolved = self._reference_paths(references, generated)
         output = root / "assets" / f"{artifact_id}.png"
         receipt_path = root / "receipts" / f"{artifact_id}.json"
+        attempt_journal = root / "receipts" / f"{artifact_id}.attempts.jsonl"
         identity = {
             "provider": self.image_provider.name,
             "model": self.image_provider.model,
@@ -408,8 +567,20 @@ class StoryCanvas:
                     "output_sha256": artifact.sha256,
                     "cache": "hit",
                 }
+        previous_attempts: list[AttemptRecord] = []
+        if attempt_journal.is_file():
+            for line in attempt_journal.read_text(encoding="utf-8").splitlines():
+                if line.strip():
+                    previous_attempts.append(
+                        AttemptRecord.model_validate(json.loads(line)["attempt"])
+                    )
         started = utc_now()
-        attempt = AttemptRecord(attempt=1, started_at=started, status="running")
+        attempt = AttemptRecord(
+            attempt=len(previous_attempts) + 1,
+            started_at=started,
+            status="running",
+        )
+        input_mode = InputMode.TEXT_IMAGE if reference_paths else InputMode.TEXT
         try:
             generated_file = self.image_provider.generate(prompt, reference_paths, output)
             with Image.open(output) as image:
@@ -421,20 +592,46 @@ class StoryCanvas:
             attempt.finished_at = utc_now()
             attempt.error_type = type(error).__name__
             attempt.error_message = str(error)
+            self._append_jsonl(
+                attempt_journal,
+                {
+                    "artifact_id": artifact_id,
+                    "attempt": attempt.model_dump(mode="json"),
+                    "planned_prompt": planned_prompt or prompt,
+                    "actual_prompt": prompt,
+                    "prompt_sha256": sha256_json({"prompt": prompt}),
+                    "input_mode": input_mode.value,
+                    "ordered_references": [item.model_dump(mode="json") for item in resolved],
+                },
+            )
             raise
-        input_mode = InputMode.TEXT_IMAGE if reference_paths else InputMode.TEXT
+        actual_provider_prompt = str(generated_file.metadata.get("actual_prompt") or prompt)
+        self._append_jsonl(
+            attempt_journal,
+            {
+                "artifact_id": artifact_id,
+                "attempt": attempt.model_dump(mode="json"),
+                "planned_prompt": planned_prompt or prompt,
+                "actual_prompt": actual_provider_prompt,
+                "prompt_sha256": sha256_json({"prompt": actual_provider_prompt}),
+                "input_mode": input_mode.value,
+                "ordered_references": [item.model_dump(mode="json") for item in resolved],
+                "receipt": generated_file.receipt.model_dump(mode="json", exclude_none=True),
+                "output_sha256": sha256_file(output),
+            },
+        )
         artifact = ArtifactRecord(
             artifact_id=artifact_id,
             kind="image",
             path=str(output),
             sha256=sha256_file(output),
             provenance=Provenance.IMAGE_GENERATION,
-            prompt=prompt,
-            prompt_sha256=sha256_json({"prompt": prompt}),
+            prompt=actual_provider_prompt,
+            prompt_sha256=sha256_json({"prompt": actual_provider_prompt}),
             input_mode=input_mode,
             ordered_references=resolved,
             receipt=generated_file.receipt,
-            attempts=[attempt],
+            attempts=[*previous_attempts, attempt],
             metadata={**metadata, **generated_file.metadata, "cache": "miss"},
         )
         atomic_write_json(
@@ -444,7 +641,7 @@ class StoryCanvas:
         return artifact, {
             "asset_id": artifact_id,
             "planned_prompt": planned_prompt or prompt,
-            "actual_prompt": prompt,
+            "actual_prompt": actual_provider_prompt,
             "prompt_sha256": artifact.prompt_sha256,
             "input_mode": input_mode.value,
             "ordered_references": [item.model_dump(mode="json") for item in resolved],
@@ -722,10 +919,76 @@ class StoryCanvas:
                 )
             )
 
+    def _execute_evaluation(
+        self,
+        plan: CanvasPlan,
+        root: Path,
+        manifest: RunManifest,
+    ) -> None:
+        if self.evaluator is None:
+            return
+        manifest.call_counts["evaluation"] = 1
+        try:
+            candidates = self.evaluator.evaluate(
+                plan.model_copy(deep=True),
+                manifest.model_copy(deep=True),
+                root,
+            )
+            known_ids = {artifact.artifact_id for artifact in manifest.artifacts}
+            resolved_root = root.resolve()
+            for value in candidates:
+                artifact = ArtifactRecord.model_validate(
+                    value.model_dump(mode="json", exclude_none=True)
+                )
+                if artifact.artifact_id in known_ids:
+                    raise ProviderError(
+                        f"Evaluator returned duplicate artifact id: {artifact.artifact_id}"
+                    )
+                candidate_path = Path(artifact.path)
+                resolved = (
+                    candidate_path.resolve()
+                    if candidate_path.is_absolute()
+                    else (resolved_root / candidate_path).resolve()
+                )
+                try:
+                    resolved.relative_to(resolved_root)
+                except ValueError as error:
+                    raise ProviderError(
+                        f"Evaluator artifact falls outside the Run root: {artifact.path}"
+                    ) from error
+                if not resolved.is_file():
+                    raise ProviderError(f"Evaluator artifact does not exist: {resolved}")
+                if sha256_file(resolved) != artifact.sha256:
+                    raise ProviderError(
+                        f"Evaluator artifact SHA256 mismatch: {artifact.artifact_id}"
+                    )
+                if artifact.receipt is None or artifact.receipt.provider != self.evaluator.name:
+                    raise ProviderError(
+                        f"Evaluator artifact {artifact.artifact_id!r} requires a matching receipt"
+                    )
+                artifact.path = str(resolved)
+                manifest.artifacts.append(artifact)
+                known_ids.add(artifact.artifact_id)
+            manifest.call_counts["evaluation_artifacts"] = len(candidates)
+        except Exception as error:
+            manifest.errors.append(
+                {
+                    "stage": "evaluation",
+                    "provider": self.evaluator.name,
+                    "error_type": type(error).__name__,
+                    "error": str(error),
+                }
+            )
+            manifest.status = RunStatus.PARTIAL
+
     def run_plan(self, plan: CanvasPlan, policy: ExecutionPolicy) -> RunRecord:
         self._preflight(plan, policy)
         compiled = self.compile_workflow(plan, policy)
-        run_id = f"run-{sha256_json({'plan_id': plan.plan_id, 'policy': policy})[:16]}"
+        composition_sha = (
+            self._plugin_registry.composition_sha256 if self._plugin_registry is not None else None
+        )
+        plan_identity = plan.model_dump(mode="json", exclude={"created_at"})
+        run_id = f"run-{sha256_json({'plan': plan_identity, 'policy': policy, 'composition_sha256': composition_sha})[:16]}"
         root = self.runs_dir / run_id
         root.mkdir(parents=True, exist_ok=True)
         for directory in ("assets", "videos/shots", "receipts"):
@@ -740,6 +1003,12 @@ class StoryCanvas:
             input_sha256=plan.input_sha256,
             policy=policy,
             run_root=str(root),
+            composition_sha256=composition_sha,
+            plugins=(
+                [item.plugin_id for item in self._plugin_registry.snapshots()]
+                if self._plugin_registry is not None
+                else []
+            ),
             call_counts={"planning": 1, "fact_search": 0, "visual_search": 0},
         )
         prompt_rows: list[dict[str, Any]] = []
@@ -766,12 +1035,113 @@ class StoryCanvas:
                 if image_count == expected_images and video_count == expected_videos
                 else RunStatus.PARTIAL
             )
+        self._execute_evaluation(plan, root, manifest)
         manifest.finished_at = utc_now()
         self._write_prompt_rows(root, prompt_rows)
         atomic_write_json(root / "run_manifest.json", manifest)
         render_audit(plan, manifest, root / "audit.html")
         return RunRecord(
             run_id=run_id,
+            root=root,
+            manifest=manifest,
+            plan=plan,
+            compiled_workflow=compiled,
+        )
+
+    def complete_videos(self, run_root: str | Path, policy: ExecutionPolicy) -> RunRecord:
+        """Continue an assets-only run with video generation in the same run root.
+
+        This is deliberately separate from :meth:`run_plan`: changing an execution
+        policy changes a normal run id, while a paid-video continuation must reuse
+        the already-audited images instead of generating them a second time.
+        """
+        root = Path(run_root).expanduser().resolve()
+        plan_path = root / "canvas_plan.json"
+        manifest_path = root / "run_manifest.json"
+        prompts_path = root / "prompts.jsonl"
+        if not plan_path.is_file() or not manifest_path.is_file():
+            raise ProviderError(f"Not a StoryCanvas run root: {root}")
+        if policy.mode != ExecutionMode.FULL or not policy.allow_paid_video:
+            raise PolicyViolation(
+                "Video continuation requires mode='full' and allow_paid_video=true"
+            )
+
+        plan = CanvasPlan.model_validate_json(plan_path.read_text(encoding="utf-8"))
+        manifest = RunManifest.model_validate_json(manifest_path.read_text(encoding="utf-8"))
+        if manifest.run_root != str(root):
+            raise ProviderError("Run root does not match the persisted manifest")
+        if manifest.plan_id != plan.plan_id or manifest.input_sha256 != plan.input_sha256:
+            raise ProviderError("Plan identity does not match the persisted manifest")
+        self._preflight(plan, policy)
+
+        expected_asset_ids = {
+            *(asset.asset_id for asset in plan.shared_assets),
+            *(shot.keyframe_asset_id for shot in plan.shots),
+        }
+        generated: dict[str, ArtifactRecord] = {}
+        preserved_artifacts: list[ArtifactRecord] = []
+        for artifact in manifest.artifacts:
+            if artifact.artifact_id == "story-video" or artifact.artifact_id.endswith("-video"):
+                continue
+            preserved_artifacts.append(artifact)
+            if artifact.artifact_id not in expected_asset_ids:
+                continue
+            path = Path(artifact.path).expanduser()
+            if (
+                artifact.kind != "image"
+                or artifact.provenance != Provenance.IMAGE_GENERATION
+                or not path.is_file()
+                or sha256_file(path) != artifact.sha256
+            ):
+                raise ProviderError(
+                    f"Existing image failed continuation validation: {artifact.artifact_id}"
+                )
+            generated[artifact.artifact_id] = artifact
+        missing = sorted(expected_asset_ids - generated.keys())
+        if missing:
+            raise ProviderError(
+                "Video continuation requires all validated images; missing: " + ", ".join(missing)
+            )
+
+        prompt_rows: list[dict[str, Any]] = []
+        if prompts_path.is_file():
+            for line in prompts_path.read_text(encoding="utf-8").splitlines():
+                if not line.strip():
+                    continue
+                row = json.loads(line)
+                if not str(row.get("asset_id", "")).endswith("-video"):
+                    prompt_rows.append(row)
+
+        compiled = self.compile_workflow(plan, policy)
+        atomic_write_json(root / "workflow.json", compiled.workflow)
+        atomic_write_json(root / "workflow_api.json", compiled.api_workflow)
+        manifest.policy = policy
+        manifest.status = RunStatus.RUNNING
+        manifest.finished_at = None
+        manifest.artifacts = preserved_artifacts
+        manifest.call_counts["video_generation"] = 0
+        atomic_write_json(manifest_path, manifest)
+
+        self._execute_videos(plan, root, manifest, generated, prompt_rows)
+        image_count = sum(
+            artifact.kind == "image" and artifact.provenance == Provenance.IMAGE_GENERATION
+            for artifact in manifest.artifacts
+        )
+        video_count = sum(
+            artifact.artifact_id.endswith("-video") and artifact.artifact_id != "story-video"
+            for artifact in manifest.artifacts
+        )
+        manifest.status = (
+            RunStatus.COMPLETE
+            if image_count == len(expected_asset_ids) and video_count == len(plan.shots)
+            else RunStatus.PARTIAL
+        )
+        manifest.finished_at = utc_now()
+        self._write_prompt_rows(root, prompt_rows)
+        atomic_write_json(manifest_path, manifest)
+        render_audit(plan, manifest, root / "audit.html")
+        return RunRecord(
+            run_id=manifest.run_id,
             root=root,
             manifest=manifest,
             plan=plan,

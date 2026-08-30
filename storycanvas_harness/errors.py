@@ -16,3 +16,7 @@ class ResumeConflict(StoryCanvasError):
 
 class WorkflowCompileError(StoryCanvasError):
     """Raised when a validated CanvasPlan cannot compile to a safe graph."""
+
+
+class PluginError(StoryCanvasError):
+    """Raised when a plugin, capability binding, or profile is invalid."""

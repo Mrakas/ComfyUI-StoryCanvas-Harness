@@ -1,0 +1,34 @@
+{
+  "input_kind": "story",
+  "payload": {
+    "story_id": "moon-garden-demo",
+    "title": "The Moon Garden",
+    "shots": [
+      {
+        "shot_id": "moon-garden-01",
+        "title": "Seed",
+        "prompt": "A fictional young botanist in a moss-green coat plants a silver seed in a moonlit glasshouse; a red notebook rests beside the clay pot."
+      },
+      {
+        "shot_id": "moon-garden-02",
+        "title": "Bloom",
+        "prompt": "In the same glasshouse, the same botanist opens the red notebook as a luminous blue vine grows from the same clay pot."
+      },
+      {
+        "shot_id": "moon-garden-03",
+        "title": "Release",
+        "prompt": "The same botanist raises the same clay pot while the blue vine releases exactly three glowing moths and the red notebook remains open."
+      }
+    ]
+  },
+  "policy": {
+    "mode": "full",
+    "allow_paid_video": true,
+    "max_shots": 3,
+    "max_search_calls": 8,
+    "max_image_calls": 4,
+    "max_video_calls": 3,
+    "max_concurrency": 4,
+    "require_preview": true
+  }
+}

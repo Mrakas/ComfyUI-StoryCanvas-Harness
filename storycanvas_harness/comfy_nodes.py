@@ -37,6 +37,132 @@ _ENGINE: StoryCanvas | None = None
 _ENGINE_LOCK = Lock()
 
 
+def _review_input_media(files_json: str, *, expected: str) -> list[dict[str, str]]:
+    try:
+        values = json.loads(files_json)
+    except json.JSONDecodeError as exc:
+        raise ProviderError("Review media list is not valid JSON") from exc
+    if not isinstance(values, list) or not values:
+        raise ProviderError("Review media list must be a non-empty JSON array")
+    try:
+        import folder_paths  # type: ignore[import-not-found]
+    except ImportError as exc:  # pragma: no cover - only available inside ComfyUI
+        raise ProviderError("Review preview nodes must run inside ComfyUI") from exc
+    input_root = Path(folder_paths.get_input_directory()).resolve(strict=True)
+    result: list[dict[str, str]] = []
+    allowed = {
+        "image": {".png", ".jpg", ".jpeg", ".webp"},
+        "video": {".mp4", ".mov", ".webm"},
+    }
+    for item in values:
+        if not isinstance(item, str):
+            raise ProviderError("Review media paths must be strings")
+        relative = Path(item)
+        if relative.is_absolute() or ".." in relative.parts:
+            raise ProviderError(f"Unsafe review media path: {item}")
+        path = (input_root / relative).resolve(strict=True)
+        try:
+            path.relative_to(input_root)
+        except ValueError as exc:
+            raise ProviderError(f"Review media escapes ComfyUI input: {item}") from exc
+        if not path.is_file() or path.suffix.lower() not in allowed[expected]:
+            raise ProviderError(f"Unsupported or missing review {expected}: {item}")
+        result.append(
+            {
+                "filename": path.name,
+                "subfolder": path.parent.relative_to(input_root).as_posix(),
+                "type": "input",
+            }
+        )
+    return result
+
+
+class StoryCanvasTextPreviewNode:
+    """Render already-computed text through ComfyUI's standard ui.text protocol."""
+
+    @classmethod
+    def INPUT_TYPES(cls) -> dict[str, Any]:
+        return {
+            "required": {
+                "title": ("STRING", {"default": "StoryCanvas review"}),
+                "text": ("STRING", {"multiline": True, "default": ""}),
+            },
+            "optional": {"dependency": ("SC_REVIEW",)},
+        }
+
+    RETURN_TYPES = ("SC_REVIEW",)
+    RETURN_NAMES = ("review",)
+    FUNCTION = "preview"
+    CATEGORY = f"{CATEGORY}/Review"
+    OUTPUT_NODE = True
+
+    def preview(
+        self, title: str, text: str, dependency: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
+        return {
+            "ui": {"text": (f"{title}\n\n{text}",)},
+            "result": ({"kind": "text", "title": title, "read_only": True},),
+        }
+
+
+class StoryCanvasImagePreviewNode:
+    """Render local Run images through ComfyUI's standard ui.images protocol."""
+
+    @classmethod
+    def INPUT_TYPES(cls) -> dict[str, Any]:
+        return {
+            "required": {
+                "title": ("STRING", {"default": "StoryCanvas images"}),
+                "files_json": ("STRING", {"multiline": True, "default": "[]"}),
+            },
+            "optional": {"dependency": ("SC_REVIEW",)},
+        }
+
+    RETURN_TYPES = ("SC_REVIEW",)
+    RETURN_NAMES = ("review",)
+    FUNCTION = "preview"
+    CATEGORY = f"{CATEGORY}/Review"
+    OUTPUT_NODE = True
+
+    def preview(
+        self, title: str, files_json: str, dependency: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
+        images = _review_input_media(files_json, expected="image")
+        return {
+            "ui": {"images": images},
+            "result": ({"kind": "image", "title": title, "count": len(images), "read_only": True},),
+        }
+
+
+class StoryCanvasVideoPreviewNode:
+    """Render local Run videos through ComfyUI's standard animated-media protocol."""
+
+    @classmethod
+    def INPUT_TYPES(cls) -> dict[str, Any]:
+        return {
+            "required": {
+                "title": ("STRING", {"default": "StoryCanvas videos"}),
+                "files_json": ("STRING", {"multiline": True, "default": "[]"}),
+            },
+            "optional": {"dependency": ("SC_REVIEW",)},
+        }
+
+    RETURN_TYPES = ("SC_REVIEW",)
+    RETURN_NAMES = ("review",)
+    FUNCTION = "preview"
+    CATEGORY = f"{CATEGORY}/Review"
+    OUTPUT_NODE = True
+
+    def preview(
+        self, title: str, files_json: str, dependency: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
+        videos = _review_input_media(files_json, expected="video")
+        return {
+            "ui": {"images": videos, "animated": (True,)},
+            "result": ({"kind": "video", "title": title, "count": len(videos), "read_only": True},),
+        }
+
+
 def _engine() -> StoryCanvas:
     global _ENGINE
     with _ENGINE_LOCK:
@@ -716,6 +842,9 @@ NODE_CLASS_MAPPINGS = {
     "StoryCanvasMiniMaxH3API": StoryCanvasMiniMaxH3APINode,
     "StoryCanvasStoryAssemble": StoryCanvasStoryAssembleNode,
     "StoryCanvasRunManifest": StoryCanvasRunManifestNode,
+    "StoryCanvasTextPreview": StoryCanvasTextPreviewNode,
+    "StoryCanvasImagePreview": StoryCanvasImagePreviewNode,
+    "StoryCanvasVideoPreview": StoryCanvasVideoPreviewNode,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -729,6 +858,9 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "StoryCanvasMiniMaxH3API": "MiniMax H3 API",
     "StoryCanvasStoryAssemble": "Story Assemble",
     "StoryCanvasRunManifest": "Run Manifest",
+    "StoryCanvasTextPreview": "Text Preview (Read-only)",
+    "StoryCanvasImagePreview": "Image Preview (Read-only)",
+    "StoryCanvasVideoPreview": "Video Preview (Read-only)",
 }
 
 

@@ -53,12 +53,19 @@ class DraftShot(StrictModel):
     shared_asset_ids: list[str] = Field(default_factory=list, max_length=4)
 
 
+class DraftVisualEntity(StrictModel):
+    entity_id: str
+    name: str
+    description: str
+    state: str | None = None
+
+
 class DirectorDraft(StrictModel):
     title: str
     style_prompt: str
-    characters: list[dict[str, Any]] = Field(default_factory=list)
-    locations: list[dict[str, Any]] = Field(default_factory=list)
-    props: list[dict[str, Any]] = Field(default_factory=list)
+    characters: list[DraftVisualEntity] = Field(default_factory=list)
+    locations: list[DraftVisualEntity] = Field(default_factory=list)
+    props: list[DraftVisualEntity] = Field(default_factory=list)
     continuity_rules: list[str] = Field(default_factory=list)
     shared_assets: list[DraftAsset] = Field(default_factory=list)
     shots: list[DraftShot] = Field(min_length=1)
@@ -110,6 +117,11 @@ def draft_to_plan(
     policy: ExecutionPolicy,
     draft: DirectorDraft,
     provider: ProviderDescriptor,
+    *,
+    fact_search_provider: ProviderDescriptor | None = None,
+    visual_search_provider: ProviderDescriptor | None = None,
+    image_provider: ProviderDescriptor | None = None,
+    video_provider: ProviderDescriptor | None = None,
 ) -> CanvasPlan:
     source_shots = _user_shots(value, policy)
     if len(draft.shots) != len(source_shots):
@@ -137,6 +149,7 @@ def draft_to_plan(
                 input_mode=InputMode.TEXT,
                 search_query=item.search_query,
                 visual_search_query=item.visual_search_query,
+                generation_provider=(image_provider.name if image_provider else "openai"),
             )
         )
     shared_by_id = {asset.asset_id: asset for asset in shared_assets}
@@ -236,27 +249,27 @@ def draft_to_plan(
         title=draft.title,
         story_id=story_id,
         planning_provider=provider,
-        fact_search_provider=ProviderDescriptor(
-            name="openai", model="web_search", endpoint_kind="responses"
-        ),
-        visual_search_provider=ProviderDescriptor(
-            name="serper", model="images", endpoint_kind="optional"
-        ),
-        image_provider=ProviderDescriptor(
+        fact_search_provider=fact_search_provider
+        or ProviderDescriptor(name="openai", model="web_search", endpoint_kind="responses"),
+        visual_search_provider=visual_search_provider
+        or ProviderDescriptor(name="serper", model="images", endpoint_kind="optional"),
+        image_provider=image_provider
+        or ProviderDescriptor(
             name="openai",
             model=os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1"),
             endpoint_kind="images",
         ),
-        video_provider=ProviderDescriptor(
+        video_provider=video_provider
+        or ProviderDescriptor(
             name="minimax-h3-compatible",
             model=os.getenv("MINIMAX_H3_MODEL", "MiniMax-H3"),
             endpoint_kind="async-http",
         ),
         visual_bible=VisualBible(
             style_prompt=draft.style_prompt,
-            characters=draft.characters,
-            locations=draft.locations,
-            props=draft.props,
+            characters=[item.model_dump(mode="json") for item in draft.characters],
+            locations=[item.model_dump(mode="json") for item in draft.locations],
+            props=[item.model_dump(mode="json") for item in draft.props],
             continuity_rules=draft.continuity_rules,
         ),
         shared_assets=shared_assets,

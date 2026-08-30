@@ -1,4 +1,4 @@
-# REST API
+# API
 
 Start the standalone service:
 
@@ -124,3 +124,25 @@ Events are append-only JSON objects for lifecycle status, not token-by-token mod
 ```
 
 Validation and policy failures return `400`, missing plans/jobs return `404`, and unexpected internal errors return a redacted `500`.
+
+## Standalone Canvas export
+
+The read-only Viewer export is available directly from Python:
+
+```python
+from storycanvas_harness import export_story_canvas
+
+report = export_story_canvas("runs/run-id", "public/canvas")
+```
+
+or through the CLI:
+
+```bash
+uv run storycanvas canvas-export \
+  --run-dir runs/run-id --output-dir public/canvas
+```
+
+Both surfaces validate `canvas_plan.json`, `run_manifest.json`, declared media paths, SHA-256,
+image decoding, and full video decoding. They emit the `storycanvas/canvas/v1` graph, a
+self-contained Viewer, content-addressed media, and a machine-readable export report. Export does
+not call a model or provider.

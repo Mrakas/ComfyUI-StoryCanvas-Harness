@@ -2,6 +2,13 @@
 
 StoryCanvas Harness separates probabilistic planning from deterministic execution.
 
+![StoryCanvas detailed implementation topology](../figures/storycanvas-topology.svg)
+
+This 28-node topology is the engineering companion to the repository's canonical
+[13-node Figure 1](../figures/storycanvas-figure1.svg). Both are generated from checked-in JSON
+specs. The compatibility providers below are also exposed through the Plugin/Profile composition
+layer; see [PLUGIN_ARCHITECTURE.md](PLUGIN_ARCHITECTURE.md).
+
 ```text
 free text / structured story
             │
@@ -87,6 +94,19 @@ Image cache identity includes provider, model, actual prompt, ordered reference 
 
 The MiniMax-H3 adapter persists request SHA and task ID before polling. A persisted task ID is reused. If task creation has an ambiguous transport outcome and no task ID can be established, the adapter records `create_ambiguous` and stops; it does not risk submitting a duplicate paid task.
 
+## Standalone Canvas protocol
+
+`storycanvas/canvas/v1` is the host-neutral, read-only projection of a completed `CanvasPlan` and
+`RunManifest`. `export_story_canvas()` verifies every declared path, SHA, image, and fully decoded
+video before emitting `canvas_graph.json`, a self-contained `index.html`, content-addressed local
+`media/`, and `export_report.json`.
+
+The graph exposes stages, typed nodes, dependency edges, prompt summaries, provenance, and receipt
+hashes without carrying credentials, machine-local paths, or remote provider identifiers. The
+Viewer uses no CDN and makes no provider calls. It is deliberately separate from the ComfyUI
+compiler: ComfyUI remains an execution host, while the standalone Canvas is a portable review and
+communication artifact.
+
 ## Provenance contract
 
 The public provenance enum distinguishes:
@@ -103,7 +123,7 @@ Every generated artifact can contain planned Prompt, actual Prompt, Prompt SHA, 
 
 ## Extension points
 
-Provider protocols live in `providers/base.py`:
+Compatibility provider protocols live in `providers/base.py`:
 
 - `DirectorProvider`
 - `FactSearchProvider`
@@ -112,3 +132,9 @@ Provider protocols live in `providers/base.py`:
 - `VideoProvider`
 
 A provider implementation should not bypass `ExecutionPolicy`, write secrets to receipts, reorder references, or silently retry ambiguous paid creation. See [PROVIDERS.md](PROVIDERS.md).
+
+New community integrations should normally publish a `storycanvas/plugin/v1`
+manifest and a zero-argument factory under the `storycanvas.plugins` entry-point
+group. The Profile names the Plugin and binds each capability explicitly. This
+keeps model SDKs and host-specific code outside the Kernel while preserving the
+same policy, DAG, Artifact, Receipt, and cleanup invariants.
