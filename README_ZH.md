@@ -1,118 +1,123 @@
 <div align="center">
-  <img src="assets/storycanvas-mark.svg" width="116" alt="StoryCanvas Harness 标志">
-  <h1>ComfyUI StoryCanvas Harness</h1>
-  <p><strong>把故事变成可审计、可编辑的多参考图 ComfyUI 画布。</strong></p>
-  <p><a href="README.md">English</a> · <a href="docs/ARCHITECTURE.md">架构</a> · <a href="docs/COMFYUI.md">ComfyUI 指南</a></p>
+  <img src="assets/storycanvas-mark.svg" width="104" alt="StoryCanvas 标志">
+  <h1>StoryCanvas Harness</h1>
+  <p><strong>面向 Agent 故事视频流水线的可组合、可检查运行时。</strong></p>
+  <p>
+    <a href="README.md">English</a> ·
+    <a href="docs/ARCHITECTURE.md">架构</a> ·
+    <a href="docs/PLUGIN_ARCHITECTURE.md">插件</a> ·
+    <a href="docs/COMFYUI.md">ComfyUI</a>
+  </p>
+  <p>
+    <a href="https://github.com/Mrakas/ComfyUI-StoryCanvas-Harness/actions/workflows/ci.yml"><img src="https://github.com/Mrakas/ComfyUI-StoryCanvas-Harness/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="Apache-2.0"></a>
+    <img src="https://img.shields.io/badge/status-alpha-f59e0b" alt="Alpha">
+  </p>
 </div>
 
-StoryCanvas Harness 不是一个视频模型。它是规划 Agent、视觉搜索/生图工具和视频后端之间的控制与审计层：Director 先把自然语言或结构化 Story 转成严格的 `CanvasPlan`，确定性编译器再把计划编译成原生 ComfyUI Workflow，每个 Shot 都是可展开的子图；运行时保留每张图的实际 Prompt、有序参考图、receipt、SHA-256、重试与最终输出。
+StoryCanvas 不是视频模型，而是把规划、参考图选择、生图、视频生成和评测方法组织成
+**Typed Media DAG** 的 Harness。Agent 结束后，Prompt、视觉状态、依赖、产物、Receipt 和
+SHA-256 仍然存在，不会消失在一次性脚本或黑盒 Trace 里。
 
-最终得到的不是 Agent trace 截图，也不是 LLM 随意拼出的 Comfy JSON，而是一张真的可以检查、修改并手动 Queue 的 ComfyUI 画布。
+<p align="center">
+  <img src="figures/storycanvas-figure1.svg" width="100%" alt="Figure 1：StoryCanvas 把碎片化创作栈组织为可检查的故事 Harness">
+</p>
 
-> **Alpha / 研究预览。** 默认是 `plan_only`，不会调用搜索、生图或付费视频接口。只有显式切换模式并配置预算门禁后，执行器才会解锁对应操作。
+<p align="center"><strong>Figure 1.</strong> 社区方法成为统一 Harness 中可替换的模块；中间媒体状态则沉淀为可编辑 Canvas、一致的多镜头视频和可复现评测。</p>
 
-## 它解决什么问题
+规范的 13 节点主图由确定性的 [FigureSpec](figures/specs/storycanvas-figure1.json)生成；
+更底层的[实现拓扑](figures/storycanvas-topology.svg)放在架构文档中。
 
-传统 ComfyUI 很灵活，但复杂 Story 的 Visual Bible、跨镜头状态和参考图顺序通常需要手工维护；很多 Story Agent 会自动规划，却把依赖关系、成本和来源藏在黑盒里。StoryCanvas 把两者接起来：
+## 先看真实 Canvas
 
-- Agent 负责理解 Story、规划角色/地点/道具状态、决定哪些 Shot 真正需要前序帧。
-- Typed Schema 约束 Agent 输出，Agent 不能直接生成任意工作流节点。
-- Compiler 负责生成合法、可展开的 ComfyUI 子图。
-- Harness 负责预算门禁、DAG 调度、缓存、恢复、SHA 和 provenance。
-- 用户最终在 ComfyUI 里看懂并控制整个流程。
+<p align="center">
+  <a href="assets/demo/storycanvas-pipeline-demo-v3.mp4"><img src="assets/demo/storycanvas-pipeline-demo-v3-poster.webp" width="100%" alt="带 Director Agent 活动面板的 Moon Garden StoryCanvas 流水线演示"></a>
+</p>
 
-## 核心能力
+<p align="center"><a href="assets/demo/storycanvas-pipeline-demo-v3.mp4"><strong>观看 28 秒 MP4</strong></a> · <a href="examples/moon_garden_canvas/index.html">查看独立 Canvas 文件</a></p>
 
-- 单个约 10 秒 Shot 和多 Shot Story 两种输入。
-- 自然语言与结构化 JSON 两种输入格式。
-- Story 级 Visual Bible，以及角色、地点、道具和状态约束。
-- Canvas 生图最多 5 张有序参考图；MiniMax-H3 兼容请求最多 9 张。
-- OpenAI Responses 结构化 Director、事实 `web_search`、OpenAI 生图/编辑、可选 Serper 视觉搜索。
-- MiniMax-H3 兼容异步 API：task ID 立即持久化；创建响应不明确时停止，不盲目重试付费任务。
-- 原生 ComfyUI Subgraph：顶层是共享资产，每个 Shot 是一个可展开子图。
-- UI Workflow 和 API-format Workflow 同时输出。
-- `plan_only`、`assets`、`full` 三档权限；`full` 还必须显式设置 `allow_paid_video=true`。
-- Python SDK、CLI、REST、ComfyUI 自定义节点和前端 Builder。
+Moon Garden 是一个经过脱敏的真实运行：一个 Story Prompt、一套 Visual Bible、三个 Shot
+Prompt、四张生成图、明确的前序帧/参考图依赖、三段 MiniMax-H3 视频和一个合并视频。
+Viewer 完全本地、只读；`Reset / Next / Play` 只改变显现阶段，不调用 Provider，也不产生费用。
+
+## StoryCanvas 的价值
+
+- **可组合**：Director、Prompt 编译、参考图规划、生成器、评测器和 Host Adapter 都可通过
+  类型化 Plugin 能力替换，而不需要重写整条流水线。
+- **可检查**：Prompt、有序参考图、持久视觉状态、依赖、重试、媒体和 Receipt 可以在
+  ComfyUI 或独立 Canvas Viewer 中查看。
+- **可复现**：Profile 绑定精确 Plugin；组合、请求、参考图、Artifact 和输出 SHA 防止错误
+  复用缓存，并支持重放。
 
 ## 快速开始
 
 ```bash
-cd /path/to/ComfyUI/custom_nodes
 git clone https://github.com/Mrakas/ComfyUI-StoryCanvas-Harness.git
 cd ComfyUI-StoryCanvas-Harness
-python -m pip install -r requirements.txt
-```
-
-重启 ComfyUI，然后打开 **Extensions → StoryCanvas → Build StoryCanvas…**。先点击 Build 预览精确调用量与警告，再点击 Apply；它会打开一个新 Workflow Tab，不会覆盖当前画布，也不会自动 Queue。
-
-Shot 子图需要 ComfyUI frontend 1.24.3 或以上。可参考 ComfyUI 官方的 [Subgraph 文档](https://docs.comfy.org/interface/features/subgraph)和[自定义节点安装文档](https://docs.comfy.org/installation/install_custom_node)。
-
-无密钥体验：
-
-```bash
 uv sync --extra dev
+
+# 无密钥的类型化预览；不会搜索、生图或生成视频。
 STORYCANVAS_PROVIDER_MODE=mock uv run storycanvas plan \
-  --kind shot --prompt "A fictional clockmaker repairs a tiny mechanical bird."
+  --kind story --input examples/three_shot_story/input.json
 
-STORYCANVAS_PROVIDER_MODE=mock uv run storycanvas run \
-  --kind story --input examples/three_shot_story/input.json \
-  --mode assets --max-shots 3 --max-image-calls 4
+# 运行本地组合兼容性 Demo。
+uv run python scripts/run_plugin_demos.py
+
+# 把任何已完成 Run 导出为独立媒体 DAG Viewer。
+uv run storycanvas canvas-export \
+  --run-dir /path/to/run-id --output-dir /path/to/canvas
 ```
 
-真实 Provider 只从环境变量取密钥：
+通过本地静态服务器打开导出的 `index.html`。如需安装原生 ComfyUI 自定义节点，请看
+[ComfyUI 指南](docs/COMFYUI.md)。
+
+## 四个核心概念
+
+| 概念 | 责任 |
+|---|---|
+| **Skill** | 说明、示例、模板和资产；本身没有执行权限。 |
+| **Plugin** | 类型化能力，例如 `story.plan`、`reference.plan`、`media.image.generate`、`media.video.generate`、`evaluation.run` 或 `canvas.render`。 |
+| **Profile** | 一次可复现运行所需的精确 Plugin、能力绑定、配置、权限与组合 SHA。 |
+| **Media DAG** | 跨 Host 共享的持久图，保存 Prompt、视觉状态、依赖、Artifact、Receipt 与结果。 |
+
+<p align="center">
+  <img src="figures/storycanvas-plugin-architecture.svg" width="100%" alt="StoryCanvas Plugin 架构与扩展协议">
+</p>
+
+<p align="center"><strong>Plugin 架构。</strong> 社区方法只需封装一次，成为说明型 Skill 或类型化能力；Profile 显式选择组合，再由最小 Kernel 执行，无需 Fork 核心仓库。</p>
+
+Kernel 统一管理生命周期、依赖、预算、校验、缓存和 Receipt；Host Adapter 则把同一套组合接到
+Python、CLI、REST、Codex、ComfyUI，以及未来的 Pi / DeepSeek Harness / LibTV。详见
+[Plugin 协议](specs/STORYCANVAS_PROTOCOL.md)、[第三方模板](plugins/template/)和
+[兼容性 ADR](docs/adr/0001-plugin-kernel.md)。
+
+## 示例
+
+| 示例 | 展示内容 |
+|---|---|
+| [Moon Garden Canvas](examples/moon_garden_canvas/) | 经过脱敏的真实图片/视频、独立 Viewer、provenance 与 CC BY 4.0 媒体许可。 |
+| [三 Shot Mock Story](examples/three_shot_story/) | 无密钥 Visual Bible、前序 Shot 链、Workflow、Prompt 与 Manifest。 |
+| [单 Shot Mock](examples/single_shot/) | 最小 Schema、Compiler 与审计 Fixture。 |
+| [Plugin Profiles](demos/plugin_profiles/) | Plan-only、连续性资产与完整 Mock Video 三种组合。 |
+
+## 安全边界
+
+默认模式是 `plan_only`。搜索、生图和付费视频必须显式开启并受 Execution Policy 限制；模糊的
+付费任务创建响应不会盲目重试。密钥只从运行环境读取，不进入 Workflow、Manifest、HTML 或日志。
+公共图片下载会拒绝私网、非图片响应和过大文件。
+
+本仓库仍是 Alpha 研究预览。生产使用前请检查生成计划、模型条款、成本与许可证。更多内容见
+[Provider](docs/PROVIDERS.md)、[API](docs/API.md)、[安全](SECURITY.md)、
+[安全模型](docs/SECURITY_MODEL.md)和[限制](docs/LIMITATIONS.md)。
+
+## 开发与许可
 
 ```bash
-export OPENAI_API_KEY="..."
-export OPENAI_TEXT_MODEL="gpt-5"
-export OPENAI_IMAGE_MODEL="gpt-image-1"
-
-export MINIMAX_H3_API_KEY="..."
-export MINIMAX_H3_BASE_URL="https://your-compatible-service.example"
-export MINIMAX_H3_MODEL="MiniMax-H3"
-```
-
-密钥不会写入 Workflow、Manifest、HTML 或 Git。MiniMax 适配器遵循 [`ComfyUI-MiniMaxH3-API`](https://github.com/meta-sota/ComfyUI-MiniMaxH3-API/tree/0d1c72b1d80a54237b40adb111ae74d7fe38f4b4) 的公开协议；服务可用性、计费和审核策略不属于本仓库保证范围。
-
-## 两个开源示例
-
-- [单 Shot：输入](examples/single_shot/input.json) · [Canvas Workflow](examples/single_shot/workflow.json) · [Prompt 审计](examples/single_shot/prompts.jsonl) · [Manifest](examples/single_shot/run_manifest.json)
-- [三 Shot：输入](examples/three_shot_story/input.json) · [Canvas Workflow](examples/three_shot_story/workflow.json) · [Prompt 审计](examples/three_shot_story/prompts.jsonl) · [Manifest](examples/three_shot_story/run_manifest.json)
-
-示例中的故事和图片全部是虚构的、确定性 Mock 产物，不包含私有 Benchmark 数据。三 Shot 示例清晰展示了图片依赖：Visual Bible 可以并行完成；Shot 2 因同场景连续性依赖 Shot 1；Shot 3 再依赖 Shot 2。
-
-## 代码库到底是什么
-
-它不只是“一堆告诉 Agent 怎么做的 Markdown”。Markdown 只是说明书，真正执行约束在代码里：
-
-```text
-schemas.py       Agent 可输出什么，以及什么计划会被拒绝
-providers/       规划、搜索、生图、视频接口
-engine.py        预算门禁、DAG 调度、缓存与断点恢复
-workflow.py      CanvasPlan → ComfyUI UI/API Workflow
-comfy_nodes.py   10 个可执行自定义节点
-comfy_api.py     ComfyUI 内置 REST 路由
-web/js/          Build → Preview → Apply 到新画布
-```
-
-Agent 每个 Story 默认只进行一次结构化规划，不会把一整晚的执行日志不断塞回同一个超长上下文。逐资产执行由确定性 Scheduler 管理，完成项通过 request SHA 和 receipt 复用。
-
-## 安全与诚实边界
-
-- 搜索图、用户图和生成图使用不同 provenance，不互相冒充。
-- Visual Search 只允许公共 HTTPS，阻止私有/保留地址、非图片响应和超过 20 MiB 的下载，并重新解码后保存。
-- 模糊的付费视频创建响应不会自动重试。
-- 公开仓库不包含私有 Benchmark、内部 GPU/集群脚本、模型权重、密钥或研究输出。
-- Mock 示例证明的是 Schema、画布与审计链路，不代表真实视觉质量。
-
-更多内容见 [架构](docs/ARCHITECTURE.md)、[Provider](docs/PROVIDERS.md)、[REST API](docs/API.md)、[安全模型](docs/SECURITY_MODEL.md)和[局限](docs/LIMITATIONS.md)。
-
-## 开发
-
-```bash
-uv sync --extra dev
+uv sync --extra dev --extra codex --extra demo
 uv run ruff check .
-uv run mypy -p storycanvas_harness
+uv run mypy --explicit-package-bases storycanvas_harness
 uv run pytest
 ```
 
-Apache-2.0，见 [LICENSE](LICENSE)。
+代码采用 [Apache-2.0](LICENSE)。Moon Garden 的图片、视频、图数据、封面和动画采用
+[CC BY 4.0](examples/moon_garden_canvas/MEDIA_LICENSE.md)。

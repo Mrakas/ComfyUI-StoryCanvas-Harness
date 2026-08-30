@@ -23,3 +23,5 @@ uv-cache/
 # Deliberately published, CC BY 4.0 demo media.
 !examples/moon_garden_canvas/media/*.mp4
 !assets/demo/storycanvas-canvas-demo.mp4
+!assets/demo/storycanvas-pipeline-demo-v2.mp4
+!assets/demo/storycanvas-pipeline-demo-v3.mp4

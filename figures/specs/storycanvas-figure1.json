@@ -1,0 +1,47 @@
+{
+  "canvas": {
+    "width": 1440,
+    "height": 760,
+    "background": "#FBFCFE"
+  },
+  "title": "From bespoke video pipelines to an inspectable story harness",
+  "subtitle": "Compose community methods once; keep every visual dependency and result visible.",
+  "description": "Figure 1. StoryCanvas replaces repeated, opaque, or hand-wired video-generation pipelines with one composable harness that produces an editable media DAG, consistent multi-shot video, and reproducible evaluation.",
+  "sections": [
+    {"title": "A. Fragmented creative stacks", "x": 45, "y": 140, "width": 360, "height": 550, "fill": "#FFF9F7", "stroke": "#FED7D2"},
+    {"title": "B. StoryCanvas", "x": 435, "y": 140, "width": 550, "height": 550, "fill": "#F7F8FF", "stroke": "#C7D2FE"},
+    {"title": "C. Inspectable story run", "x": 1015, "y": 140, "width": 380, "height": 550, "fill": "#F4FBF8", "stroke": "#A7F3D0"}
+  ],
+  "nodes": [
+    {"id": "prompt_output", "label": "Prompt → Model → Output", "detail": "single-use generation", "detail_font_size": 13, "x": 80, "y": 205, "width": 290, "height": 76, "style": "module"},
+    {"id": "chat_tools", "label": "Chat → Tools → Assets", "detail": "state hidden in logs", "detail_font_size": 13, "x": 80, "y": 315, "width": 290, "height": 76, "style": "module"},
+    {"id": "manual_nodes", "label": "Manual Node Workflow", "detail": "visible, but hand-wired", "detail_font_size": 13, "x": 80, "y": 425, "width": 290, "height": 76, "style": "module"},
+    {"id": "problem", "label": "Capabilities stay trapped\nin bespoke pipelines", "detail": "hard to reuse · inspect · compare", "detail_font_size": 13, "x": 80, "y": 560, "width": 290, "height": 92, "style": "module", "font_size": 17},
+
+    {"id": "methods", "label": "Community Methods", "detail": "planning · references · generation · evaluation", "detail_font_size": 13, "x": 475, "y": 205, "width": 470, "height": 76, "style": "plugin", "font_size": 18},
+    {"id": "harness", "label": "StoryCanvas Harness", "detail": "typed plugins + minimal kernel", "detail_font_size": 13, "x": 515, "y": 335, "width": 390, "height": 92, "style": "profile", "font_size": 21},
+    {"id": "dag", "label": "Typed Media DAG", "detail": "references · dependencies · state", "detail_font_size": 13, "x": 475, "y": 480, "width": 470, "height": 76, "style": "media", "font_size": 18},
+    {"id": "visual", "label": "Visual Bible", "x": 475, "y": 600, "width": 135, "height": 62, "style": "media"},
+    {"id": "shots", "label": "Shot Graph", "x": 642, "y": 600, "width": 135, "height": 62, "style": "media"},
+    {"id": "receipts", "label": "Receipts", "x": 810, "y": 600, "width": 135, "height": 62, "style": "media"},
+
+    {"id": "canvas", "label": "Editable Canvas", "detail": "inspect · edit · steer", "detail_font_size": 13, "x": 1050, "y": 215, "width": 310, "height": 96, "style": "output", "font_size": 19},
+    {"id": "video", "label": "Consistent Multi-Shot Video", "detail": "Shot 1 → Shot 2 → Shot 3", "detail_font_size": 13, "x": 1050, "y": 385, "width": 310, "height": 96, "style": "output", "font_size": 18},
+    {"id": "evaluation", "label": "Reproducible Evaluation", "detail": "replay · compare · share", "detail_font_size": 13, "x": 1050, "y": 555, "width": 310, "height": 96, "style": "output", "font_size": 18}
+  ],
+  "edges": [
+    {"from": "prompt_output", "to": "problem", "from_anchor": "right", "to_anchor": "right", "via": [[385, 243], [385, 606]], "dashed": true},
+    {"from": "chat_tools", "to": "problem", "from_anchor": "right", "to_anchor": "right", "via": [[390, 353], [390, 606]], "dashed": true},
+    {"from": "manual_nodes", "to": "problem", "from_anchor": "bottom", "to_anchor": "top"},
+
+    {"from": "methods", "to": "harness", "from_anchor": "bottom", "to_anchor": "top"},
+    {"from": "harness", "to": "dag", "from_anchor": "bottom", "to_anchor": "top"},
+    {"from": "dag", "to": "visual", "from_anchor": "bottom", "to_anchor": "top", "via": [[710, 578], [543, 578]]},
+    {"from": "dag", "to": "shots", "from_anchor": "bottom", "to_anchor": "top"},
+    {"from": "dag", "to": "receipts", "from_anchor": "bottom", "to_anchor": "top", "via": [[710, 578], [878, 578]]},
+
+    {"from": "dag", "to": "canvas", "from_anchor": "right", "to_anchor": "left", "via": [[985, 518], [995, 263]]},
+    {"from": "canvas", "to": "video", "from_anchor": "bottom", "to_anchor": "top"},
+    {"from": "video", "to": "evaluation", "from_anchor": "bottom", "to_anchor": "top"}
+  ]
+}

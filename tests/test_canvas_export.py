@@ -56,8 +56,8 @@ def test_canvas_export_is_standalone_sanitized_and_deterministic(
     plan = json.loads(plan_path.read_text(encoding="utf-8"))
     plan["planning_provider"]["endpoint_kind"] = (
         "chatgpt-login;ephemeral;reasoning=medium;"
-        "thread=01a023cc-234c-73f3-9547-18ec8c3e02d6;"
-        "turn=01a023cc-23db-7362-98ec-2c7d62a85e31"
+        "thread=01234567-89ab-cdef-0123-456789abcdef;"
+        "turn=fedcba98-7654-3210-fedc-ba9876543210"
     )
     atomic_write_json(plan_path, plan)
     output = tmp_path / "canvas"
@@ -87,8 +87,8 @@ def test_canvas_export_is_standalone_sanitized_and_deterministic(
     assert "task-secret" not in rendered
     assert "request-secret" not in rendered
     assert "provider_request_id" not in rendered
-    assert "01a023cc-234c-73f3-9547-18ec8c3e02d6" not in rendered
-    assert "01a023cc-23db-7362-98ec-2c7d62a85e31" not in rendered
+    assert "01234567-89ab-cdef-0123-456789abcdef" not in rendered
+    assert "fedcba98-7654-3210-fedc-ba9876543210" not in rendered
     assert "chatgpt-login;ephemeral;reasoning=medium" in rendered
     assert first["network_calls"] is False
     assert all(not Path(item["path"]).is_absolute() for item in first["media"])

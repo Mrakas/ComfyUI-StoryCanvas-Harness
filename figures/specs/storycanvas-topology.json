@@ -1,0 +1,86 @@
+{
+  "canvas": {
+    "width": 1600,
+    "height": 980,
+    "background": "#F8FAFC"
+  },
+  "title": "StoryCanvas Harness: a composable media-agent runtime",
+  "subtitle": "Turn community methods into typed, swappable capabilities while preserving an auditable media DAG.",
+  "description": "Figure 1. Community video-generation modules enter through Skills and Plugins, are composed by Packs and Profiles, executed by the StoryCanvas kernel, and exposed to current or future hosts with reproducible artifacts and evaluation.",
+  "legend": "Solid = implemented path    Dashed = extension adapter",
+  "sections": [
+    {"title": "A. Community methods", "x": 45, "y": 135, "width": 330, "height": 610, "fill": "#FFFBF5", "stroke": "#FED7AA"},
+    {"title": "B. StoryCanvas Protocol + Kernel", "x": 410, "y": 135, "width": 780, "height": 610, "fill": "#F7F8FF", "stroke": "#C7D2FE"},
+    {"title": "C. Hosts + inspectable results", "x": 1225, "y": 135, "width": 330, "height": 610, "fill": "#F5FBFA", "stroke": "#99F6E4"},
+    {"title": "D. Open update loop", "x": 45, "y": 785, "width": 1510, "height": 145, "fill": "#FFFFFF", "stroke": "#CBD5E1"}
+  ],
+  "nodes": [
+    {"id": "director", "label": "Director / Story Planner", "detail": "agent policy + decomposition", "x": 80, "y": 205, "width": 260, "height": 74, "style": "module"},
+    {"id": "reference", "label": "Reference Method", "detail": "identity · location · state", "x": 80, "y": 300, "width": 260, "height": 74, "style": "module"},
+    {"id": "prompt", "label": "Prompt / Camera Skill", "detail": "text · timeline · constraints", "x": 80, "y": 395, "width": 260, "height": 74, "style": "module"},
+    {"id": "backend", "label": "Image / Video Backend", "detail": "local · cloud · research model", "x": 80, "y": 490, "width": 260, "height": 74, "style": "module"},
+    {"id": "evaluator", "label": "Evaluator / Renderer", "detail": "metrics · canvas · review UI", "x": 80, "y": 585, "width": 260, "height": 74, "style": "module"},
+
+    {"id": "skill", "label": "Skill", "detail": "instructions + assets", "x": 445, "y": 200, "width": 155, "height": 78, "style": "skill"},
+    {"id": "plugin", "label": "Plugin", "detail": "manifest + service", "x": 620, "y": 200, "width": 155, "height": 78, "style": "plugin"},
+    {"id": "pack", "label": "Pack", "detail": "plugins + skills", "x": 795, "y": 200, "width": 155, "height": 78, "style": "pack"},
+    {"id": "profile", "label": "Profile", "detail": "bindings + config", "x": 970, "y": 200, "width": 175, "height": 78, "style": "profile"},
+
+    {"id": "registry", "label": "Capability Registry", "detail": "discover · bind · resolve", "x": 445, "y": 340, "width": 205, "height": 82, "style": "kernel"},
+    {"id": "lifecycle", "label": "Lifecycle + Dependencies", "detail": "start · wait · dispose", "x": 675, "y": 340, "width": 220, "height": 82, "style": "kernel"},
+    {"id": "policy", "label": "Policy + Permissions", "detail": "cost · network · filesystem", "x": 920, "y": 340, "width": 225, "height": 82, "style": "kernel"},
+
+    {"id": "story", "label": "Typed Story Plan", "detail": "storycanvas/v1", "x": 445, "y": 500, "width": 170, "height": 78, "style": "media"},
+    {"id": "visual", "label": "Visual Bible", "detail": "shared reusable assets", "x": 635, "y": 500, "width": 170, "height": 78, "style": "media"},
+    {"id": "shotdag", "label": "Media DAG Scheduler", "detail": "explicit refs + concurrency", "x": 825, "y": 500, "width": 190, "height": 78, "style": "media"},
+    {"id": "run", "label": "Artifact +\nReceipt Store", "detail": "prompt · SHA · event", "x": 1025, "y": 500, "width": 120, "height": 78, "style": "media", "font_size": 13},
+
+    {"id": "canvas", "label": "Editable Canvas", "detail": "text · images · video · edges", "x": 470, "y": 640, "width": 205, "height": 74, "style": "output"},
+    {"id": "replay", "label": "Reproducible Run", "detail": "profile lock + provenance", "x": 700, "y": 640, "width": 205, "height": 74, "style": "output"},
+    {"id": "evaluation", "label": "Comparable Evaluation", "detail": "namespaced metrics", "x": 930, "y": 640, "width": 205, "height": 74, "style": "output"},
+
+    {"id": "current_hosts", "label": "CLI · REST · Codex", "detail": "current host surfaces", "x": 1260, "y": 215, "width": 260, "height": 76, "style": "output"},
+    {"id": "comfy", "label": "ComfyUI", "detail": "native graph + App review", "x": 1260, "y": 320, "width": 260, "height": 76, "style": "output"},
+    {"id": "future_hosts", "label": "Pi · DeepSeek Harness · LibTV", "detail": "thin host adapters", "x": 1260, "y": 425, "width": 260, "height": 76, "style": "future", "dashed": true, "font_size": 14},
+    {"id": "human", "label": "Human-inspectable Story Run", "detail": "edit · replay · compare · share", "x": 1260, "y": 555, "width": 260, "height": 88, "style": "output"},
+
+    {"id": "package", "label": "1 · Package method", "detail": "Skill or Plugin", "x": 85, "y": 835, "width": 225, "height": 66, "style": "loop"},
+    {"id": "conformance", "label": "2 · Conformance tests", "detail": "schema · lifecycle · resume", "x": 380, "y": 835, "width": 235, "height": 66, "style": "loop"},
+    {"id": "install", "label": "3 · Install entry point", "detail": "no core fork", "x": 685, "y": 835, "width": 225, "height": 66, "style": "loop"},
+    {"id": "select", "label": "4 · Select in Profile", "detail": "explicit capability binding", "x": 980, "y": 835, "width": 225, "height": 66, "style": "loop"},
+    {"id": "inspect", "label": "5 · Run, inspect, improve", "detail": "artifacts feed next version", "x": 1275, "y": 835, "width": 225, "height": 66, "style": "loop"}
+  ],
+  "edges": [
+    {"from": "director", "to": "plugin", "from_anchor": "right", "to_anchor": "left", "via": [[390, 242], [390, 239]], "label": "wrap", "label_at": [390, 220]},
+    {"from": "reference", "to": "plugin", "from_anchor": "right", "to_anchor": "left", "via": [[390, 337], [390, 239]], "dashed": true},
+    {"from": "prompt", "to": "skill", "from_anchor": "right", "to_anchor": "left", "via": [[400, 432], [400, 239]], "label": "declare", "label_at": [400, 354]},
+    {"from": "backend", "to": "plugin", "from_anchor": "right", "to_anchor": "left", "via": [[405, 527], [405, 255]], "dashed": true},
+    {"from": "evaluator", "to": "plugin", "from_anchor": "right", "to_anchor": "left", "via": [[420, 622], [420, 270]], "dashed": true},
+
+    {"from": "skill", "to": "pack", "from_anchor": "right", "to_anchor": "left", "via": [[610, 292], [785, 292]]},
+    {"from": "plugin", "to": "pack", "from_anchor": "right", "to_anchor": "left"},
+    {"from": "pack", "to": "profile", "from_anchor": "right", "to_anchor": "left"},
+    {"from": "profile", "to": "registry", "from_anchor": "bottom", "to_anchor": "top", "via": [[1058, 310], [548, 310]], "label": "activates", "label_at": [805, 310]},
+    {"from": "registry", "to": "lifecycle", "from_anchor": "right", "to_anchor": "left"},
+    {"from": "lifecycle", "to": "policy", "from_anchor": "right", "to_anchor": "left"},
+    {"from": "registry", "to": "story", "from_anchor": "bottom", "to_anchor": "top"},
+    {"from": "policy", "to": "run", "from_anchor": "bottom", "to_anchor": "top"},
+    {"from": "story", "to": "visual", "from_anchor": "right", "to_anchor": "left"},
+    {"from": "visual", "to": "shotdag", "from_anchor": "right", "to_anchor": "left"},
+    {"from": "shotdag", "to": "run", "from_anchor": "right", "to_anchor": "left"},
+    {"from": "run", "to": "canvas", "from_anchor": "bottom", "to_anchor": "top", "via": [[1090, 610], [573, 610]]},
+    {"from": "run", "to": "replay", "from_anchor": "bottom", "to_anchor": "top", "via": [[1090, 620], [803, 620]]},
+    {"from": "run", "to": "evaluation", "from_anchor": "bottom", "to_anchor": "top"},
+
+    {"from": "profile", "to": "current_hosts", "from_anchor": "right", "to_anchor": "left", "via": [[1195, 239], [1195, 253]], "label": "host API", "label_at": [1195, 220]},
+    {"from": "canvas", "to": "comfy", "from_anchor": "right", "to_anchor": "left", "via": [[1205, 677], [1205, 358]]},
+    {"from": "profile", "to": "future_hosts", "from_anchor": "right", "to_anchor": "left", "via": [[1210, 270], [1210, 463]], "dashed": true},
+    {"from": "replay", "to": "human", "from_anchor": "right", "to_anchor": "left", "via": [[1215, 677], [1215, 599]]},
+
+    {"from": "package", "to": "conformance", "from_anchor": "right", "to_anchor": "left"},
+    {"from": "conformance", "to": "install", "from_anchor": "right", "to_anchor": "left"},
+    {"from": "install", "to": "select", "from_anchor": "right", "to_anchor": "left"},
+    {"from": "select", "to": "inspect", "from_anchor": "right", "to_anchor": "left"},
+    {"from": "inspect", "to": "package", "from_anchor": "bottom", "to_anchor": "bottom", "via": [[1388, 918], [198, 918]], "dashed": true, "label": "feedback", "label_at": [795, 918]}
+  ]
+}

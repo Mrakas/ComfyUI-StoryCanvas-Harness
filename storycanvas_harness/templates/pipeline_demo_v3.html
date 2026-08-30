@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23151719'/%3E%3C/svg%3E">
+  <title>StoryCanvas Director Agent Demo</title>
+  <style>
+    :root {
+      --paper: #ebe9e4;
+      --paper-2: #f7f5f0;
+      --ink: #151719;
+      --muted: #71736e;
+      --line: rgba(21, 23, 25, .14);
+      --accent: #ff4c24;
+      --green: #11685e;
+      --mint: #d8f1ec;
+    }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    body { background: #101214; color: var(--ink); font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .shell { position: absolute; inset: 24px; border-radius: 22px; overflow: hidden; background: var(--paper); box-shadow: 0 28px 90px rgba(0,0,0,.38); }
+    .canvas-pane { position: absolute; inset: 0 410px 0 0; overflow: hidden; background: #101214; }
+    .canvas-scale { position: absolute; left: 0; top: 98px; width: 1920px; height: 1080px; transform: scale(.755); transform-origin: left top; }
+    .canvas-scale iframe { width: 1920px; height: 1080px; border: 0; display: block; background: #101214; }
+    .pane-label {
+      position: absolute; z-index: 4; left: 34px; top: 26px; height: 54px; padding: 0 18px;
+      display: flex; align-items: center; gap: 12px; border-radius: 14px;
+      background: rgba(247,245,240,.96); border: 1px solid rgba(255,255,255,.12); box-shadow: 0 16px 44px rgba(0,0,0,.22);
+    }
+    .mark { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; color: white; background: var(--ink); font: 800 11px/1 "SFMono-Regular", Consolas, monospace; }
+    .pane-label strong { display: block; font-size: 13px; letter-spacing: -.01em; }
+    .pane-label span { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .live-chip { margin-left: 20px; color: white !important; background: var(--accent); padding: 6px 8px; border-radius: 8px; font: 800 8px/1 "SFMono-Regular", Consolas, monospace; text-transform: uppercase; letter-spacing: .08em; }
+
+    .agent-panel { position: absolute; z-index: 10; right: 0; top: 0; bottom: 0; width: 410px; background: var(--paper-2); border-left: 1px solid var(--line); display: flex; flex-direction: column; }
+    .agent-head { min-height: 106px; padding: 23px 22px 18px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.68); }
+    .agent-title { display: flex; align-items: center; gap: 12px; }
+    .agent-avatar { position: relative; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; color: white; background: var(--ink); font: 800 11px/1 "SFMono-Regular", Consolas, monospace; }
+    .agent-avatar::after { content: ""; position: absolute; right: -2px; bottom: -2px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); border: 2px solid var(--paper-2); box-shadow: 0 0 0 3px rgba(255,76,36,.12); transition: background .5s, box-shadow .5s; }
+    .complete .agent-avatar::after { background: #12a47f; box-shadow: 0 0 0 3px rgba(18,164,127,.12); }
+    .agent-name { flex: 1; }
+    .agent-name strong { display: block; font-size: 15px; letter-spacing: -.02em; }
+    .agent-name span { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
+    .agent-state { color: var(--accent); font: 800 9px/1 "SFMono-Regular", Consolas, monospace; text-transform: uppercase; letter-spacing: .08em; }
+    .complete .agent-state { color: var(--green); }
+    .agent-note { margin-top: 15px; display: flex; align-items: center; gap: 7px; color: #83847f; font: 700 8px/1 "SFMono-Regular", Consolas, monospace; text-transform: uppercase; letter-spacing: .08em; }
+    .agent-note i { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+
+    .activity { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+    .activity::before { content: ""; position: absolute; z-index: 3; left: 0; right: 0; top: 0; height: 18px; pointer-events: none; background: linear-gradient(var(--paper-2), transparent); }
+    .activity::after { content: ""; position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; height: 28px; pointer-events: none; background: linear-gradient(transparent, var(--paper-2)); }
+    .messages { position: absolute; left: 0; right: 0; top: 0; padding: 20px 18px 40px; transition: transform .65s cubic-bezier(.22,.8,.22,1); }
+    .message { position: relative; margin: 0 0 10px; opacity: 0; transform: translateY(14px); transition: opacity .5s, transform .5s; }
+    .message.visible { opacity: 1; transform: none; }
+    .message.user { padding-left: 42px; }
+    .bubble { position: relative; padding: 11px 12px 10px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255,255,255,.9); box-shadow: 0 8px 24px rgba(20,22,23,.055); }
+    .user .bubble { color: white; background: var(--ink); border-color: var(--ink); border-bottom-right-radius: 4px; }
+    .tool .bubble { background: #edf6f3; border-color: rgba(17,104,94,.18); }
+    .checkpoint .bubble { background: #fff0eb; border-color: rgba(255,76,36,.22); }
+    .message-head { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; color: #7c7e78; font: 800 8px/1 "SFMono-Regular", Consolas, monospace; text-transform: uppercase; letter-spacing: .08em; }
+    .user .message-head { color: rgba(255,255,255,.5); }
+    .event-icon { width: 17px; height: 17px; display: grid; place-items: center; border-radius: 6px; color: white; background: #747872; font-size: 9px; }
+    .user .event-icon { background: var(--accent); }
+    .agent .event-icon { background: var(--ink); }
+    .tool .event-icon { background: var(--green); }
+    .checkpoint .event-icon { background: var(--accent); }
+    .message-title { color: var(--ink); font-size: 10px; font-weight: 800; line-height: 1.25; }
+    .user .message-title { color: white; }
+    .message-text { margin-top: 4px; color: #666862; font-size: 9px; line-height: 1.42; }
+    .user .message-text { color: rgba(255,255,255,.66); }
+    .message-meta { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
+    .message-meta span { padding: 4px 6px; border-radius: 6px; color: #686a64; background: rgba(21,23,25,.055); font: 700 7px/1 "SFMono-Regular", Consolas, monospace; text-transform: uppercase; letter-spacing: .04em; }
+    .user .message-meta span { color: rgba(255,255,255,.68); background: rgba(255,255,255,.09); }
+    .complete .messages { transform: translateY(0) !important; padding-top: 12px; }
+    .complete .message { margin-bottom: 5px; }
+    .complete .message.user { padding-left: 24px; }
+    .complete .bubble { padding: 6px 9px; }
+    .complete .message-head { margin-bottom: 3px; }
+    .complete .message-text { display: none; }
+    .complete .message-meta { margin-top: 4px; }
+    .complete .message-meta span { padding: 3px 5px; }
+    .typing { height: 34px; display: flex; align-items: center; gap: 5px; padding: 0 12px; opacity: 0; transition: opacity .25s; }
+    .typing.visible { opacity: 1; }
+    .typing i { width: 5px; height: 5px; border-radius: 50%; background: #90928c; animation: bounce .9s infinite alternate; }
+    .typing i:nth-child(2) { animation-delay: .15s; }
+    .typing i:nth-child(3) { animation-delay: .3s; }
+    @keyframes bounce { to { transform: translateY(-4px); background: var(--accent); } }
+    .agent-foot { height: 64px; padding: 13px 18px; border-top: 1px solid var(--line); background: rgba(255,255,255,.72); }
+    .composer { height: 38px; padding: 0 12px; border-radius: 11px; border: 1px solid var(--line); background: #efeee9; color: #969791; display: flex; align-items: center; justify-content: space-between; font-size: 9px; }
+    .composer b { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 8px; color: white; background: var(--ink); font-size: 11px; }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="canvas-pane">
+      <div class="pane-label"><div class="mark">SC</div><div><strong>StoryCanvas Run</strong><span>typed media DAG · Moon Garden</span></div><span class="live-chip">live trace</span></div>
+      <div class="canvas-scale"><iframe id="pipeline" src="pipeline_demo.html?embed=1" title="StoryCanvas media pipeline"></iframe></div>
+    </section>
+    <aside class="agent-panel" id="agent-panel">
+      <header class="agent-head">
+        <div class="agent-title">
+          <div class="agent-avatar">DA</div>
+          <div class="agent-name"><strong>Director Agent</strong><span>orchestrating the active run</span></div>
+          <div class="agent-state" id="agent-state">Working</div>
+        </div>
+        <div class="agent-note"><i></i> Decision summaries · receipts-backed</div>
+      </header>
+      <section class="activity" id="activity"><div class="messages" id="messages"></div></section>
+      <footer class="agent-foot"><div class="composer"><span>Agent activity is read-only in this demo</span><b>→</b></div></footer>
+    </aside>
+  </main>
+  <script>
+    const byTitle = (nodes, title) => nodes.find(node => node.title === title);
+    const detail = (nodes, title) => byTitle(nodes, title).details || {};
+    const receipt = (nodes, title) => detail(nodes, title).receipt || {};
+    const safeCount = value => Number.isFinite(Number(value)) ? Number(value) : 0;
+    const reasoningFrom = value => {
+      const match = String(value || '').match(/reasoning=([a-z]+)/i);
+      return match ? match[1] : 'configured';
+    };
+    function buildEvents(graph) {
+      const nodes = graph.nodes;
+      const director = detail(nodes, 'Typed Director');
+      const visual = detail(nodes, 'Visual Bible');
+      const shot1 = detail(nodes, 'Shot 1 Canvas');
+      const shot2 = detail(nodes, 'Shot 2 Canvas');
+      const shot3 = detail(nodes, 'Shot 3 Canvas');
+      const run = detail(nodes, 'Receipts & SHA');
+      const model = director.provider && director.provider.model || 'configured director';
+      const reasoning = reasoningFrom(director.provider && director.provider.endpoint_kind);
+      const videoArtifacts = (run.artifacts || []).filter(item => item.operation === 'video_generation');
+      const videoModel = videoArtifacts[0] && videoArtifacts[0].model || 'video model';
+      const errors = Array.isArray(run.errors) ? run.errors.length : 0;
+      const mediaCount = new Set(nodes.flatMap(node => (node.media || []).map(item => item.sha256)).filter(Boolean)).size;
+      return [
+        { at: 600, kind: 'user', icon: 'U', title: 'Create a three-shot Moon Garden story', text: 'Keep the botanist, glasshouse, clay pot, red notebook, and evolving plant state consistent.', meta: ['3 shots', '30 seconds'] },
+        { at: 2300, kind: 'agent', icon: 'A', title: 'Multi-shot route selected', text: 'I will build shared visual state first, then generate inspectable keyframes and clips.', meta: [model, `${reasoning} reasoning`] },
+        { at: 4600, kind: 'tool', icon: 'V', title: 'Shared Visual Bible ready', text: 'Character, location, palette, props, and continuity rules are now reusable state.', meta: [`${safeCount(visual.receipt && visual.receipt.attempts)} attempt`, 'text → image'], stage: 1 },
+        { at: 6800, kind: 'agent', icon: 'D', title: 'Story compiled into three shots', text: 'Each shot is addressable while all three inherit the same visual state.', meta: ['typed DAG', 'ordered refs'], stage: 2 },
+        { at: 9200, kind: 'tool', icon: '1', title: 'Shot 01 keyframe accepted', text: 'The Style Bible anchors the botanist, glasshouse, moonlight, and prop design.', meta: [shot1.input_mode, `${(shot1.ordered_references || []).length} reference`, `${safeCount(shot1.receipt && shot1.receipt.attempts)} attempt`], stage: 3 },
+        { at: 11600, kind: 'tool', icon: '2', title: 'Shot 02 keyframe accepted', text: 'Style Bible stays first; Shot 01 becomes the explicit previous-shot reference.', meta: [shot2.input_mode, `${(shot2.ordered_references || []).length} ordered refs`, `${safeCount(shot2.receipt && shot2.receipt.attempts)} attempts`] },
+        { at: 14000, kind: 'tool', icon: '3', title: 'Shot 03 keyframe accepted', text: 'The inherited glasshouse and object state continue while exactly three moths appear.', meta: [shot3.input_mode, `${(shot3.ordered_references || []).length} ordered refs`, `${safeCount(shot3.receipt && shot3.receipt.attempts)} attempt`] },
+        { at: 16500, kind: 'agent', icon: '▶', title: 'Keyframes committed to video', text: 'Each approved Canvas becomes Picture 1 for a ten-second animation request.', meta: [videoModel, `${videoArtifacts.length} clips`, '10s each'], stage: 4 },
+        { at: 20500, kind: 'tool', icon: '✓', title: 'Three verified clips linked', text: 'Video SHA, dimensions, duration, audio, and decode status remain attached to the run.', meta: ['1344×768', 'H.264', 'audio'] },
+        { at: 23900, kind: 'checkpoint', icon: '◆', title: 'Story cut assembled and checkpointed', text: 'Prompts, dependencies, media, and receipts remain inspectable after export.', meta: [`${mediaCount} artifacts`, `${errors} errors`, 'SHA verified'], stage: 5 },
+      ];
+    }
+    function renderMessage(event, index) {
+      const article = document.createElement('article');
+      article.className = `message ${event.kind}`;
+      article.dataset.index = String(index);
+      const meta = event.meta.map(value => `<span>${String(value)}</span>`).join('');
+      article.innerHTML = `<div class="bubble"><div class="message-head"><span class="event-icon">${event.icon}</span>${event.kind}</div><div class="message-title">${event.title}</div><div class="message-text">${event.text}</div><div class="message-meta">${meta}</div></div>`;
+      return article;
+    }
+    function scrollMessages() {
+      const activity = document.getElementById('activity');
+      const messages = document.getElementById('messages');
+      const overflow = Math.max(0, messages.scrollHeight - activity.clientHeight + 18);
+      messages.style.transform = `translateY(${-overflow}px)`;
+    }
+    function reveal(index) {
+      const message = document.querySelector(`.message[data-index="${index}"]`);
+      message.classList.add('visible');
+      document.getElementById('typing').classList.remove('visible');
+      requestAnimationFrame(scrollMessages);
+    }
+    function setLeftStage(stage) {
+      const frame = document.getElementById('pipeline');
+      if (frame.contentWindow.pipelineDemo) frame.contentWindow.pipelineDemo.setStage(stage);
+    }
+    async function hydrate() {
+      const [graph] = await Promise.all([
+        fetch('canvas_graph.json').then(response => {
+          if (!response.ok) throw new Error(`canvas_graph.json: ${response.status}`);
+          return response.json();
+        }),
+        new Promise(resolve => document.getElementById('pipeline').addEventListener('load', resolve, { once: true })),
+      ]);
+      const frame = document.getElementById('pipeline');
+      const started = performance.now();
+      while (!(frame.contentWindow.pipelineDemo && frame.contentWindow.pipelineDemo.ready)) {
+        if (performance.now() - started > 30000) throw new Error('Embedded pipeline did not become ready');
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+      const events = buildEvents(graph);
+      const messages = document.getElementById('messages');
+      events.forEach((event, index) => messages.appendChild(renderMessage(event, index)));
+      const typing = document.createElement('div');
+      typing.id = 'typing'; typing.className = 'typing'; typing.innerHTML = '<i></i><i></i><i></i>';
+      messages.appendChild(typing);
+      setLeftStage(0);
+      window.pipelineDemoV3.events = events;
+      window.pipelineDemoV3.ready = true;
+      return events;
+    }
+    async function play() {
+      const events = await hydrate();
+      const typing = document.getElementById('typing');
+      const start = performance.now();
+      for (let index = 0; index < events.length; index += 1) {
+        const event = events[index];
+        const typingAt = Math.max(0, event.at - 520);
+        await new Promise(resolve => setTimeout(resolve, Math.max(0, typingAt - (performance.now() - start))));
+        if (event.kind !== 'user') { typing.classList.add('visible'); requestAnimationFrame(scrollMessages); }
+        await new Promise(resolve => setTimeout(resolve, Math.max(0, event.at - (performance.now() - start))));
+        reveal(index);
+        if (Number.isInteger(event.stage)) setLeftStage(event.stage);
+      }
+      document.getElementById('agent-panel').classList.add('complete');
+      document.getElementById('agent-state').textContent = 'Complete';
+      await new Promise(resolve => setTimeout(resolve, 4000));
+      window.pipelineDemoV3.done = true;
+    }
+    async function showFinal() {
+      const events = await hydrate();
+      events.forEach((event, index) => reveal(index));
+      setLeftStage(5);
+      document.getElementById('agent-panel').classList.add('complete');
+      document.getElementById('agent-state').textContent = 'Complete';
+      window.pipelineDemoV3.done = true;
+    }
+    window.pipelineDemoV3 = { ready: false, done: false, events: [] };
+    const params = new URLSearchParams(location.search);
+    if (params.has('final')) showFinal(); else if (params.has('demo')) play(); else hydrate().then(() => setLeftStage(3));
+  </script>
+</body>
+</html>

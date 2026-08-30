@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="760" viewBox="0 0 1440 760" role="img" aria-labelledby="figure-title figure-description">
+<title id="figure-title">From bespoke video pipelines to an inspectable story harness</title>
+<desc id="figure-description">Figure 1. StoryCanvas replaces repeated, opaque, or hand-wired video-generation pipelines with one composable harness that produces an editable media DAG, consistent multi-shot video, and reproducible evaluation.</desc>
+<defs>
+<filter id="shadow" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M 0 0 L 9 4.5 L 0 9 z" fill="#64748B"/></marker>
+</defs>
+<rect width="1440" height="760" fill="#FBFCFE"/>
+<text x="60" y="55" text-anchor="start" font-family="Inter, Arial, Helvetica, sans-serif" font-size="34" font-weight="800" fill="#0F172A">From bespoke video pipelines to an inspectable story harness</text>
+<text x="60" y="96" text-anchor="start" font-family="Inter, Arial, Helvetica, sans-serif" font-size="17" font-weight="400" fill="#475569">Compose community methods once; keep every visual dependency and result visible.</text>
+<rect x="45" y="140" width="360" height="550" rx="22" fill="#FFF9F7" stroke="#FED7D2" stroke-width="1.5"/>
+<text x="69" y="174" text-anchor="start" font-family="Inter, Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#334155">A. Fragmented creative stacks</text>
+<rect x="435" y="140" width="550" height="550" rx="22" fill="#F7F8FF" stroke="#C7D2FE" stroke-width="1.5"/>
+<text x="459" y="174" text-anchor="start" font-family="Inter, Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#334155">B. StoryCanvas</text>
+<rect x="1015" y="140" width="380" height="550" rx="22" fill="#F4FBF8" stroke="#A7F3D0" stroke-width="1.5"/>
+<text x="1039" y="174" text-anchor="start" font-family="Inter, Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#334155">C. Inspectable story run</text>
+<polyline points="370,243 385,243 385,606 370,606" fill="none" stroke="#64748B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 7" marker-end="url(#arrow)"/>
+<polyline points="370,353 390,353 390,606 370,606" fill="none" stroke="#64748B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 7" marker-end="url(#arrow)"/>
+<polyline points="225,501 225,560" fill="none" stroke="#64748B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="710,281 710,335" fill="none" stroke="#64748B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="710,427 710,480" fill="none" stroke="#64748B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="710,556 710,578 543,578 542.5,600" fill="none" stroke="#64748B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="710,556 709.5,600" fill="none" stroke="#64748B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="710,556 710,578 878,578 877.5,600" fill="none" stroke="#64748B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="945,518 985,518 995,263 1050,263" fill="none" stroke="#64748B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="1205,311 1205,385" fill="none" stroke="#64748B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<polyline points="1205,481 1205,555" fill="none" stroke="#64748B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<g id="node-prompt_output" filter="url(#shadow)"><rect x="80" y="205" width="290" height="76" rx="16" fill="#FFF7ED" stroke="#F97316" stroke-width="2"/></g>
+<text x="225" y="233" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#9A3412">Prompt → Model → Output</text>
+<text x="225" y="263" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#64748B">single-use generation</text>
+<g id="node-chat_tools" filter="url(#shadow)"><rect x="80" y="315" width="290" height="76" rx="16" fill="#FFF7ED" stroke="#F97316" stroke-width="2"/></g>
+<text x="225" y="343" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#9A3412">Chat → Tools → Assets</text>
+<text x="225" y="373" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#64748B">state hidden in logs</text>
+<g id="node-manual_nodes" filter="url(#shadow)"><rect x="80" y="425" width="290" height="76" rx="16" fill="#FFF7ED" stroke="#F97316" stroke-width="2"/></g>
+<text x="225" y="453" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#9A3412">Manual Node Workflow</text>
+<text x="225" y="483" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#64748B">visible, but hand-wired</text>
+<g id="node-problem" filter="url(#shadow)"><rect x="80" y="560" width="290" height="92" rx="16" fill="#FFF7ED" stroke="#F97316" stroke-width="2"/></g>
+<text x="225" y="585.97" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#9A3412">Capabilities stay trapped</text>
+<text x="225" y="606.03" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#9A3412">in bespoke pipelines</text>
+<text x="225" y="634" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#64748B">hard to reuse · inspect · compare</text>
+<g id="node-methods" filter="url(#shadow)"><rect x="475" y="205" width="470" height="76" rx="16" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/></g>
+<text x="710" y="233" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#3730A3">Community Methods</text>
+<text x="710" y="263" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#64748B">planning · references · generation · evaluation</text>
+<g id="node-harness" filter="url(#shadow)"><rect x="515" y="335" width="390" height="92" rx="16" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2"/></g>
+<text x="710" y="371" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#1E40AF">StoryCanvas Harness</text>
+<text x="710" y="409" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#64748B">typed plugins + minimal kernel</text>
+<g id="node-dag" filter="url(#shadow)"><rect x="475" y="480" width="470" height="76" rx="16" fill="#ECFEFF" stroke="#0891B2" stroke-width="2"/></g>
+<text x="710" y="508" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#155E75">Typed Media DAG</text>
+<text x="710" y="538" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#64748B">references · dependencies · state</text>
+<g id="node-visual" filter="url(#shadow)"><rect x="475" y="600" width="135" height="62" rx="16" fill="#ECFEFF" stroke="#0891B2" stroke-width="2"/></g>
+<text x="542.5" y="631" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#155E75">Visual Bible</text>
+<g id="node-shots" filter="url(#shadow)"><rect x="642" y="600" width="135" height="62" rx="16" fill="#ECFEFF" stroke="#0891B2" stroke-width="2"/></g>
+<text x="709.5" y="631" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#155E75">Shot Graph</text>
+<g id="node-receipts" filter="url(#shadow)"><rect x="810" y="600" width="135" height="62" rx="16" fill="#ECFEFF" stroke="#0891B2" stroke-width="2"/></g>
+<text x="877.5" y="631" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#155E75">Receipts</text>
+<g id="node-canvas" filter="url(#shadow)"><rect x="1050" y="215" width="310" height="96" rx="16" fill="#F0FDF4" stroke="#22C55E" stroke-width="2"/></g>
+<text x="1205" y="253" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="19" font-weight="700" fill="#166534">Editable Canvas</text>
+<text x="1205" y="293" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#64748B">inspect · edit · steer</text>
+<g id="node-video" filter="url(#shadow)"><rect x="1050" y="385" width="310" height="96" rx="16" fill="#F0FDF4" stroke="#22C55E" stroke-width="2"/></g>
+<text x="1205" y="423" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#166534">Consistent Multi-Shot Video</text>
+<text x="1205" y="463" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#64748B">Shot 1 → Shot 2 → Shot 3</text>
+<g id="node-evaluation" filter="url(#shadow)"><rect x="1050" y="555" width="310" height="96" rx="16" fill="#F0FDF4" stroke="#22C55E" stroke-width="2"/></g>
+<text x="1205" y="593" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#166534">Reproducible Evaluation</text>
+<text x="1205" y="633" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="13" font-weight="500" fill="#64748B">replay · compare · share</text>
+</svg>

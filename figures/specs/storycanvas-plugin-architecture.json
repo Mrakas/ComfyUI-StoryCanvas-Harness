@@ -1,0 +1,60 @@
+{
+  "canvas": {
+    "width": 1600,
+    "height": 900,
+    "background": "#FBFCFE"
+  },
+  "title": "StoryCanvas: a small harness for composable video-generation methods",
+  "subtitle": "Community work plugs in through typed capabilities; the kernel keeps planning, media, and provenance inspectable.",
+  "description": "StoryCanvas architecture and Plugin API. Community methods become Skills or executable Plugins, are distributed in Packs, selected by Profiles, resolved by a capability registry, executed by the minimal kernel, and projected into host-neutral inspectable Runs.",
+  "legend": "Solid = execution or selection    Dashed = instructions, host adapter, or update path",
+  "sections": [
+    {"title": "A. Bring a community method", "x": 40, "y": 140, "width": 330, "height": 590, "fill": "#FFF9F7", "stroke": "#FED7D2"},
+    {"title": "B. Compose once in the StoryCanvas Harness", "x": 400, "y": 140, "width": 800, "height": 590, "fill": "#F7F8FF", "stroke": "#C7D2FE"},
+    {"title": "C. Run anywhere, inspect everything", "x": 1230, "y": 140, "width": 330, "height": 590, "fill": "#F4FBF8", "stroke": "#A7F3D0"},
+    {"title": "Add a method without forking the core", "x": 40, "y": 760, "width": 1520, "height": 105, "fill": "#FFFFFF", "stroke": "#CBD5E1"}
+  ],
+  "nodes": [
+    {"id": "method", "label": "Any Community Method", "detail": "director · reference · prompt / camera\nimage · video · evaluation · renderer", "detail_font_size": 12, "x": 75, "y": 210, "width": 260, "height": 126, "style": "module", "font_size": 19},
+    {"id": "package_once", "label": "Package once", "detail": "instructions → Skill\nexecutable code → Plugin", "detail_font_size": 12, "x": 75, "y": 410, "width": 260, "height": 108, "style": "module", "font_size": 18},
+    {"id": "independent", "label": "Version independently", "detail": "reuse · swap · compare", "detail_font_size": 12, "x": 75, "y": 600, "width": 260, "height": 76, "style": "loop", "font_size": 16},
+
+    {"id": "skill", "label": "Skill", "detail": "instructions · templates · examples\nNO EXECUTION AUTHORITY", "detail_font_size": 10, "x": 430, "y": 190, "width": 180, "height": 112, "style": "skill", "font_size": 20},
+    {"id": "plugin", "label": "Plugin Contract", "detail": "Manifest: id · version · provides · requires · permissions\nServices: capability → typed implementation\nLifecycle: start(context) · stop()", "detail_font_size": 10, "x": 640, "y": 175, "width": 510, "height": 142, "style": "plugin", "font_size": 21},
+    {"id": "pack", "label": "Pack", "detail": "plugins + skills + defaults + tests", "detail_font_size": 11, "x": 430, "y": 355, "width": 180, "height": 88, "style": "pack", "font_size": 18},
+    {"id": "profile", "label": "Profile selects one composition", "detail": "plugin IDs · capability bindings · config · allowed permissions", "detail_font_size": 11, "x": 640, "y": 345, "width": 510, "height": 100, "style": "profile", "font_size": 18},
+    {"id": "registry", "label": "Capability Registry", "detail": "discover · validate · activate · resolve(capability)\nstory.plan · reference.plan · prompt.compile.* · media.* · eval · canvas", "detail_font_size": 10, "x": 430, "y": 490, "width": 300, "height": 102, "style": "kernel", "font_size": 18},
+    {"id": "kernel", "label": "Minimal Kernel", "detail": "policy · dependency scheduler · retries / resume\nartifact store · append-only event log", "detail_font_size": 11, "x": 760, "y": 490, "width": 390, "height": 102, "style": "kernel", "font_size": 19},
+    {"id": "records", "label": "Five stable protocol records", "detail": "ArtifactRef · TaskSpec · TaskResult · Receipt · RunEvent", "detail_font_size": 11, "x": 430, "y": 635, "width": 720, "height": 70, "style": "media", "font_size": 17},
+
+    {"id": "hosts", "label": "Thin Host Adapters", "detail": "CLI · REST · Codex\nComfyUI · Pi · LibTV", "detail_font_size": 11, "x": 1265, "y": 210, "width": 260, "height": 104, "style": "future", "dashed": true, "font_size": 18},
+    {"id": "canvas", "label": "Inspectable Canvas", "detail": "text · images · videos · edges", "detail_font_size": 11, "x": 1265, "y": 390, "width": 260, "height": 88, "style": "output", "font_size": 18},
+    {"id": "run", "label": "Reproducible Run", "detail": "composition_sha256 · prompts · references\nartifacts · receipts · evaluation", "detail_font_size": 11, "x": 1265, "y": 550, "width": 260, "height": 104, "style": "output", "font_size": 18},
+
+    {"id": "step1", "label": "1 · Implement", "detail": "one bounded service", "x": 75, "y": 810, "width": 260, "height": 52, "style": "loop", "font_size": 14, "detail_font_size": 10},
+    {"id": "step2", "label": "2 · Declare", "detail": "manifest + permissions", "x": 470, "y": 810, "width": 260, "height": 52, "style": "loop", "font_size": 14, "detail_font_size": 10},
+    {"id": "step3", "label": "3 · Publish", "detail": "storycanvas.plugins entry point", "x": 865, "y": 810, "width": 260, "height": 52, "style": "loop", "font_size": 14, "detail_font_size": 10},
+    {"id": "step4", "label": "4 · Select", "detail": "explicit Profile binding", "x": 1260, "y": 810, "width": 260, "height": 52, "style": "loop", "font_size": 14, "detail_font_size": 10}
+  ],
+  "edges": [
+    {"from": "method", "to": "package_once", "from_anchor": "bottom", "to_anchor": "top"},
+    {"from": "package_once", "to": "skill", "from_anchor": "right", "to_anchor": "left", "via": [[382, 464], [382, 246]], "dashed": true, "label": "guide", "label_at": [382, 350]},
+    {"from": "package_once", "to": "plugin", "from_anchor": "right", "to_anchor": "left", "via": [[390, 478], [390, 260]], "label": "execute", "label_at": [390, 390]},
+    {"from": "package_once", "to": "independent", "from_anchor": "bottom", "to_anchor": "top"},
+
+    {"from": "skill", "to": "pack", "from_anchor": "bottom", "to_anchor": "top", "dashed": true},
+    {"from": "plugin", "to": "pack", "from_anchor": "bottom", "to_anchor": "right", "via": [[895, 330], [625, 330], [625, 399]]},
+    {"from": "pack", "to": "profile", "from_anchor": "right", "to_anchor": "left"},
+    {"from": "profile", "to": "registry", "from_anchor": "bottom", "to_anchor": "top", "via": [[895, 467], [580, 467]], "label": "activates", "label_at": [740, 467]},
+    {"from": "registry", "to": "kernel", "from_anchor": "right", "to_anchor": "left"},
+    {"from": "kernel", "to": "records", "from_anchor": "bottom", "to_anchor": "top", "via": [[955, 615], [790, 615]]},
+
+    {"from": "hosts", "to": "kernel", "from_anchor": "left", "to_anchor": "right", "via": [[1210, 262], [1210, 541]], "dashed": true, "label": "host API", "label_at": [1210, 360]},
+    {"from": "records", "to": "canvas", "from_anchor": "right", "to_anchor": "left", "via": [[1210, 670], [1210, 434]]},
+    {"from": "records", "to": "run", "from_anchor": "right", "to_anchor": "left", "via": [[1220, 686], [1220, 602]]},
+
+    {"from": "step1", "to": "step2", "from_anchor": "right", "to_anchor": "left"},
+    {"from": "step2", "to": "step3", "from_anchor": "right", "to_anchor": "left"},
+    {"from": "step3", "to": "step4", "from_anchor": "right", "to_anchor": "left"}
+  ]
+}
