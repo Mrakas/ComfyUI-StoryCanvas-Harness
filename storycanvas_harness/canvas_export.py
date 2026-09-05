@@ -4,16 +4,16 @@ import json
 import os
 import re
 import shutil
-from contextlib import suppress
 from pathlib import Path
 from typing import Any, Literal
 
-from jinja2 import Template
+from jinja2 import Environment
 from PIL import Image
 from pydantic import Field, model_validator
 
 from .media import full_decode, probe_media
 from .schemas import ArtifactRecord, CanvasPlan, RunManifest, SafeId, StrictModel
+from .storage import artifact_path
 from .utils import atomic_write_json, atomic_write_text, ensure_safe_id, sha256_file, sha256_json
 
 CANVAS_SCHEMA_VERSION: Literal["storycanvas/canvas/v1"] = "storycanvas/canvas/v1"
@@ -120,25 +120,13 @@ def _inside(path: Path, root: Path, *, label: str) -> Path:
 
 
 def _source_path(value: str, run_root: Path, recorded_root: Path | None) -> Path:
-    supplied = Path(value).expanduser()
-    candidates: list[Path] = []
-    if supplied.is_absolute():
-        if recorded_root is not None:
-            with suppress(ValueError):
-                candidates.append(run_root / supplied.relative_to(recorded_root))
-        candidates.append(supplied)
-    else:
-        candidates.append(run_root / supplied)
-    for candidate in candidates:
-        try:
-            return _inside(candidate, run_root, label="Media")
-        except (FileNotFoundError, ValueError):
-            continue
-    raise ValueError(f"Media is missing or outside the Run directory: {value}")
+    return artifact_path(value, run_root, recorded_root)
 
 
 def _redact_text(value: Any, roots: list[str]) -> str:
-    rendered = str(value or "")
+    from .utils import safe_error
+
+    rendered = safe_error(value or "")
     for root in sorted({item for item in roots if item}, key=len, reverse=True):
         rendered = rendered.replace(root, "<RUN_DIR>")
     for pattern in _SECRET_PATTERNS:
@@ -518,7 +506,9 @@ def build_canvas_graph(
             node_id=keyframe_id,
             kind="image",
             title=f"Shot {shot.order} Canvas",
-            summary="Final keyframe with ordered visual dependencies",
+            summary="Final keyframe with ordered visual dependencies"
+            if keyframe_media
+            else "Keyframe not generated in this run",
             stage=5,
             x=x,
             y=430,
@@ -559,7 +549,7 @@ def build_canvas_graph(
             node_id=video_id,
             kind="video",
             title=f"Shot {shot.order} Video",
-            summary="Audited video artifact",
+            summary="Audited video artifact" if video_media else "Video not generated in this run",
             stage=6,
             x=x,
             y=1140,
@@ -609,7 +599,9 @@ def build_canvas_graph(
         node_id="story-output",
         kind="output",
         title="Inspectable Story Run",
-        summary="Editable · traceable · replayable",
+        summary="Assembled story video"
+        if story_media
+        else f"{manifest.status.value} · {manifest.policy.mode.value} · no assembled video",
         stage=6,
         x=output_x,
         y=980,
@@ -633,6 +625,7 @@ def build_canvas_graph(
         nodes=nodes,
         edges=edges,
     )
+    graph = CanvasGraph.model_validate(_redact_value(graph.model_dump(mode="json"), roots))
     graph.graph_sha256 = sha256_json(_graph_without_sha(graph))
     return graph, sorted(stager.records.values(), key=lambda item: item["path"])
 
@@ -656,9 +649,9 @@ def export_story_canvas(run_dir: str | Path, output_dir: str | Path) -> dict[str
     graph_path = output_root / "canvas_graph.json"
     atomic_write_json(graph_path, graph)
     template_path = Path(__file__).with_name("templates") / "canvas_viewer.html"
-    template = Template(template_path.read_text(encoding="utf-8"))
+    template = Environment(autoescape=True).from_string(template_path.read_text(encoding="utf-8"))
     html = template.render(
-        title=plan.title,
+        title=graph.title,
         graph_json=graph.model_dump(mode="json", exclude_none=True),
     )
     index_path = output_root / "index.html"

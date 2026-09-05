@@ -101,3 +101,19 @@ def ensure_safe_id(value: str, *, label: str = "identifier") -> str:
     if not SAFE_ID_PATTERN.fullmatch(value):
         raise ValueError(f"Invalid {label}: {value!r}")
     return value
+
+
+def safe_error(error: object) -> str:
+    """Redact configured credentials and common authorization syntax in errors."""
+    value = str(error)
+    secrets = {
+        item
+        for key, item in os.environ.items()
+        if re.search(r"(?:API_KEY|TOKEN|SECRET|PASSWORD)$", key, re.I) and len(item) >= 8
+    }
+    for secret in sorted(secrets, key=len, reverse=True):
+        value = value.replace(secret, "[REDACTED]")
+    value = re.sub(r"\bsk-[A-Za-z0-9_-]{8,}", "[REDACTED]", value)
+    value = re.sub(r"(?i)(bearer\s+)\S+", r"\1[REDACTED]", value)
+    value = re.sub(r"(?i)([?&](?:api_key|key|token|secret)=)[^&\s]+", r"\1[REDACTED]", value)
+    return value

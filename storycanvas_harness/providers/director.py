@@ -7,7 +7,7 @@ from typing import Any, Literal
 
 from pydantic import Field
 
-from ..errors import ProviderError
+from ..errors import PolicyViolation, ProviderError
 from ..schemas import (
     CallEstimate,
     CanvasPlan,
@@ -78,14 +78,20 @@ def _split_story(value: str, maximum: int) -> list[str]:
     ]
     if not parts:
         return [value.strip()]
-    return parts[:maximum]
+    if len(parts) > maximum:
+        raise PolicyViolation(f"Story contains {len(parts)} shots; max_shots is {maximum}")
+    return parts
 
 
 def _user_shots(value: ShotInput | StoryInput, policy: ExecutionPolicy) -> list[ShotInput]:
     if isinstance(value, ShotInput):
         return [value]
     if value.shots:
-        return value.shots[: policy.max_shots]
+        if len(value.shots) > policy.max_shots:
+            raise PolicyViolation(
+                f"Story contains {len(value.shots)} shots; max_shots is {policy.max_shots}"
+            )
+        return value.shots
     if value.free_text is None:
         raise ValueError("StoryInput must contain free_text or explicit shots")
     return [
@@ -364,6 +370,7 @@ class OpenAIDirector:
         self.client: Any = client
 
     def plan(self, value: ShotInput | StoryInput, policy: ExecutionPolicy) -> CanvasPlan:
+        _user_shots(value, policy)
         payload = {
             "input_kind": "shot" if isinstance(value, ShotInput) else "story",
             "input": value.model_dump(mode="json", exclude_none=True),

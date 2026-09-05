@@ -20,7 +20,7 @@ async function apiCall(path, payload) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  const data = await response.json();
+  const data = await response.json().catch(() => { throw new Error(`Server returned an unreadable response (HTTP ${response.status})`); });
   if (!response.ok) throw new Error(data.error || data.detail?.error || `HTTP ${response.status}`);
   return data;
 }
@@ -91,11 +91,24 @@ function openBuilder() {
   document.body.append(overlay);
   let currentPlan = null;
   let currentPolicy = null;
+  let revision = 0;
+  const buildButton = dialog.querySelector("[data-build]");
   const status = dialog.querySelector("[data-status]");
   const applyButton = dialog.querySelector("[data-apply]");
   dialog.querySelector("[data-close]").onclick = () => overlay.remove();
+  dialog.querySelector(".sc-body").addEventListener("input", () => {
+    revision += 1;
+    currentPlan = null;
+    currentPolicy = null;
+    applyButton.disabled = true;
+    status.textContent = "Input changed. Build a fresh preview.";
+    dialog.querySelector("[data-preview]").textContent = "Preview out of date.";
+  });
   overlay.addEventListener("click", (event) => { if (event.target === overlay) overlay.remove(); });
-  dialog.querySelector("[data-build]").onclick = async () => {
+  buildButton.onclick = async () => {
+    if (buildButton.disabled) return;
+    const requestedRevision = ++revision;
+    buildButton.disabled = true;
     try {
       status.textContent = "Planning…";
       applyButton.disabled = true;
@@ -103,25 +116,37 @@ function openBuilder() {
       const format = dialog.querySelector("[name=input_format]").value;
       const raw = dialog.querySelector("[name=prompt]").value;
       const payload = format === "json" ? JSON.parse(raw) : (kind === "shot" ? { prompt: raw } : { free_text: raw });
-      currentPolicy = policyFromDialog(dialog);
-      currentPlan = await apiCall("/plans", { input_kind: kind, payload, policy: currentPolicy });
+      const requestedPolicy = policyFromDialog(dialog);
+      const result = await apiCall("/plans", { input_kind: kind, payload, policy: requestedPolicy });
+      if (revision !== requestedRevision || !overlay.isConnected) return;
+      currentPolicy = requestedPolicy;
+      currentPlan = result;
       renderPreview(dialog.querySelector("[data-preview]"), currentPlan);
       applyButton.disabled = false;
       status.textContent = "Preview ready — nothing queued";
     } catch (error) {
-      status.textContent = `Error: ${error.message}`;
+      if (revision === requestedRevision && overlay.isConnected) status.textContent = `Error: ${error.message}`;
+    } finally {
+      buildButton.disabled = false;
     }
   };
   applyButton.onclick = async () => {
+    if (applyButton.disabled || !currentPlan || !currentPolicy) return;
+    const requestedRevision = revision;
+    applyButton.disabled = true;
     try {
       status.textContent = "Compiling ComfyUI workflow…";
-      const compiled = await apiCall("/workflows", { plan_id: currentPlan.plan_id, policy: currentPolicy });
+      const compiled = await apiCall("/workflows", { plan: currentPlan, policy: currentPolicy });
+      if (revision !== requestedRevision || !overlay.isConnected) return;
       const filename = `StoryCanvas-${currentPlan.story_id}-${currentPlan.plan_id}.json`;
       await app.loadGraphData(compiled.workflow, true, true, filename);
       status.textContent = "Applied to a new workflow tab. Review it, then Queue manually.";
       setTimeout(() => overlay.remove(), 1300);
     } catch (error) {
-      status.textContent = `Error: ${error.message}`;
+      if (revision === requestedRevision && overlay.isConnected) {
+        status.textContent = `Error: ${error.message}`;
+        applyButton.disabled = false;
+      }
     }
   };
 }

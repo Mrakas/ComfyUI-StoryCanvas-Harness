@@ -371,10 +371,11 @@ def test_evaluation_plugin_outputs_validated_run_artifact(tmp_path: Path) -> Non
     evaluator_id = "community.json-evaluator"
     profile = StoryCanvasProfile(
         name="evaluation-hook",
-        plugins=["storycanvas.director.basic", evaluator_id],
+        plugins=["storycanvas.director.basic", "storycanvas.image.mock", evaluator_id],
         bindings={
             STORY_PLAN: "storycanvas.director.basic",
             EVALUATION_RUN: evaluator_id,
+            IMAGE_GENERATE: "storycanvas.image.mock",
         },
         allow_permissions=["filesystem:run-dir"],
     )
@@ -398,9 +399,55 @@ def test_evaluation_plugin_outputs_validated_run_artifact(tmp_path: Path) -> Non
     with StoryCanvas.from_registry(registry, runs_dir=tmp_path / "runs") as canvas:
         record = canvas.run(
             ShotInput(prompt="A fictional brass kite turns above a paper town."),
-            ExecutionPolicy(),
+            ExecutionPolicy(mode=ExecutionMode.ASSETS, max_image_calls=2),
         )
     assert record.manifest.status == RunStatus.COMPLETE
     assert record.manifest.call_counts["evaluation"] == 1
     assert record.manifest.call_counts["evaluation_artifacts"] == 1
     assert any(item.artifact_id == "evaluation-summary" for item in record.manifest.artifacts)
+
+
+def test_dependency_waits_for_the_bound_provider(tmp_path: Path) -> None:
+    events: list[str] = []
+    registry = PluginRegistry(root=tmp_path, bindings={"example.input": "z.selected"})
+    for name, capability, requirements in [
+        ("a.other", "example.input", []),
+        ("b.consumer", "example.output", ["example.input"]),
+        ("z.selected", "example.input", []),
+    ]:
+        registry.register(
+            TrackingPlugin(
+                manifest=PluginManifest(
+                    plugin_id=name, version="0.1.0", provides=[capability], requires=requirements
+                ),
+                services={capability: object()},
+                events=events,
+            )
+        )
+    registry.activate_all()
+    try:
+        assert [item.split(":")[1] for item in events] == ["a.other", "z.selected", "b.consumer"]
+    finally:
+        registry.dispose_all()
+
+
+def test_dependency_cycle_cleans_up_plugins_already_started(tmp_path: Path) -> None:
+    events: list[str] = []
+    registry = PluginRegistry(root=tmp_path)
+    for name, capability, requirements in [
+        ("a.independent", "example.ready", []),
+        ("b.one", "example.one", ["example.two"]),
+        ("c.two", "example.two", ["example.one"]),
+    ]:
+        registry.register(
+            TrackingPlugin(
+                manifest=PluginManifest(
+                    plugin_id=name, version="0.1.0", provides=[capability], requires=requirements
+                ),
+                services={capability: object()},
+                events=events,
+            )
+        )
+    with pytest.raises(PluginError, match="dependency cycle"):
+        registry.activate_all()
+    assert events[-1] == "stop:a.independent"

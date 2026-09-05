@@ -1,0 +1,42 @@
+{
+  "input_kind": "story",
+  "payload": {
+    "metadata": {},
+    "references": [],
+    "shots": [
+      {
+        "metadata": {},
+        "prompt": "A fictional young botanist in a moss-green coat plants a silver seed in a moonlit glasshouse; a red field notebook rests by her left hand.",
+        "references": [],
+        "shot_id": "garden-01",
+        "title": "Seed"
+      },
+      {
+        "metadata": {},
+        "prompt": "In the same glasshouse, the same botanist opens the red notebook as the silver seed grows into a luminous blue vine around the same clay pot.",
+        "references": [],
+        "shot_id": "garden-02",
+        "title": "Bloom"
+      },
+      {
+        "metadata": {},
+        "prompt": "The same botanist raises the same clay pot; the blue vine releases three glowing moths that circle her while the open red notebook remains on the bench.",
+        "references": [],
+        "shot_id": "garden-03",
+        "title": "Release"
+      }
+    ],
+    "story_id": "moon-garden",
+    "title": "The Moon Garden"
+  },
+  "policy": {
+    "allow_paid_video": false,
+    "max_concurrency": 4,
+    "max_image_calls": 4,
+    "max_search_calls": 8,
+    "max_shots": 3,
+    "max_video_calls": 0,
+    "mode": "assets",
+    "require_preview": true
+  }
+}

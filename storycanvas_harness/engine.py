@@ -4,6 +4,7 @@ import io
 import ipaddress
 import json
 import os
+import shutil
 import socket
 from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from pathlib import Path
@@ -12,10 +13,13 @@ from typing import TYPE_CHECKING, Any, cast
 from urllib.parse import urljoin, urlparse
 
 import httpx
+from filelock import FileLock
 from PIL import Image
 
 from .audit import render_audit
-from .errors import PolicyViolation, ProviderError
+from .config import RuntimeSettings
+from .errors import PolicyViolation, ProviderError, ResumeConflict
+from .identity import plan_content, plan_sha256, provider_identity
 from .media import concat_videos, full_decode, probe_media
 from .protocol import (
     CANVAS_RENDER,
@@ -63,9 +67,11 @@ from .schemas import (
     ShotInput,
     StoryInput,
 )
+from .storage import append_jsonl, artifact_path, read_jsonl
 from .utils import (
     atomic_write_json,
     atomic_write_text,
+    safe_error,
     sha256_file,
     sha256_json,
     utc_now,
@@ -96,7 +102,11 @@ class StoryCanvas:
         plan_processors: list[PlanProcessor] | None = None,
         evaluator: EvaluationProvider | None = None,
     ):
-        self.runs_dir = Path(runs_dir or os.environ.get("STORYCANVAS_RUNS_DIR", "./runs"))
+        self.runs_dir = (
+            Path(runs_dir or os.environ.get("STORYCANVAS_RUNS_DIR", "./runs"))
+            .expanduser()
+            .resolve()
+        )
         self.director = director or DeterministicDirector()
         self.fact_search = fact_search
         self.visual_search = visual_search
@@ -106,6 +116,7 @@ class StoryCanvas:
         self.plan_processors = plan_processors or []
         self.evaluator = evaluator
         self._plugin_registry: PluginRegistry | None = None
+        self._owned_clients: list[Any] = []
 
     @classmethod
     def from_registry(
@@ -171,15 +182,34 @@ class StoryCanvas:
     ) -> StoryCanvas:
         from .plugins import build_builtin_registry, load_profile
 
-        selected_runs_dir = Path(runs_dir or os.environ.get("STORYCANVAS_RUNS_DIR", "./runs"))
+        selected_runs_dir = (
+            Path(runs_dir or os.environ.get("STORYCANVAS_RUNS_DIR", "./runs"))
+            .expanduser()
+            .resolve()
+        )
         profile = load_profile(Path(profile_path))
         registry = build_builtin_registry(profile, root=selected_runs_dir.parent)
-        return cls.from_registry(registry, runs_dir=selected_runs_dir)
+        try:
+            return cls.from_registry(registry, runs_dir=selected_runs_dir)
+        except Exception:
+            registry.dispose_all()
+            raise
 
     def close(self) -> None:
-        if self._plugin_registry is not None:
-            self._plugin_registry.dispose_all()
+        try:
+            if self._plugin_registry is not None:
+                self._plugin_registry.dispose_all()
+        finally:
             self._plugin_registry = None
+            failures = []
+            for client in self._owned_clients:
+                try:
+                    client.close()
+                except Exception as error:
+                    failures.append(safe_error(error))
+            self._owned_clients.clear()
+            if failures:
+                raise ProviderError("Provider cleanup failed: " + "; ".join(failures))
 
     def __enter__(self) -> StoryCanvas:
         return self
@@ -188,8 +218,12 @@ class StoryCanvas:
         self.close()
 
     @classmethod
-    def from_environment(cls, *, runs_dir: str | Path | None = None) -> StoryCanvas:
-        mode = os.getenv("STORYCANVAS_PROVIDER_MODE", "openai").casefold()
+    def from_environment(
+        cls, *, runs_dir: str | Path | None = None, videos_only: bool = False
+    ) -> StoryCanvas:
+        settings = RuntimeSettings.from_environment(runs_dir=runs_dir)
+        runs_dir = settings.runs_dir
+        mode = settings.provider_mode
         if mode == "mock":
             return cls(
                 runs_dir=runs_dir,
@@ -199,16 +233,22 @@ class StoryCanvas:
                 image_provider=MockImageProvider(),
                 video_provider=MockVideoProvider(),
             )
+        if videos_only:
+            return cls(
+                runs_dir=runs_dir,
+                video_provider=MiniMaxH3CompatibleProvider()
+                if os.getenv("MINIMAX_H3_API_KEY") and os.getenv("MINIMAX_H3_BASE_URL")
+                else None,
+            )
         if mode == "codex":
-            if os.getenv("STORYCANVAS_CODEX_ENABLED", "false").casefold() not in {
-                "1",
-                "true",
-                "yes",
-            }:
+            if not settings.codex_enabled:
                 raise ProviderError("Codex provider mode requires STORYCANVAS_CODEX_ENABLED=true")
-            selected_runs_dir = Path(runs_dir or os.environ.get("STORYCANVAS_RUNS_DIR", "./runs"))
+            selected_runs_dir = (
+                Path(runs_dir or os.environ.get("STORYCANVAS_RUNS_DIR", "./runs"))
+                .expanduser()
+                .resolve()
+            )
             codex_client = CodexAppServerClient()
-            codex_client.capability(selected_runs_dir)
             video_provider = None
             if os.getenv("MINIMAX_H3_API_KEY") and os.getenv("MINIMAX_H3_BASE_URL"):
                 video_provider = MiniMaxH3CompatibleProvider()
@@ -237,7 +277,7 @@ class StoryCanvas:
         video_provider = None
         if os.getenv("MINIMAX_H3_API_KEY") and os.getenv("MINIMAX_H3_BASE_URL"):
             video_provider = MiniMaxH3CompatibleProvider()
-        return cls(
+        canvas = cls(
             runs_dir=runs_dir,
             director=director,
             fact_search=fact_search,
@@ -245,6 +285,15 @@ class StoryCanvas:
             image_provider=image_provider,
             video_provider=video_provider,
         )
+        if api_key:
+            canvas._owned_clients = list(
+                {
+                    id(client): client
+                    for provider in (director, fact_search, image_provider)
+                    if (client := getattr(provider, "client", None)) is not None
+                }.values()
+            )
+        return canvas
 
     def plan(
         self, value: ShotInput | StoryInput, policy: ExecutionPolicy | None = None
@@ -277,40 +326,71 @@ class StoryCanvas:
             plan.warnings.append(
                 "OPENAI_API_KEY is not configured; this is an offline preview plan, not a production Agent plan."
             )
+        plan = CanvasPlan.model_validate(plan.model_dump(mode="json"))
+        plan.call_estimate = plan.required_calls
+        plan.plan_id = f"plan-{plan_sha256(plan)[:16]}"
         return plan
+
+    def execution_sha256(self, plan: CanvasPlan, policy: ExecutionPolicy) -> str:
+        return sha256_json(
+            {
+                "identity_version": 2,
+                "plan": plan_content(plan),
+                "policy": policy,
+                "composition_sha256": self._plugin_registry.composition_sha256
+                if self._plugin_registry
+                else None,
+                "providers": {
+                    key: provider_identity(getattr(self, key))
+                    for key in (
+                        "director",
+                        "fact_search",
+                        "visual_search",
+                        "image_provider",
+                        "video_provider",
+                        "workflow_renderer",
+                        "evaluator",
+                    )
+                },
+            }
+        )
 
     def compile_workflow(
         self, plan: CanvasPlan, policy: ExecutionPolicy | None = None
     ) -> CompiledWorkflow:
+        plan = CanvasPlan.model_validate(plan.model_dump(mode="json"))
         selected_policy = policy or ExecutionPolicy()
         if self.workflow_renderer is not None:
             return self.workflow_renderer.compile(plan, selected_policy)
         return compile_workflow(plan, selected_policy)
 
-    def _preflight(self, plan: CanvasPlan, policy: ExecutionPolicy) -> None:
+    def _preflight(
+        self, plan: CanvasPlan, policy: ExecutionPolicy, *, videos_only: bool = False
+    ) -> None:
+        plan = CanvasPlan.model_validate(plan.model_dump(mode="json"))
+        policy = ExecutionPolicy.model_validate(policy.model_dump(mode="json"))
+        estimate = plan.required_calls
         if len(plan.shots) > policy.max_shots:
             raise PolicyViolation(
                 f"Plan contains {len(plan.shots)} shots; max_shots is {policy.max_shots}"
             )
-        if policy.mode in {ExecutionMode.ASSETS, ExecutionMode.FULL}:
-            if plan.call_estimate.image_generation_calls > policy.max_image_calls:
+        if not videos_only and policy.mode in {ExecutionMode.ASSETS, ExecutionMode.FULL}:
+            if estimate.image_generation_calls > policy.max_image_calls:
                 raise PolicyViolation(
-                    f"Plan needs {plan.call_estimate.image_generation_calls} image calls; "
+                    f"Plan needs {estimate.image_generation_calls} image calls; "
                     f"policy allows {policy.max_image_calls}"
                 )
-            total_search_calls = (
-                plan.call_estimate.fact_search_calls + plan.call_estimate.visual_search_calls
-            )
+            total_search_calls = estimate.fact_search_calls + estimate.visual_search_calls
             if total_search_calls > policy.max_search_calls:
                 raise PolicyViolation(
                     f"Plan needs {total_search_calls} search calls; "
                     f"policy allows {policy.max_search_calls}"
                 )
-            if plan.call_estimate.fact_search_calls and self.fact_search is None:
+            if estimate.fact_search_calls and self.fact_search is None:
                 raise ProviderError(
                     "The plan requires factual search but no provider is configured"
                 )
-            if plan.call_estimate.visual_search_calls and self.visual_search is None:
+            if estimate.visual_search_calls and self.visual_search is None:
                 raise ProviderError("The plan requires visual search but no provider is configured")
             if self.image_provider is None:
                 raise ProviderError(
@@ -318,11 +398,15 @@ class StoryCanvas:
                     "or explicitly use mock mode."
                 )
         if policy.mode == ExecutionMode.FULL:
+            if not shutil.which("ffmpeg") or not shutil.which("ffprobe"):
+                raise ProviderError(
+                    "Video execution requires ffmpeg and ffprobe; run storycanvas doctor --mode full"
+                )
             if not policy.allow_paid_video:
                 raise PolicyViolation("Full execution requires allow_paid_video=true")
-            if plan.call_estimate.video_generation_calls > policy.max_video_calls:
+            if estimate.video_generation_calls > policy.max_video_calls:
                 raise PolicyViolation(
-                    f"Plan needs {plan.call_estimate.video_generation_calls} video calls; "
+                    f"Plan needs {estimate.video_generation_calls} video calls; "
                     f"policy allows {policy.max_video_calls}"
                 )
             if self.video_provider is None:
@@ -335,11 +419,7 @@ class StoryCanvas:
 
     @staticmethod
     def _append_jsonl(path: Path, row: dict[str, Any]) -> None:
-        existing = path.read_text(encoding="utf-8") if path.is_file() else ""
-        atomic_write_text(
-            path,
-            existing + json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n",
-        )
+        append_jsonl(path, row)
 
     @staticmethod
     def _reference_paths(
@@ -354,6 +434,10 @@ class StoryCanvas:
                 if source is None:
                     raise ProviderError(f"Dependency is not ready: {reference.source_asset_id}")
                 path = Path(source.path)
+                if not path.is_file() or sha256_file(path) != source.sha256:
+                    raise ProviderError(
+                        f"Generated reference SHA mismatch: {reference.source_asset_id}"
+                    )
                 item.path = source.path
                 item.sha256 = source.sha256
             elif reference.path:
@@ -512,11 +596,29 @@ class StoryCanvas:
         provider: FactSearchProvider | VisualSearchProvider | None,
         kind: str,
     ) -> tuple[SearchResult, bool]:
+        receipt_path = root / "receipts" / f"{asset_id}.{kind}.json"
+        receipt_path.parent.mkdir(parents=True, exist_ok=True)
+        with FileLock(str(receipt_path) + ".lock"):
+            return StoryCanvas._cached_search_locked(
+                root=root, asset_id=asset_id, query=query, provider=provider, kind=kind
+            )
+
+    @staticmethod
+    def _cached_search_locked(
+        *,
+        root: Path,
+        asset_id: str,
+        query: str,
+        provider: FactSearchProvider | VisualSearchProvider | None,
+        kind: str,
+    ) -> tuple[SearchResult, bool]:
         """Run a search once and persist a provider-independent recovery receipt."""
         if provider is None:
             raise ProviderError(f"Asset {asset_id} requires {kind} but no provider is configured")
         receipt_path = root / "receipts" / f"{asset_id}.{kind}.json"
-        query_sha = sha256_json({"provider": provider.name, "query": query, "kind": kind})
+        query_sha = sha256_json(
+            {"provider": provider_identity(provider), "query": query, "kind": kind}
+        )
         if receipt_path.is_file():
             persisted = json.loads(receipt_path.read_text(encoding="utf-8"))
             if persisted.get("query_sha256") == query_sha and persisted.get("result"):
@@ -536,6 +638,30 @@ class StoryCanvas:
         generated: dict[str, ArtifactRecord],
         metadata: dict[str, Any],
     ) -> tuple[ArtifactRecord, dict[str, Any]]:
+        lock_path = root / "receipts" / f"{artifact_id}.image.lock"
+        lock_path.parent.mkdir(parents=True, exist_ok=True)
+        with FileLock(str(lock_path)):
+            return self._generate_image_locked(
+                root=root,
+                artifact_id=artifact_id,
+                prompt=prompt,
+                planned_prompt=planned_prompt,
+                references=references,
+                generated=generated,
+                metadata=metadata,
+            )
+
+    def _generate_image_locked(
+        self,
+        *,
+        root: Path,
+        artifact_id: str,
+        prompt: str,
+        planned_prompt: str | None,
+        references: list[PlannedReference],
+        generated: dict[str, ArtifactRecord],
+        metadata: dict[str, Any],
+    ) -> tuple[ArtifactRecord, dict[str, Any]]:
         if self.image_provider is None:
             raise ProviderError("No image provider is configured")
         reference_paths, resolved = self._reference_paths(references, generated)
@@ -543,7 +669,7 @@ class StoryCanvas:
         receipt_path = root / "receipts" / f"{artifact_id}.json"
         attempt_journal = root / "receipts" / f"{artifact_id}.attempts.jsonl"
         identity = {
-            "provider": self.image_provider.name,
+            "provider": provider_identity(self.image_provider),
             "model": self.image_provider.model,
             "prompt": prompt,
             "references": [reference.sha256 for reference in resolved],
@@ -556,24 +682,25 @@ class StoryCanvas:
                 "artifact", {}
             ).get("sha256") == sha256_file(output):
                 artifact = ArtifactRecord.model_validate(persisted["artifact"])
+                artifact.path = str(output)
+                artifact.ordered_references = resolved
                 artifact.metadata["cache"] = "hit"
                 return artifact, {
                     "asset_id": artifact_id,
                     "planned_prompt": planned_prompt or prompt,
-                    "actual_prompt": prompt,
-                    "prompt_sha256": sha256_json({"prompt": prompt}),
+                    "actual_prompt": artifact.prompt or prompt,
+                    "prompt_sha256": artifact.prompt_sha256 or sha256_json({"prompt": prompt}),
+                    "receipt": artifact.receipt.model_dump(mode="json", exclude_none=True)
+                    if artifact.receipt
+                    else None,
                     "input_mode": artifact.input_mode.value if artifact.input_mode else "text",
                     "ordered_references": [item.model_dump(mode="json") for item in resolved],
                     "output_sha256": artifact.sha256,
                     "cache": "hit",
                 }
         previous_attempts: list[AttemptRecord] = []
-        if attempt_journal.is_file():
-            for line in attempt_journal.read_text(encoding="utf-8").splitlines():
-                if line.strip():
-                    previous_attempts.append(
-                        AttemptRecord.model_validate(json.loads(line)["attempt"])
-                    )
+        for row in read_jsonl(attempt_journal):
+            previous_attempts.append(AttemptRecord.model_validate(row["attempt"]))
         started = utc_now()
         attempt = AttemptRecord(
             attempt=len(previous_attempts) + 1,
@@ -591,7 +718,7 @@ class StoryCanvas:
             attempt.status = "failed"
             attempt.finished_at = utc_now()
             attempt.error_type = type(error).__name__
-            attempt.error_message = str(error)
+            attempt.error_message = safe_error(error)
             self._append_jsonl(
                 attempt_journal,
                 {
@@ -662,6 +789,9 @@ class StoryCanvas:
         shared_lookup = {asset.asset_id: asset for asset in plan.shared_assets}
         shot_lookup = {shot.keyframe_asset_id: shot for shot in plan.shots}
         pending = set(shared_lookup) | set(shot_lookup)
+        attempts_before = {
+            key: len(read_jsonl(root / "receipts" / f"{key}.attempts.jsonl")) for key in pending
+        }
         dependencies: dict[str, set[str]] = {
             asset.asset_id: set(asset.dependencies) for asset in plan.shared_assets
         }
@@ -805,10 +935,14 @@ class StoryCanvas:
                             {
                                 "artifact_id": artifact_id,
                                 "error_type": type(error).__name__,
-                                "error": str(error),
+                                "error": safe_error(error),
                             }
                         )
         manifest.call_counts["image_generation"] = sum(
+            len(read_jsonl(root / "receipts" / f"{key}.attempts.jsonl")) - before
+            for key, before in attempts_before.items()
+        )
+        manifest.call_counts["image_successes"] = sum(
             artifact.metadata.get("cache") != "hit" for artifact in generated.values()
         )
         manifest.call_counts["image_cache_hits"] = sum(
@@ -831,6 +965,9 @@ class StoryCanvas:
         if self.video_provider is None:
             raise ProviderError("No video provider is configured")
         videos: list[Path] = []
+        manifest.call_counts["video_generation"] = 0
+        manifest.call_counts["video_attempts"] = 0
+        manifest.call_counts["video_cache_hits"] = 0
         for shot in plan.shots:
             keyframe = generated.get(shot.keyframe_asset_id)
             if keyframe is None:
@@ -863,10 +1000,23 @@ class StoryCanvas:
                 raise PolicyViolation(f"{shot.shot_id} exceeds the H3 9-image limit")
             destination = root / "videos" / "shots" / f"{shot.shot_id}.mp4"
             state_path = root / "receipts" / f"{shot.shot_id}.video-task.json"
+            previous_task = (
+                json.loads(state_path.read_text()).get("task_id") if state_path.is_file() else None
+            )
+            counted_creation = False
             try:
+                manifest.call_counts["video_attempts"] += 1
                 generated_file = self.video_provider.generate(
                     shot.h3_prompt, references, destination, state_path
                 )
+                created = bool(
+                    generated_file.metadata.get(
+                        "task_created", not generated_file.metadata.get("resumed", False)
+                    )
+                )
+                manifest.call_counts["video_generation"] += int(created)
+                counted_creation = created
+                manifest.call_counts["video_cache_hits"] += int(not created)
                 media = probe_media(destination)
                 full_decode(destination)
                 artifact = ArtifactRecord(
@@ -897,14 +1047,21 @@ class StoryCanvas:
                     }
                 )
             except Exception as error:
+                if not counted_creation and not previous_task and state_path.is_file():
+                    state = json.loads(state_path.read_text(encoding="utf-8"))
+                    if state.get("task_id") or state.get("status") in {
+                        "creating",
+                        "create_ambiguous",
+                    }:
+                        manifest.call_counts["video_generation"] += 1
                 manifest.errors.append(
                     {
                         "shot_id": shot.shot_id,
                         "error_type": type(error).__name__,
-                        "error": str(error),
+                        "error": safe_error(error),
                     }
                 )
-        manifest.call_counts["video_generation"] = len(videos)
+        manifest.call_counts["video_successes"] = len(videos)
         if len(videos) == len(plan.shots):
             story_path = root / "videos" / "story.mp4"
             concat_videos(videos, story_path)
@@ -925,7 +1082,7 @@ class StoryCanvas:
         root: Path,
         manifest: RunManifest,
     ) -> None:
-        if self.evaluator is None:
+        if self.evaluator is None or manifest.policy.mode == ExecutionMode.PLAN_ONLY:
             return
         manifest.call_counts["evaluation"] = 1
         try:
@@ -976,76 +1133,114 @@ class StoryCanvas:
                     "stage": "evaluation",
                     "provider": self.evaluator.name,
                     "error_type": type(error).__name__,
-                    "error": str(error),
+                    "error": safe_error(error),
                 }
             )
             manifest.status = RunStatus.PARTIAL
 
+    def _finish_run(
+        self, plan: CanvasPlan, manifest: RunManifest, root: Path, rows: list[dict[str, Any]]
+    ) -> None:
+        manifest.finished_at = utc_now()
+        atomic_write_json(root / "run_manifest.json", manifest)
+        try:
+            self._write_prompt_rows(root, rows)
+            render_audit(plan, manifest, root / "audit.html")
+        except Exception as error:
+            manifest.status = RunStatus.PARTIAL
+            manifest.errors.append(
+                {
+                    "stage": "finalization",
+                    "error_type": type(error).__name__,
+                    "error": safe_error(error),
+                }
+            )
+            atomic_write_json(root / "run_manifest.json", manifest)
+
     def run_plan(self, plan: CanvasPlan, policy: ExecutionPolicy) -> RunRecord:
+        return self._run_plan(plan, policy, planning_calls=0)
+
+    def _run_plan(
+        self, plan: CanvasPlan, policy: ExecutionPolicy, *, planning_calls: int
+    ) -> RunRecord:
+        plan = CanvasPlan.model_validate(plan.model_dump(mode="json"))
         self._preflight(plan, policy)
-        compiled = self.compile_workflow(plan, policy)
-        composition_sha = (
-            self._plugin_registry.composition_sha256 if self._plugin_registry is not None else None
-        )
-        plan_identity = plan.model_dump(mode="json", exclude={"created_at"})
-        run_id = f"run-{sha256_json({'plan': plan_identity, 'policy': policy, 'composition_sha256': composition_sha})[:16]}"
-        root = self.runs_dir / run_id
+        fingerprint = self.execution_sha256(plan, policy)
+        root = self.runs_dir / f"run-{fingerprint[:16]}"
         root.mkdir(parents=True, exist_ok=True)
+        with FileLock(str(root / ".run.lock")):
+            return self._run_plan_locked(plan, policy, root, fingerprint, planning_calls)
+
+    def _run_plan_locked(
+        self,
+        plan: CanvasPlan,
+        policy: ExecutionPolicy,
+        root: Path,
+        fingerprint: str,
+        planning_calls: int,
+    ) -> RunRecord:
+        compiled = self.compile_workflow(plan, policy)
+        manifest_path = root / "run_manifest.json"
+        if manifest_path.is_file():
+            previous = RunManifest.model_validate_json(manifest_path.read_text(encoding="utf-8"))
+            if previous.execution_sha256 != fingerprint:
+                raise ResumeConflict("Run directory contains a different execution identity")
         for directory in ("assets", "videos/shots", "receipts"):
             (root / directory).mkdir(parents=True, exist_ok=True)
         atomic_write_json(root / "canvas_plan.json", plan)
         atomic_write_json(root / "workflow.json", compiled.workflow)
         atomic_write_json(root / "workflow_api.json", compiled.api_workflow)
         manifest = RunManifest(
-            run_id=run_id,
+            run_id=root.name,
             plan_id=plan.plan_id,
-            status=RunStatus.PLANNED,
+            status=RunStatus.RUNNING,
             input_sha256=plan.input_sha256,
             policy=policy,
             run_root=str(root),
-            composition_sha256=composition_sha,
-            plugins=(
-                [item.plugin_id for item in self._plugin_registry.snapshots()]
-                if self._plugin_registry is not None
-                else []
-            ),
-            call_counts={"planning": 1, "fact_search": 0, "visual_search": 0},
+            execution_sha256=fingerprint,
+            plan_sha256=plan_sha256(plan),
+            composition_sha256=self._plugin_registry.composition_sha256
+            if self._plugin_registry
+            else None,
+            plugins=[item.plugin_id for item in self._plugin_registry.snapshots()]
+            if self._plugin_registry
+            else [],
+            call_counts={"planning": planning_calls, "fact_search": 0, "visual_search": 0},
         )
-        prompt_rows: list[dict[str, Any]] = []
-        if policy.mode == ExecutionMode.PLAN_ONLY:
-            manifest.status = RunStatus.COMPLETE
-        else:
-            manifest.status = RunStatus.RUNNING
-            atomic_write_json(root / "run_manifest.json", manifest)
-            generated, prompt_rows = self._execute_assets(plan, policy, root, manifest)
-            if policy.mode == ExecutionMode.FULL:
-                self._execute_videos(plan, root, manifest, generated, prompt_rows)
-            expected_images = len(plan.shared_assets) + len(plan.shots)
-            image_count = sum(
-                artifact.kind == "image" and artifact.provenance == Provenance.IMAGE_GENERATION
-                for artifact in manifest.artifacts
+        rows: list[dict[str, Any]] = []
+        atomic_write_json(manifest_path, manifest)
+        try:
+            if policy.mode == ExecutionMode.PLAN_ONLY:
+                manifest.status = RunStatus.COMPLETE
+            else:
+                generated, rows = self._execute_assets(plan, policy, root, manifest)
+                if policy.mode == ExecutionMode.FULL:
+                    self._execute_videos(plan, root, manifest, generated, rows)
+                manifest.status = RunStatus.PARTIAL if manifest.errors else RunStatus.COMPLETE
+            self._execute_evaluation(plan, root, manifest)
+        except Exception as error:
+            manifest.status = RunStatus.PARTIAL if manifest.artifacts else RunStatus.FAILED
+            manifest.errors.append(
+                {
+                    "stage": "execution",
+                    "error_type": type(error).__name__,
+                    "error": safe_error(error),
+                }
             )
-            expected_videos = len(plan.shots) if policy.mode == ExecutionMode.FULL else 0
-            video_count = sum(
-                artifact.artifact_id.endswith("-video") and artifact.artifact_id != "story-video"
-                for artifact in manifest.artifacts
+        except BaseException:
+            manifest.status = RunStatus.FAILED
+            manifest.errors.append(
+                {
+                    "stage": "execution",
+                    "error_type": "InterruptedRun",
+                    "error": "Execution was interrupted; inspect receipts before resuming.",
+                }
             )
-            manifest.status = (
-                RunStatus.COMPLETE
-                if image_count == expected_images and video_count == expected_videos
-                else RunStatus.PARTIAL
-            )
-        self._execute_evaluation(plan, root, manifest)
-        manifest.finished_at = utc_now()
-        self._write_prompt_rows(root, prompt_rows)
-        atomic_write_json(root / "run_manifest.json", manifest)
-        render_audit(plan, manifest, root / "audit.html")
+            raise
+        finally:
+            self._finish_run(plan, manifest, root, rows)
         return RunRecord(
-            run_id=run_id,
-            root=root,
-            manifest=manifest,
-            plan=plan,
-            compiled_workflow=compiled,
+            run_id=root.name, root=root, manifest=manifest, plan=plan, compiled_workflow=compiled
         )
 
     def complete_videos(self, run_root: str | Path, policy: ExecutionPolicy) -> RunRecord:
@@ -1055,7 +1250,11 @@ class StoryCanvas:
         policy changes a normal run id, while a paid-video continuation must reuse
         the already-audited images instead of generating them a second time.
         """
-        root = Path(run_root).expanduser().resolve()
+        root = Path(run_root).expanduser().resolve(strict=True)
+        with FileLock(str(root / ".run.lock")):
+            return self._complete_videos_locked(root, policy)
+
+    def _complete_videos_locked(self, root: Path, policy: ExecutionPolicy) -> RunRecord:
         plan_path = root / "canvas_plan.json"
         manifest_path = root / "run_manifest.json"
         prompts_path = root / "prompts.jsonl"
@@ -1068,11 +1267,14 @@ class StoryCanvas:
 
         plan = CanvasPlan.model_validate_json(plan_path.read_text(encoding="utf-8"))
         manifest = RunManifest.model_validate_json(manifest_path.read_text(encoding="utf-8"))
-        if manifest.run_root != str(root):
-            raise ProviderError("Run root does not match the persisted manifest")
+        recorded_root = Path(manifest.run_root).expanduser()
+        if manifest.run_id != root.name:
+            raise ProviderError("Run directory name does not match the persisted manifest")
+        if manifest.plan_sha256 and manifest.plan_sha256 != plan_sha256(plan):
+            raise ResumeConflict("Plan content changed since the assets run")
         if manifest.plan_id != plan.plan_id or manifest.input_sha256 != plan.input_sha256:
             raise ProviderError("Plan identity does not match the persisted manifest")
-        self._preflight(plan, policy)
+        self._preflight(plan, policy, videos_only=True)
 
         expected_asset_ids = {
             *(asset.asset_id for asset in plan.shared_assets),
@@ -1086,7 +1288,8 @@ class StoryCanvas:
             preserved_artifacts.append(artifact)
             if artifact.artifact_id not in expected_asset_ids:
                 continue
-            path = Path(artifact.path).expanduser()
+            path = artifact_path(artifact.path, root, recorded_root)
+            artifact.path = str(path)
             if (
                 artifact.kind != "image"
                 or artifact.provenance != Provenance.IMAGE_GENERATION
@@ -1116,30 +1319,37 @@ class StoryCanvas:
         atomic_write_json(root / "workflow.json", compiled.workflow)
         atomic_write_json(root / "workflow_api.json", compiled.api_workflow)
         manifest.policy = policy
+        manifest.run_root = str(root)
         manifest.status = RunStatus.RUNNING
         manifest.finished_at = None
         manifest.artifacts = preserved_artifacts
         manifest.call_counts["video_generation"] = 0
         atomic_write_json(manifest_path, manifest)
 
-        self._execute_videos(plan, root, manifest, generated, prompt_rows)
-        image_count = sum(
-            artifact.kind == "image" and artifact.provenance == Provenance.IMAGE_GENERATION
-            for artifact in manifest.artifacts
-        )
-        video_count = sum(
-            artifact.artifact_id.endswith("-video") and artifact.artifact_id != "story-video"
-            for artifact in manifest.artifacts
-        )
-        manifest.status = (
-            RunStatus.COMPLETE
-            if image_count == len(expected_asset_ids) and video_count == len(plan.shots)
-            else RunStatus.PARTIAL
-        )
-        manifest.finished_at = utc_now()
-        self._write_prompt_rows(root, prompt_rows)
-        atomic_write_json(manifest_path, manifest)
-        render_audit(plan, manifest, root / "audit.html")
+        try:
+            # Previous errors remain inspectable, but no longer determine this attempt's result.
+            old_error_count = len(manifest.errors)
+            self._execute_videos(plan, root, manifest, generated, prompt_rows)
+            manifest.status = (
+                RunStatus.COMPLETE if len(manifest.errors) == old_error_count else RunStatus.PARTIAL
+            )
+        except Exception as error:
+            manifest.status = RunStatus.PARTIAL
+            manifest.errors.append(
+                {"stage": "video", "error_type": type(error).__name__, "error": safe_error(error)}
+            )
+        except BaseException:
+            manifest.status = RunStatus.FAILED
+            manifest.errors.append(
+                {
+                    "stage": "video",
+                    "error_type": "InterruptedRun",
+                    "error": "Video continuation was interrupted; existing task receipts are authoritative.",
+                }
+            )
+            raise
+        finally:
+            self._finish_run(plan, manifest, root, prompt_rows)
         return RunRecord(
             run_id=manifest.run_id,
             root=root,
@@ -1152,4 +1362,4 @@ class StoryCanvas:
         self, value: ShotInput | StoryInput, policy: ExecutionPolicy | None = None
     ) -> RunRecord:
         selected_policy = policy or ExecutionPolicy()
-        return self.run_plan(self.plan(value, selected_policy), selected_policy)
+        return self._run_plan(self.plan(value, selected_policy), selected_policy, planning_calls=1)

@@ -659,8 +659,20 @@ def _compile_api(
 
 
 def compile_workflow(plan: CanvasPlan, policy: Any) -> CompiledWorkflow:
+    plan = CanvasPlan.model_validate(plan.model_dump(mode="json"))
     if len(plan.shots) > 24:
         raise WorkflowCompileError("The v1 ComfyUI compiler supports at most 24 shots per workflow")
+    for asset in plan.shared_assets:
+        if asset.dependencies or asset.references:
+            raise WorkflowCompileError(
+                f"Shared asset {asset.asset_id} has dependencies/references that the v1 ComfyUI compiler cannot wire; use independent shared assets or a custom canvas.render plugin"
+            )
+    for shot in plan.shots:
+        wired = {ref.source_asset_id for ref in shot.references if ref.source_asset_id}
+        if set(shot.dependencies) - wired:
+            raise WorkflowCompileError(
+                f"Shot {shot.shot_id} has dependencies without a reference edge; the v1 ComfyUI compiler requires explicit references"
+            )
     policy_json = canonical_json(policy)
     graph = _UiGraph()
     input_node = graph.add(
@@ -739,7 +751,7 @@ def compile_workflow(plan: CanvasPlan, policy: Any) -> CompiledWorkflow:
             if not reference.source_asset_id:
                 continue
             source = shared_nodes.get(reference.source_asset_id) or shot_nodes.get(
-                reference.source_asset_id.removesuffix("-keyframe")
+                reference.source_asset_id
             )
             if source is None:
                 raise WorkflowCompileError(
@@ -747,7 +759,7 @@ def compile_workflow(plan: CanvasPlan, policy: Any) -> CompiledWorkflow:
                 )
             graph.connect(source, 0, instance, target_slot, "SC_ASSET")
             target_slot += 1
-        shot_nodes[shot.shot_id] = instance
+        shot_nodes[shot.keyframe_asset_id] = instance
         shot_video_nodes.append(instance)
 
     assemble_x = x + len(plan.shots) * 360 + 120

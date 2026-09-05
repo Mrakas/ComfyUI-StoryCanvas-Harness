@@ -8,6 +8,7 @@ from typing import Any
 from .audit import render_audit
 from .engine import StoryCanvas
 from .errors import ProviderError
+from .identity import plan_sha256
 from .media import concat_videos, full_decode, probe_media
 from .schemas import (
     ArtifactRecord,
@@ -172,7 +173,9 @@ def _engine() -> StoryCanvas:
 
 
 def _plan(value: Any) -> CanvasPlan:
-    return value if isinstance(value, CanvasPlan) else CanvasPlan.model_validate(value)
+    return CanvasPlan.model_validate(
+        value.model_dump(mode="json") if isinstance(value, CanvasPlan) else value
+    )
 
 
 def _policy(value: Any) -> ExecutionPolicy:
@@ -180,8 +183,10 @@ def _policy(value: Any) -> ExecutionPolicy:
 
 
 def _runtime_root(plan: CanvasPlan, policy: ExecutionPolicy) -> Path:
-    run_id = f"comfy-{sha256_json({'plan_id': plan.plan_id, 'policy': policy})[:16]}"
-    root = _engine().runs_dir / run_id
+    runtime = _engine()
+    runtime._preflight(plan, policy)
+    run_id = f"comfy-{runtime.execution_sha256(plan, policy)[:16]}"
+    root = runtime.runs_dir / run_id
     for directory in (
         root / "assets",
         root / "videos" / "shots",
@@ -612,6 +617,11 @@ class StoryCanvasMiniMaxH3APINode:
         runtime = _engine()
         if runtime.video_provider is None:
             raise ProviderError("No MiniMax-H3-compatible provider is configured")
+        shot = next((item for item in parsed_plan.shots if item.shot_id == shot_id), None)
+        if shot is None or h3_prompt.get("shot_id") != shot_id:
+            raise ProviderError("Video prompt must reference a shot in the current plan")
+        if h3_prompt.get("prompt_sha256") != sha256_json({"prompt": h3_prompt.get("prompt")}):
+            raise ProviderError("Video prompt SHA mismatch")
         assets = reference_pack.get("assets", [])
         if not 1 <= len(assets) <= 9:
             raise ProviderError("MiniMax-H3 requires 1-9 references")
@@ -619,7 +629,10 @@ class StoryCanvasMiniMaxH3APINode:
         for asset in assets:
             if asset.get("status") != "ready" or not asset.get("path"):
                 raise ProviderError(f"H3 reference is not ready: {asset.get('asset_id')}")
-            paths.append(Path(asset["path"]))
+            path = Path(asset["path"])
+            if not path.is_file() or sha256_file(path) != asset.get("sha256"):
+                raise ProviderError(f"H3 reference SHA mismatch: {asset.get('asset_id')}")
+            paths.append(path)
         root = _runtime_root(parsed_plan, parsed_policy)
         destination = root / "videos" / "shots" / f"{shot_id}.mp4"
         state_path = root / "receipts" / f"{shot_id}.video-task.json"
@@ -810,6 +823,8 @@ class StoryCanvasRunManifestNode:
             input_sha256=parsed_plan.input_sha256,
             policy=parsed_policy,
             run_root=str(root),
+            execution_sha256=_engine().execution_sha256(parsed_plan, parsed_policy),
+            plan_sha256=plan_sha256(parsed_plan),
             artifacts=artifacts,
             call_counts={
                 "image_generation": image_count,

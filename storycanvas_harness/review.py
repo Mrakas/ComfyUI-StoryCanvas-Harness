@@ -14,6 +14,7 @@ from PIL import Image
 
 from .media import full_decode, probe_media
 from .schemas import ArtifactRecord, CanvasPlan, RunManifest
+from .storage import artifact_path
 from .utils import atomic_write_json, canonical_json, ensure_safe_id, sha256_file, sha256_json
 
 NODE_TEXT_PREVIEW = "StoryCanvasTextPreview"
@@ -48,20 +49,15 @@ def _inside(path: Path, root: Path, *, label: str) -> Path:
 
 
 def _declared_source(declared: str, run_root: Path, recorded_root: Path | None) -> Path:
-    value = Path(declared).expanduser()
-    if value.is_absolute():
-        if recorded_root is None:
-            raise ValueError(f"Absolute media path has no recorded Run root: {declared}")
+    supplied = Path(declared).expanduser()
+    if supplied.is_absolute() and recorded_root is not None:
         try:
-            relative = value.relative_to(recorded_root)
-        except ValueError as exc:
+            supplied.relative_to(recorded_root)
+        except ValueError as error:
             raise ValueError(
                 f"Declared media path is outside the recorded Run root: {declared}"
-            ) from exc
-        candidate = run_root / relative
-    else:
-        candidate = run_root / value
-    return _inside(candidate, run_root, label="Declared media")
+            ) from error
+    return artifact_path(declared, run_root, recorded_root)
 
 
 def _validate_image(path: Path) -> dict[str, Any]:

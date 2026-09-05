@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from ..errors import PluginError
-from ..utils import sha256_json
+from ..utils import safe_error, sha256_json
 from .api import (
     PluginContext,
     PluginSnapshot,
@@ -72,6 +72,14 @@ class PluginRegistry:
                     f"by the Profile: {denied_permissions}"
                 )
             for requirement in plugin.manifest.requires:
+                if (
+                    requirement in providers
+                    and len(providers[requirement]) > 1
+                    and requirement not in self.bindings
+                ):
+                    raise PluginError(
+                        f"Required capability {requirement!r} is ambiguous; add a Profile binding"
+                    )
                 if requirement not in providers:
                     raise PluginError(
                         f"Plugin {plugin.manifest.plugin_id!r} requires unavailable "
@@ -85,9 +93,7 @@ class PluginRegistry:
             progress = False
             for plugin_id in sorted(pending):
                 plugin = self._plugins[plugin_id]
-                if not all(
-                    self.has_capability(item, active_only=True) for item in plugin.manifest.requires
-                ):
+                if not all(self._requirement_ready(item) for item in plugin.manifest.requires):
                     self._status[plugin_id] = PluginStatus.WAITING
                     continue
                 self._status[plugin_id] = PluginStatus.LOADING
@@ -101,7 +107,13 @@ class PluginRegistry:
                     )
                 except Exception as error:
                     self._status[plugin_id] = PluginStatus.FAILED
-                    self._errors[plugin_id] = f"{type(error).__name__}: {error}"
+                    self._errors[plugin_id] = f"{type(error).__name__}: {safe_error(error)}"
+                    try:
+                        plugin.stop()
+                    except Exception as cleanup_error:
+                        self._errors[plugin_id] += (
+                            f"; partial startup cleanup failed: {safe_error(cleanup_error)}"
+                        )
                     failure = PluginError(
                         f"Plugin {plugin_id!r} failed to start: {self._errors[plugin_id]}"
                     )
@@ -121,9 +133,23 @@ class PluginRegistry:
                     plugin_id: self._plugins[plugin_id].manifest.requires
                     for plugin_id in sorted(pending)
                 }
-                raise PluginError(
-                    f"Plugin dependency cycle or unavailable active service: {waiting}"
-                )
+                try:
+                    self.dispose_all()
+                finally:
+                    raise PluginError(
+                        f"Plugin dependency cycle or unavailable active service: {waiting}"
+                    )
+
+    def _requirement_ready(self, capability: str) -> bool:
+        bound = self.bindings.get(capability)
+        if bound is not None:
+            return self._status.get(bound) == PluginStatus.ACTIVE
+        candidates = self._providers().get(capability, [])
+        if len(candidates) != 1:
+            raise PluginError(
+                f"Required capability {capability!r} is ambiguous; add a Profile binding"
+            )
+        return self._status[candidates[0]] == PluginStatus.ACTIVE
 
     def has_capability(self, capability: str, *, active_only: bool = False) -> bool:
         return any(

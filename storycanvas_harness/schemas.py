@@ -89,7 +89,7 @@ class StoryInput(StrictModel):
 class ExecutionPolicy(StrictModel):
     mode: ExecutionMode = ExecutionMode.PLAN_ONLY
     allow_paid_video: bool = False
-    max_shots: PositiveInt = 12
+    max_shots: int = Field(default=12, ge=1, le=24)
     max_search_calls: int = Field(default=8, ge=0)
     max_image_calls: int = Field(default=16, ge=0)
     max_video_calls: int = Field(default=0, ge=0)
@@ -197,7 +197,7 @@ class CanvasPlan(StrictModel):
     video_provider: ProviderDescriptor | None = None
     visual_bible: VisualBible
     shared_assets: list[PlannedAsset] = Field(default_factory=list)
-    shots: list[PlannedShot] = Field(min_length=1)
+    shots: list[PlannedShot] = Field(min_length=1, max_length=24)
     call_estimate: CallEstimate
     warnings: list[str] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=utc_now)
@@ -210,15 +210,72 @@ class CanvasPlan(StrictModel):
         orders = [shot.order for shot in self.shots]
         if sorted(orders) != list(range(1, len(orders) + 1)):
             raise ValueError("shot orders must be contiguous and one-indexed")
-        asset_ids = {asset.asset_id for asset in self.shared_assets}
-        asset_ids.update(shot.keyframe_asset_id for shot in self.shots)
-        for shot in self.shots:
-            missing = set(shot.dependencies) - asset_ids
+        asset_list = [asset.asset_id for asset in self.shared_assets]
+        asset_list.extend(shot.keyframe_asset_id for shot in self.shots)
+        if len(asset_list) != len(set(asset_list)):
+            raise ValueError("Shared asset and keyframe IDs must be globally unique")
+        reserved = {"story-video", *(f"{shot.shot_id}-video" for shot in self.shots)}
+        if set(asset_list) & reserved:
+            raise ValueError("Image asset IDs cannot collide with video artifact IDs")
+        asset_ids = set(asset_list)
+        dependencies = {asset.asset_id: set(asset.dependencies) for asset in self.shared_assets}
+        dependencies.update({shot.keyframe_asset_id: set(shot.dependencies) for shot in self.shots})
+        nodes: list[PlannedAsset | PlannedShot] = [*self.shared_assets, *self.shots]
+        for item in nodes:
+            label = item.asset_id if isinstance(item, PlannedAsset) else item.keyframe_asset_id
+            missing = set(item.dependencies) - asset_ids
             if missing:
-                raise ValueError(f"shot {shot.shot_id} has missing dependencies: {sorted(missing)}")
-            if shot.previous_shot_id and shot.previous_shot_id not in shot_ids:
-                raise ValueError(f"shot {shot.shot_id} references unknown previous shot")
+                raise ValueError(f"{label} has missing dependencies: {sorted(missing)}")
+            if [ref.order for ref in item.references] != list(range(1, len(item.references) + 1)):
+                raise ValueError(
+                    f"{label} reference orders must match their one-indexed list order"
+                )
+            if len({ref.reference_id for ref in item.references}) != len(item.references):
+                raise ValueError(f"{label} has duplicate reference IDs")
+            for reference in item.references:
+                if not reference.source_asset_id and not reference.path:
+                    raise ValueError(
+                        f"Reference {reference.reference_id} requires a path or source asset"
+                    )
+                if (
+                    reference.source_asset_id
+                    and reference.source_asset_id not in dependencies[label]
+                ):
+                    raise ValueError(
+                        f"{label} reference {reference.source_asset_id} must be a declared dependency"
+                    )
+        previous_by_id = {shot.shot_id: shot for shot in self.shots}
+        for shot in self.shots:
+            if shot.previous_shot_id:
+                previous = previous_by_id.get(shot.previous_shot_id)
+                if previous is None or previous.order >= shot.order:
+                    raise ValueError(f"shot {shot.shot_id} must reference an earlier previous shot")
+                if previous.keyframe_asset_id not in shot.dependencies:
+                    raise ValueError(f"shot {shot.shot_id} must depend on its previous keyframe")
+        remaining = dict(dependencies)
+        resolved: set[str] = set()
+        while remaining:
+            ready = {key for key, deps in remaining.items() if deps <= resolved}
+            if not ready:
+                raise ValueError(f"Asset dependency cycle: {sorted(remaining)}")
+            resolved.update(ready)
+            remaining = {key: deps for key, deps in remaining.items() if key not in ready}
+        object.__setattr__(self, "shots", sorted(self.shots, key=lambda shot: shot.order))
         return self
+
+    @property
+    def required_calls(self) -> CallEstimate:
+        """Derive budget requirements from executable nodes, never caller estimates."""
+        return CallEstimate(
+            planning_calls=self.call_estimate.planning_calls,
+            fact_search_calls=sum(bool(asset.search_query) for asset in self.shared_assets),
+            visual_search_calls=sum(
+                bool(asset.visual_search_query) for asset in self.shared_assets
+            ),
+            image_generation_calls=len(self.shared_assets) + len(self.shots),
+            video_generation_calls=len(self.shots),
+            paid_video_locked=self.call_estimate.paid_video_locked,
+        )
 
 
 class WorkflowNodeSummary(StrictModel):
@@ -282,6 +339,8 @@ class RunManifest(StrictModel):
     policy: ExecutionPolicy
     run_root: str
     composition_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    execution_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    plan_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     plugins: list[SafeId] = Field(default_factory=list)
     artifacts: list[ArtifactRecord] = Field(default_factory=list)
     errors: list[dict[str, Any]] = Field(default_factory=list)

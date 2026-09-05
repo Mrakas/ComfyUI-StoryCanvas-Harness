@@ -9,10 +9,12 @@ from pathlib import Path
 from typing import Any
 
 import httpx
+from filelock import FileLock
 
 from ..errors import ProviderError, ResumeConflict
+from ..media import full_decode
 from ..schemas import ProviderReceipt
-from ..utils import atomic_write_json, sha256_file, sha256_json
+from ..utils import atomic_write_json, safe_error, sha256_file, sha256_json
 from .base import GeneratedFile
 
 # subprocess is required for fixed ffmpeg argv; shell execution is never used.
@@ -32,7 +34,46 @@ class MockVideoProvider:
         destination: Path,
         state_path: Path,
     ) -> GeneratedFile:
-        request = {"prompt": prompt, "references": [path.name for path in references]}
+        state_path.parent.mkdir(parents=True, exist_ok=True)
+        with FileLock(str(state_path) + ".lock"):
+            return self._generate(prompt, references, destination, state_path)
+
+    def _generate(
+        self,
+        prompt: str,
+        references: list[Path],
+        destination: Path,
+        state_path: Path,
+    ) -> GeneratedFile:
+        request = {
+            "model": self.model,
+            "prompt": prompt,
+            "references": [sha256_file(path) for path in references],
+        }
+        request_sha = sha256_json(request)
+        if state_path.is_file():
+            import json
+
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+            if state.get("request_sha256") != request_sha:
+                raise ResumeConflict("Persisted mock video belongs to a different request")
+            if destination.is_file() and state.get("video_sha256") == sha256_file(destination):
+                try:
+                    full_decode(destination)
+                except ProviderError:
+                    pass
+                else:
+                    return GeneratedFile(
+                        path=destination,
+                        receipt=ProviderReceipt(
+                            provider=self.name,
+                            model=self.model,
+                            operation="video_generation",
+                            request_sha256=request_sha,
+                            task_id="mock-task",
+                        ),
+                        metadata={"mock": True, "resumed": True, "task_created": False},
+                    )
         destination.parent.mkdir(parents=True, exist_ok=True)
         ffmpeg = shutil.which("ffmpeg")
         if not ffmpeg:
@@ -79,7 +120,7 @@ class MockVideoProvider:
                 request_sha256=state["request_sha256"],
                 task_id="mock-task",
             ),
-            metadata={"mock": True, "duration_seconds": 1},
+            metadata={"mock": True, "duration_seconds": 1, "task_created": True},
         )
 
 
@@ -158,6 +199,17 @@ class MiniMaxH3CompatibleProvider:
         destination: Path,
         state_path: Path,
     ) -> GeneratedFile:
+        state_path.parent.mkdir(parents=True, exist_ok=True)
+        with FileLock(str(state_path) + ".lock"):
+            return self._generate(prompt, references, destination, state_path)
+
+    def _generate(
+        self,
+        prompt: str,
+        references: list[Path],
+        destination: Path,
+        state_path: Path,
+    ) -> GeneratedFile:
         if not 1 <= len(references) <= 9:
             raise ProviderError("MiniMax-H3 requires 1-9 ordered reference images")
         reference_identity = [
@@ -179,22 +231,32 @@ class MiniMaxH3CompatibleProvider:
             state = json.loads(state_path.read_text(encoding="utf-8"))
             if state.get("request_sha256") != request_sha:
                 raise ResumeConflict("Persisted MiniMax task belongs to a different request")
-            if state.get("status") == "create_ambiguous" and not state.get("task_id"):
+            if not state.get("task_id"):
                 raise ResumeConflict("Ambiguous paid task creation requires manual reconciliation")
-            if state.get("status") == "succeeded" and destination.is_file():
-                return GeneratedFile(
-                    path=destination,
-                    receipt=ProviderReceipt(
-                        provider=self.name,
-                        model=self.model,
-                        operation="video_generation",
-                        request_sha256=request_sha,
-                        task_id=str(state.get("task_id")),
-                    ),
-                    metadata={"resumed": True},
-                )
+            if (
+                state.get("status") == "succeeded"
+                and destination.is_file()
+                and state.get("video_sha256") == sha256_file(destination)
+            ):
+                try:
+                    full_decode(destination)
+                except ProviderError:
+                    pass
+                else:
+                    return GeneratedFile(
+                        path=destination,
+                        receipt=ProviderReceipt(
+                            provider=self.name,
+                            model=self.model,
+                            operation="video_generation",
+                            request_sha256=request_sha,
+                            task_id=str(state["task_id"]),
+                        ),
+                        metadata={"resumed": True, "task_created": False},
+                    )
 
         task_id = state.get("task_id")
+        task_created = False
         if not task_id:
             uploaded = [self._upload(path) for path in references]
             payload: dict[str, Any] = {
@@ -226,11 +288,14 @@ class MiniMaxH3CompatibleProvider:
                 if not task_id:
                     raise ProviderError("MiniMax create response has no task_id")
             except Exception as error:
-                state.update(status="create_ambiguous", error=f"{type(error).__name__}: {error}")
+                state.update(
+                    status="create_ambiguous", error=f"{type(error).__name__}: {safe_error(error)}"
+                )
                 atomic_write_json(state_path, state)
                 raise ResumeConflict(
                     "MiniMax task creation was ambiguous; automatic retry is disabled"
                 ) from error
+            task_created = True
             state.update(status="submitted", task_id=task_id)
             atomic_write_json(state_path, state)
 
@@ -246,7 +311,8 @@ class MiniMaxH3CompatibleProvider:
                 remote = response.json().get("task") or {}
             except Exception as error:
                 state.update(
-                    status="polling_interrupted", last_error=f"{type(error).__name__}: {error}"
+                    status="polling_interrupted",
+                    last_error=f"{type(error).__name__}: {safe_error(error)}",
                 )
                 atomic_write_json(state_path, state)
                 time.sleep(self.poll_interval)
@@ -270,10 +336,16 @@ class MiniMaxH3CompatibleProvider:
                         request_sha256=request_sha,
                         task_id=str(task_id),
                     ),
-                    metadata={"duration_seconds": 10, "resolution": "768P", "ratio": "16:9"},
+                    metadata={
+                        "duration_seconds": 10,
+                        "resolution": "768P",
+                        "ratio": "16:9",
+                        "task_created": task_created,
+                        "resumed": not task_created,
+                    },
                 )
             if status in FAILED_STATUSES:
-                state.update(status="failed", error=str(remote.get("error") or status))
+                state.update(status="failed", error=safe_error(remote.get("error") or status))
                 atomic_write_json(state_path, state)
                 raise ProviderError(f"MiniMax task failed: {state['error']}")
             if status in SUCCESS_STATUSES:

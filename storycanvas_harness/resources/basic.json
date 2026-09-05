@@ -1,0 +1,26 @@
+{
+  "schema_version": "storycanvas/profile/v1",
+  "name": "basic",
+  "description": "Credential-free reference profile for planning, media generation, and ComfyUI compilation.",
+  "plugins": [
+    "storycanvas.director.basic",
+    "storycanvas.search.fact.mock",
+    "storycanvas.search.visual.mock",
+    "storycanvas.image.mock",
+    "storycanvas.video.mock",
+    "storycanvas.renderer.comfyui"
+  ],
+  "bindings": {
+    "story.plan": "storycanvas.director.basic",
+    "search.fact": "storycanvas.search.fact.mock",
+    "search.visual": "storycanvas.search.visual.mock",
+    "media.image.generate": "storycanvas.image.mock",
+    "media.video.generate": "storycanvas.video.mock",
+    "canvas.render": "storycanvas.renderer.comfyui"
+  },
+  "allow_permissions": [
+    "filesystem:run-dir",
+    "subprocess:ffmpeg"
+  ],
+  "plugin_config": {}
+}
