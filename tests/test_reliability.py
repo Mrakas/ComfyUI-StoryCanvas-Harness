@@ -9,6 +9,7 @@ from pathlib import Path
 from threading import Event, Lock
 
 import pytest
+from click import unstyle
 from fastapi.testclient import TestClient
 from typer.testing import CliRunner
 
@@ -258,7 +259,7 @@ def test_cli_bad_inputs_fail_before_provider_initialization(
     runner = CliRunner()
     result = runner.invoke(app, ["run", "--kind", "typo", "--prompt", "A fox."])
     assert result.exit_code != 0
-    assert "--kind must be" in result.output
+    assert "--kind must be" in unstyle(result.output)
     invalid = tmp_path / "invalid.json"
     invalid.write_text("{")
     result = runner.invoke(app, ["run", "--input", str(invalid)])
