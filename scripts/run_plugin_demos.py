@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import shutil
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -32,9 +31,7 @@ def _load_case(path: Path) -> tuple[ShotInput | StoryInput, ExecutionPolicy]:
 
 
 def main() -> None:
-    if OUTPUT_ROOT.exists():
-        shutil.rmtree(OUTPUT_ROOT)
-    OUTPUT_ROOT.mkdir(parents=True)
+    OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
     profile = load_profile(PROFILE_PATH)
     results: list[dict[str, Any]] = []
 
@@ -84,6 +81,8 @@ def main() -> None:
     }
     atomic_write_json(OUTPUT_ROOT / "demo_report.json", report)
     print(f"report: {(OUTPUT_ROOT / 'demo_report.json').relative_to(ROOT)}")
+    if any(result["status"] != "complete" for result in results):
+        raise SystemExit("One or more demos failed; inspect demo_report.json.")
 
 
 if __name__ == "__main__":

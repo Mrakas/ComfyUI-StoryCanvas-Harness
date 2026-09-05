@@ -51,25 +51,31 @@ Viewer 完全本地、只读；`Reset / Next / Play` 只改变显现阶段，不
 
 ## 快速开始
 
+需要 Python 3.10–3.13 和 [uv](https://docs.astral.sh/uv/)。
+
 ```bash
 git clone https://github.com/Mrakas/ComfyUI-StoryCanvas-Harness.git
 cd ComfyUI-StoryCanvas-Harness
-uv sync --extra dev
+uv sync
 
-# 无密钥的类型化预览；不会搜索、生图或生成视频。
-STORYCANVAS_PROVIDER_MODE=mock uv run storycanvas plan \
-  --kind story --input examples/three_shot_story/input.json
+# 检查本地依赖与配置，不调用任何 Provider。
+uv run storycanvas doctor
 
-# 运行本地组合兼容性 Demo。
-uv run python scripts/run_plugin_demos.py
+# 生成三镜头 Mock 示例并打开 Canvas，不需要密钥或 GPU。
+uv run storycanvas demo --open
 
-# 把任何已完成 Run 导出为独立媒体 DAG Viewer。
-uv run storycanvas canvas-export \
-  --run-dir /path/to/run-id --output-dir /path/to/canvas
+# 可选：加入本地 Mock 视频，需要 ffmpeg 和 ffprobe。
+uv run storycanvas demo --with-video --open
 ```
 
-通过本地静态服务器打开导出的 `index.html`。如需安装原生 ComfyUI 自定义节点，请看
-[ComfyUI 指南](docs/COMFYUI.md)。
+`demo` 始终使用随包分发的 Mock Profile，即使环境中有 API 密钥也不会切换到付费 Provider。
+命令会打印 Canvas、Run Manifest 和审计页面路径，默认写入 `output/demo`。
+重复运行会复用通过校验的产物，并保留其他 Run。示例输入和 Profile 已打入 wheel，安装后
+无需依赖仓库内的 `examples/` 目录。
+
+自定义故事、Provider 配置、视频续跑和机器可读输出见[上手指南](docs/GETTING_STARTED.md)。
+原生节点安装见 [ComfyUI 指南](docs/COMFYUI.md)。本轮基础优化与下一阶段建议见
+[路线图](docs/ROADMAP.md)。
 
 ## 四个核心概念
 
@@ -117,6 +123,10 @@ uv sync --extra dev --extra codex --extra demo
 uv run ruff check .
 uv run mypy --explicit-package-bases storycanvas_harness
 uv run pytest
+
+# Optional browser integration checks.
+uv run playwright install chromium
+STORYCANVAS_BROWSER_TESTS=1 uv run pytest -m browser
 ```
 
 代码采用 [Apache-2.0](LICENSE)。Moon Garden 的图片、视频、图数据、封面和动画采用

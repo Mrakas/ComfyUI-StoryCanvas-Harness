@@ -38,7 +38,7 @@ can become separate Python distributions without changing their public names.
 
 A failed startup enters `FAILED`. The registry starts a Plugin only after all
 required capabilities are active. A Profile binding selects one provider when
-multiple Plugins expose the same capability.
+multiple Plugins expose the same capability. Dependency startup waits for that exact binding; an unrelated active provider cannot satisfy it. Ambiguous required capabilities fail before activation. Startup failures and dependency cycles dispose resources already started.
 
 Profiles also contain an explicit `allow_permissions` list. A Plugin requesting
 a permission outside that list is rejected before `start()`. This is an
@@ -76,7 +76,7 @@ bindings, configuration, and admitted permissions. New Run identity includes
 that composition SHA plus the typed plan and execution policy, so switching a
 Plugin cannot silently reuse a Run created by another composition.
 
-An optional `evaluation.run` Plugin executes after media generation. Evaluation
+An optional `evaluation.run` Plugin executes after media generation in `assets` and `full` modes. It is skipped in `plan_only`. Evaluation
 outputs are admitted only when their IDs are unique, their files remain inside
 the Run root, their SHA-256 values match, and their receipts name the active
 evaluator. A failed evaluator is recorded as a real Run error and changes the

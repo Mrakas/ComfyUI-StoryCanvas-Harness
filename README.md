@@ -54,25 +54,32 @@ reveal the graph without calling a provider or spending money.
 
 ## Quick start
 
+Requires Python 3.10–3.13 and [uv](https://docs.astral.sh/uv/).
+
 ```bash
 git clone https://github.com/Mrakas/ComfyUI-StoryCanvas-Harness.git
 cd ComfyUI-StoryCanvas-Harness
-uv sync --extra dev
+uv sync
 
-# Typed, credential-free preview. No search, image, or video calls.
-STORYCANVAS_PROVIDER_MODE=mock uv run storycanvas plan \
-  --kind story --input examples/three_shot_story/input.json
+# Check local dependencies and configuration; no provider calls.
+uv run storycanvas doctor
 
-# Run the local conformance demos.
-uv run python scripts/run_plugin_demos.py
+# Generate three mock shots and open their Canvas. No keys or GPU needed.
+uv run storycanvas demo --open
 
-# Export any completed Run as a standalone media-DAG Viewer.
-uv run storycanvas canvas-export \
-  --run-dir /path/to/run-id --output-dir /path/to/canvas
+# Optional: add local mock videos (requires ffmpeg and ffprobe).
+uv run storycanvas demo --with-video --open
 ```
 
-Open the exported `index.html` through a local static server. To install StoryCanvas as native
-ComfyUI custom nodes, follow the [ComfyUI guide](docs/COMFYUI.md).
+`demo` always uses the bundled mock Profile, even if API keys are configured. It prints the
+Canvas, Run manifest, and audit paths; outputs default to `output/demo`. Repeating
+it reuses verified artifacts and preserves other runs. Both demo inputs and the Profile ship
+inside the Python wheel, so the same commands work outside a repository checkout.
+
+For a custom story, provider configuration, video continuation, and machine-readable CLI
+results, follow the [Getting started guide](docs/GETTING_STARTED.md). For native custom nodes,
+see the [ComfyUI guide](docs/COMFYUI.md). The [roadmap](docs/ROADMAP.md) separates this release's
+foundation work from proposed features.
 
 ## Four concepts
 
@@ -122,6 +129,10 @@ uv sync --extra dev --extra codex --extra demo
 uv run ruff check .
 uv run mypy --explicit-package-bases storycanvas_harness
 uv run pytest
+
+# Optional browser integration checks.
+uv run playwright install chromium
+STORYCANVAS_BROWSER_TESTS=1 uv run pytest -m browser
 ```
 
 Code is [Apache-2.0](LICENSE). Moon Garden images, videos, graph data, poster, and animation are
