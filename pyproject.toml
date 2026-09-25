@@ -35,7 +35,7 @@ dependencies = [
 
 [project.optional-dependencies]
 codex = [
-  "openai-codex==0.147.0",
+  "openai-codex==0.155.1",
 ]
 dev = [
   "bandit>=1.9,<2",
